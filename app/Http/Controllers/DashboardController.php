@@ -3,99 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\NavigationService;
 
 class DashboardController extends Controller
 {
+    protected $navigationService;
+
+    public function __construct(NavigationService $navigationService)
+    {
+        $this->navigationService = $navigationService;
+    }
+
     public function index()
     {
-        // Données pour les statistiques
-        $stats = [
-            'users' => [
-                'count' => 112000,
-                'icon' => 'ri-user-line',
-                'color' => 'purple',
-                'label' => 'Utilisateurs'
-            ],
-            'reports' => [
-                'count' => 183000,
-                'icon' => 'ri-file-chart-line',
-                'color' => 'blue',
-                'label' => 'Rapports'
-            ],
-            'orders' => [
-                'count' => 80000,
-                'icon' => 'ri-shopping-cart-line',
-                'color' => 'green',
-                'label' => 'Commandes'
-            ],
-            'revenue' => [
-                'count' => '$112.000',
-                'icon' => 'ri-money-dollar-circle-line',
-                'color' => 'red',
-                'label' => 'Revenus'
-            ]
-        ];
-
-        // Navigation dynamique
-        $navigation = [
-            [
-                'title' => 'Menu',
-                'type' => 'title'
-            ],
-            [
-                'title' => 'Dashboard',
-                'icon' => 'ri-dashboard-line',
-                'url' => route('dashboard'),
-                'active' => true,
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Utilisateurs',
-                'icon' => 'ri-user-line',
-                'url' => '#',
-                'active' => false,
-                'badge' => '12',
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Paramètres',
-                'icon' => 'ri-settings-line',
-                'url' => '#',
-                'active' => false,
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Rapports',
-                'icon' => 'ri-file-chart-line',
-                'url' => '#',
-                'active' => false,
-                'badge' => '3',
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Messages',
-                'icon' => 'ri-message-2-line',
-                'url' => '#',
-                'active' => false,
-                'badge' => '5',
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Notifications',
-                'icon' => 'ri-notification-line',
-                'url' => '#',
-                'active' => false,
-                'badge' => '2',
-                'type' => 'item'
-            ]
-        ];
+        // Utiliser le service de navigation
+        $navigation = $this->navigationService->getNavigation();
+        $stats = $this->navigationService->getDashboardStats();
 
         // Informations utilisateur
         $user = [
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => auth()->user()->full_name,
+            'email' => auth()->user()->email,
             'avatar' => asset('wowdash/images/avatar/avatar1.png'),
-            'role' => 'Administrateur',
+            'role' => ucfirst(auth()->user()->role),
             'lastLogin' => 'Il y a 2 heures'
         ];
 
@@ -190,5 +120,35 @@ class DashboardController extends Controller
         ];
 
         return view('dashboard', compact('stats', 'navigation', 'user', 'recentActivity', 'tasks', 'notifications'));
+    }
+
+    // Dashboard Admin - Accès complet
+    public function adminDashboard()
+    {
+        $user = auth()->user();
+        $navigation = $this->navigationService->getNavigation();
+        $stats = $this->navigationService->getDashboardStats();
+
+        return view('dashboards.admin', compact('stats', 'user', 'navigation'));
+    }
+
+    // Dashboard Manager - Accès limité
+    public function managerDashboard()
+    {
+        $user = auth()->user();
+        $navigation = $this->navigationService->getNavigation();
+        $stats = $this->navigationService->getDashboardStats();
+
+        return view('dashboards.manager', compact('stats', 'user', 'navigation'));
+    }
+
+    // Dashboard User - Accès basique
+    public function userDashboard()
+    {
+        $user = auth()->user();
+        $navigation = $this->navigationService->getNavigation();
+        $stats = $this->navigationService->getDashboardStats();
+
+        return view('dashboards.user', compact('stats', 'user', 'navigation'));
     }
 }

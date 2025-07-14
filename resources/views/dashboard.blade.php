@@ -36,49 +36,7 @@
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
 </head>
 <body>
-<aside class="sidebar">
-    <button type="button" class="sidebar-close-btn">
-        <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
-    </button>
-    <div>
-        <a href="{{ route('dashboard') }}" class="sidebar-logo">
-            <img src="{{ asset('wowdash/images/logo.png') }}" alt="site logo" class="light-logo">
-            <img src="{{ asset('wowdash/images/logo-light.png') }}" alt="site logo" class="dark-logo">
-            <img src="{{ asset('wowdash/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
-        </a>
-    </div>
-    <div class="sidebar-menu-area">
-        <ul class="sidebar-menu" id="sidebar-menu">
-            <li class="dropdown">
-                <a href="javascript:void(0)">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
-                    <span>Dashboard</span>
-                </a>
-                <ul class="sidebar-submenu">
-                    <li>
-                        <a href="{{ route('dashboard') }}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Analytics</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="sidebar-menu-group-title">Application</li>
-            @foreach($navigation as $item)
-                @if($item['type'] == 'title')
-                    <li class="sidebar-menu-group-title">{{ $item['title'] }}</li>
-                @else
-                    <li>
-                        <a href="{{ $item['url'] }}">
-                            <i class="{{ $item['icon'] }} menu-icon"></i>
-                            <span>{{ $item['title'] }}</span>
-                            @if(isset($item['badge']))
-                                <span class="badge bg-danger ms-auto">{{ $item['badge'] }}</span>
-                            @endif
-                        </a>
-                    </li>
-                @endif
-            @endforeach
-        </ul>
-    </div>
-</aside>
+@include('partials.sidebar')
 
 <main class="dashboard-main">
     <div class="navbar-header">
@@ -160,8 +118,11 @@
                                     <iconify-icon icon="icon-park-outline:setting-two" class="icon text-xl"></iconify-icon> Paramètres</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="javascript:void(0)"> 
-                                    <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Déconnexion</a>
+                                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3 w-100 border-0 bg-transparent"> 
+                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Déconnexion</button>
+                                    </form>
                                 </li>
                             </ul>
                         </div>
@@ -203,7 +164,7 @@
                             </div>
                             <div class="col-md-8">
                                 <div class="row g-3">
-                                    @foreach(['users', 'reports', 'orders', 'revenue'] as $statKey)
+                                    @foreach(array_keys($stats) as $statKey)
                                     <div class="col-sm-6 col-xs-6">
                                         <div class="radius-8 h-100 text-center p-20 bg-{{ $stats[$statKey]['color'] }}-light">
                                             <span class="w-44-px h-44-px radius-8 d-inline-flex justify-content-center align-items-center text-xl mb-12 bg-{{ $stats[$statKey]['color'] }}-200 border border-{{ $stats[$statKey]['color'] }}-400 text-{{ $stats[$statKey]['color'] }}-600">
@@ -248,272 +209,52 @@
                             </li>
                             <li class="d-flex flex-column gap-1">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="w-8-px h-8-px rounded-pill bg-lilac-600"></span>
-                                    <span class="text-secondary-light text-sm fw-semibold">Perte </span>
+                                    <span class="w-8-px h-8-px rounded-pill bg-success-600"></span>
+                                    <span class="text-secondary-light text-sm fw-semibold">Revenus</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-8">
-                                    <h6 class="mb-0">$18,120</h6>
-                                    <span class="text-danger-600 d-flex align-items-center gap-1 text-sm fw-bolder">
-                                        10%
-                                        <i class="ri-arrow-down-s-fill d-flex"></i>
+                                    <h6 class="mb-0">$18,201</h6>
+                                    <span class="text-success-600 d-flex align-items-center gap-1 text-sm fw-bolder">
+                                        8%
+                                        <i class="ri-arrow-up-s-fill d-flex"></i>
                                     </span>
                                 </div>
                             </li>
                         </ul>
-                        <div id="revenueChart" class="apexcharts-tooltip-style-1"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-xxl-8">
-                <div class="card h-100">
-                <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
-                    <h6 class="text-lg fw-semibold mb-0">Activité récente</h6>
-                    <a href="javascript:void(0)" class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                    Voir tout
-                    <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
-                    </a>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive scroll-sm">
-                    <table class="table bordered-table mb-0 rounded-0 border-0">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="bg-transparent rounded-0">Utilisateur</th>
-                                <th scope="col" class="bg-transparent rounded-0">Action</th>
-                                <th scope="col" class="bg-transparent rounded-0">Temps</th>
-                                <th scope="col" class="bg-transparent rounded-0">Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentActivity as $activity)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-primary-100 flex-shrink-0 me-12">
-                                            <i class="{{ $activity['icon'] }} text-{{ $activity['color'] }}"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0">{{ $activity['user'] }}</h6>
-                                            <span class="text-sm text-secondary-light fw-medium">{{ $activity['action'] }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>{{ $activity['action'] }}</td>
-                                <td>{{ $activity['time'] }}</td>
-                                <td> <span class="bg-success-focus text-success-main px-10 py-4 radius-8 fw-medium text-sm">Terminé</span> </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
-                </div>
-            </div>
-            
-            <div class="col-xxl-4">
-                <div class="card h-100">
-                    <div class="card-body p-24">
-                      <div class="d-flex align-items-start flex-column gap-2">
-                        <h6 class="mb-2 fw-bold text-lg">Tâches en cours</h6>
-                        <span class="text-secondary-light">{{ count($tasks) }} tâches actives</span>
-                    </div>
-          
-                      <div class="d-flex flex-column gap-32 mt-32">
-                        @foreach($tasks as $task)
-                        <div class="d-flex align-items-center justify-content-between gap-3">
-                          <div class="d-flex align-items-center gap-3">
-                            <div class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-{{ $task['priority'] }}-100 flex-shrink-0">
-                                <i class="ri-task-line text-{{ $task['priority'] }}"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="text-md mb-0 fw-semibold">{{ $task['name'] }}</h6>
-                              <span class="text-sm text-secondary-light fw-normal">{{ $task['assignee'] }}</span>
-                            </div>
-                          </div>
-                          <div class="d-flex align-items-center gap-8">
-                              <span class="text-secondary-light text-md fw-medium">{{ $task['progress'] }}%</span>
-                              <span class="text-success-600 text-md fw-medium">{{ $task['deadline'] }}</span>
-                          </div>
-                        </div>
-                        @endforeach
-                      </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <footer class="d-footer">
-    <div class="row align-items-center justify-content-between">
-        <div class="col-auto">
-            <p class="mb-0">© 2024 WowDash. Tous droits réservés.</p>
-        </div>
-        <div class="col-auto">
-            <p class="mb-0">Créé avec <span class="text-primary-600">Laravel</span></p>
-        </div>
-    </div>
-</footer>
 </main>
-  <!-- jQuery library js -->
-  <script src="{{ asset('wowdash/js/lib/jquery-3.7.1.min.js') }}"></script>
-  <!-- Bootstrap js -->
-  <script src="{{ asset('wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
-  <!-- Apex Chart js -->
-  <script src="{{ asset('wowdash/js/lib/apexcharts.min.js') }}"></script>
-  <!-- Data Table js -->
-  <script src="{{ asset('wowdash/js/lib/dataTables.min.js') }}"></script>
-  <!-- Iconify Font js -->
-  <script src="{{ asset('wowdash/js/lib/iconify-icon.min.js') }}"></script>
-  <!-- jQuery UI js -->
-  <script src="{{ asset('wowdash/js/lib/jquery-ui.min.js') }}"></script>
-  <!-- Vector Map js -->
-  <script src="{{ asset('wowdash/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
-  <script src="{{ asset('wowdash/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
-  <!-- Popup js -->
-  <script src="{{ asset('wowdash/js/lib/magnifc-popup.min.js') }}"></script>
-  <!-- Slick Slider js -->
-  <script src="{{ asset('wowdash/js/lib/slick.min.js') }}"></script>
-  <!-- prism js -->
-  <script src="{{ asset('wowdash/js/lib/prism.js') }}"></script>
-  <!-- file upload js -->
-  <script src="{{ asset('wowdash/js/lib/file-upload.js') }}"></script>
-  <!-- audioplayer -->
-  <script src="{{ asset('wowdash/js/lib/audioplayer.js') }}"></script>
-  
-  <!-- main js -->
-  <script src="{{ asset('wowdash/js/app.js') }}"></script>
 
-<script>
-    // ===================== Revenue Chart Start =============================== 
-    function createChartTwo(chartId, color1, color2) {
-        var options = {
-            series: [{
-                name: 'series1',
-                data: [6, 20, 15, 48, 28, 55, 28, 52, 25, 32, 15, 25]
-            }, {
-                name: 'series2',
-                data: [0, 8, 4, 36, 16, 42, 16, 40, 12, 24, 4, 12]
-            }],
-            legend: {
-                show: false 
-            },
-            chart: {
-                type: 'area',
-                width: '100%',
-                height: 150,
-                toolbar: {
-                    show: false
-                },
-                padding: {
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 3,
-                colors: [color1, color2],
-                lineCap: 'round'
-            },
-            grid: {
-                show: true,
-                borderColor: '#D1D5DB',
-                strokeDashArray: 1,
-                position: 'back',
-                xaxis: {
-                    lines: {
-                        show: false
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                row: {
-                    colors: undefined,
-                    opacity: 0.5
-                },
-                column: {
-                    colors: undefined,
-                    opacity: 0.5
-                },
-                padding: {
-                    top: -20,
-                    right: 0,
-                    bottom: -10,
-                    left: 0
-                },
-            },
-            fill: {
-                type: 'gradient',
-                colors: [color1, color2],
-                gradient: {
-                    shade: 'light',
-                    type: 'vertical',
-                    shadeIntensity: 0.5,
-                    gradientToColors: [undefined, `${color2}00`],
-                    inverseColors: false,
-                    opacityFrom: [0.4, 0.6],
-                    opacityTo: [0.3, 0.3],
-                    stops: [0, 100],
-                },
-            },
-            markers: {
-                colors: [color1, color2],
-                strokeWidth: 2,
-                size: 0,
-                hover: {
-                    size: 8
-                }
-            },
-            
-            xaxis: {
-                labels: {
-                    show: false
-                },
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
-                tooltip: {
-                    enabled: false
-                },
-                labels: {
-                    formatter: function (value) {
-                        return value;
-                    },
-                    style: {
-                        fontSize: "14px"
-                    }
-                }
-            },
-            yaxis: {
-                labels: {
-                    formatter: function (value) {
-                    return "$" + value + "k";
-                    },
-                    style: {
-                    fontSize: "14px"
-                    }
-                },
-            },
-            tooltip: {
-                x: {
-                    format: 'dd/MM/yy HH:mm'
-                }
-            }
-        };
-
-        var chart = new ApexCharts(document.querySelector(`#${chartId}`), options);
-        chart.render();
-    }
-
-    createChartTwo('revenueChart', '#CD20F9', '#6593FF');
-    // ===================== Revenue Chart End =============================== 
-</script>
+<!-- jQuery library js -->
+<script src="{{ asset('wowdash/js/lib/jquery-3.7.1.min.js') }}"></script>
+<!-- Bootstrap js -->
+<script src="{{ asset('wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
+<!-- Apex Chart js -->
+<script src="{{ asset('wowdash/js/lib/apexcharts.min.js') }}"></script>
+<!-- Data Table js -->
+<script src="{{ asset('wowdash/js/lib/dataTables.min.js') }}"></script>
+<!-- Iconify Font js -->
+<script src="{{ asset('wowdash/js/lib/iconify-icon.min.js') }}"></script>
+<!-- jQuery UI js -->
+<script src="{{ asset('wowdash/js/lib/jquery-ui.min.js') }}"></script>
+<!-- Vector Map js -->
+<script src="{{ asset('wowdash/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
+<script src="{{ asset('wowdash/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
+<!-- Popup js -->
+<script src="{{ asset('wowdash/js/lib/magnifc-popup.min.js') }}"></script>
+<!-- Slick Slider js -->
+<script src="{{ asset('wowdash/js/lib/slick.min.js') }}"></script>
+<!-- prism js -->
+<script src="{{ asset('wowdash/js/lib/prism.js') }}"></script>
+<!-- file upload js -->
+<script src="{{ asset('wowdash/js/lib/file-upload.js') }}"></script>
+<!-- audioplayer -->
+<script src="{{ asset('wowdash/js/lib/audioplayer.js') }}"></script>
+<!-- main js -->
+<script src="{{ asset('wowdash/js/app.js') }}"></script>
 
 </body>
 </html>
