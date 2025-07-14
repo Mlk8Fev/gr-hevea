@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Script pour compiler les SCSS de WowDash
+echo "Compilation des fichiers SCSS de WowDash..."
+
+# Compiler le fichier principal
+npx sass public/wowdash/sass/main.scss:public/wowdash/css/style.css --style=compressed
+
+echo "Compilation terminée !" 
