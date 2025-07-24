@@ -55,6 +55,14 @@ class NavigationService
                 'type' => 'item'
             ],
             [
+                'title' => 'Gestion des Coopératives',
+                'icon' => 'ri-group-line',
+                'url' => route('admin.cooperatives.index'),
+                'active' => request()->routeIs('admin.cooperatives.*'),
+                'badge' => \App\Models\Cooperative::count(),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Gestion des Secteurs',
                 'icon' => 'ri-building-line',
                 'url' => route('admin.secteurs.index'),
@@ -246,6 +254,12 @@ class NavigationService
                 'icon' => 'ri-user-line',
                 'color' => 'purple',
                 'label' => 'Utilisateurs'
+            ],
+            'cooperatives' => [
+                'count' => \App\Models\Cooperative::count(),
+                'icon' => 'ri-group-line',
+                'color' => 'orange',
+                'label' => 'Coopératives'
             ],
             'sectors' => [
                 'count' => 25,

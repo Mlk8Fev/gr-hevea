@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         
         Route::resource('secteurs', SecteurController::class);
+        Route::resource('cooperatives', \App\Http\Controllers\CooperativeController::class);
     });
 });
 
