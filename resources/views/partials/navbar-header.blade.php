@@ -9,8 +9,8 @@
                 <button type="button" class="sidebar-mobile-toggle">
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
-                <form class="navbar-search" method="GET" action="{{ $searchRoute ?? '#' }}">
-                    <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="{{ $searchPlaceholder ?? 'Rechercher...' }}" value="{{ request('search') }}">
+                <form class="navbar-search">
+                    <input type="text" name="search" placeholder="Rechercher">
                     <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
                 </form>
             </div>

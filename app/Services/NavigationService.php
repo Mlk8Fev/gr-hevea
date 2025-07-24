@@ -78,6 +78,14 @@ class NavigationService
                 'type' => 'item'
             ],
             [
+                'title' => 'Gestion des Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'badge' => \App\Models\Producteur::count(),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Paramètres Système',
                 'icon' => 'ri-settings-3-line',
                 'url' => '#',

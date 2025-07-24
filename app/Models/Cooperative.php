@@ -34,4 +34,9 @@ class Cooperative extends Model
     {
         return $this->hasMany(CooperativeDocument::class);
     }
+
+    public function producteurs()
+    {
+        return $this->belongsToMany(Producteur::class);
+    }
 }
