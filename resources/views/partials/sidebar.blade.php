@@ -4,9 +4,9 @@
     </button>
     <div>
         <a href="{{ route('dashboard') }}" class="sidebar-logo">
-            <img src="{{ asset('wowdash/images/logo.png') }}" alt="site logo" class="light-logo">
-            <img src="{{ asset('wowdash/images/logo-light.png') }}" alt="site logo" class="dark-logo">
-            <img src="{{ asset('wowdash/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
+            <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="FPH-CI Logo" class="light-logo" style="max-width: 150px; height: auto;">
+            <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="FPH-CI Logo" class="dark-logo" style="max-width: 150px; height: auto;">
+            <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="FPH-CI Logo" class="logo-icon" style="max-width: 40px; height: auto;">
         </a>
     </div>
     <div class="sidebar-menu-area">

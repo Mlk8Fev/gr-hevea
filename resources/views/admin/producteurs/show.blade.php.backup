@@ -87,11 +87,12 @@
                                         @else
                                             <iconify-icon icon="solar:close-circle-bold" class="text-danger text-xl"></iconify-icon>
                                         @endif
-                                        <span class="fw-semibold">{{ $label }}</span>
-                                        @if($doc && $key === 'lettre_engagement')
-                                            <a href="{{ route('admin.admin.producteurs.documents.pdf', ['producteur' => $producteur->id, 'document' => $doc->id]) }}" class="btn btn-outline-primary btn-sm ms-2" target="_blank">Voir</a>
-                                            <a href="{{ route('admin.admin.producteurs.documents.pdf', ['producteur' => $producteur->id, 'document' => $doc->id]) }}?download=1" class="btn btn-outline-danger btn-sm ms-2">Télécharger PDF</a>
                                             <a href="{{ route('admin.producteurs.documents.edit', ['producteur' => $producteur->id, 'document' => $doc->id]) }}" class="btn btn-outline-warning btn-sm ms-2">Modifier</a>
+                                            <form action="{{ route('admin.producteurs.documents.destroy', ['producteur' => $producteur->id, 'document' => $doc->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette lettre d\'engagement ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger btn-sm ms-2">Supprimer</button>
+                                            </form>
                                             <form action="{{ route('admin.producteurs.documents.destroy', ['producteur' => $producteur->id, 'document' => $doc->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette lettre d\'engagement ?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -106,6 +107,12 @@
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-outline-danger btn-sm ms-2">Supprimer</button>
                                             </form>
+                                        @elseif($doc && $doc->fichier)
+                                            <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-primary btn-sm ms-2">Voir</a>
+                                        @elseif(!$doc && $key === 'lettre_engagement')
+                                            <a href="{{ route('admin.producteurs.documents.create', ['producteur' => $producteur->id, 'type' => $key]) }}" class="btn btn-outline-success btn-sm ms-2">Remplir digitalement</a>
+                                        @elseif(!$doc && $key === 'self_declaration')
+                                            <a href="{{ route('admin.producteurs.documents.create', ['producteur' => $producteur->id, 'type' => $key]) }}" class="btn btn-outline-success btn-sm ms-2">Remplir digitalement</a>
                                         @elseif($doc && $key === 'fiche_enquete')
                                             <a href="{{ route('admin.admin.producteurs.documents.pdf', ['producteur' => $producteur->id, 'document' => $doc->id]) }}" class="btn btn-outline-primary btn-sm ms-2" target="_blank">Voir</a>
                                             <a href="{{ route('admin.admin.producteurs.documents.pdf', ['producteur' => $producteur->id, 'document' => $doc->id]) }}?download=1" class="btn btn-outline-danger btn-sm ms-2">Télécharger PDF</a>
@@ -115,12 +122,6 @@
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-outline-danger btn-sm ms-2">Supprimer</button>
                                             </form>
-                                        @elseif($doc && $doc->fichier)
-                                            <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-primary btn-sm ms-2">Voir</a>
-                                        @elseif(!$doc && $key === 'lettre_engagement')
-                                            <a href="{{ route('admin.producteurs.documents.create', ['producteur' => $producteur->id, 'type' => $key]) }}" class="btn btn-outline-success btn-sm ms-2">Remplir digitalement</a>
-                                        @elseif(!$doc && $key === 'self_declaration')
-                                            <a href="{{ route('admin.producteurs.documents.create', ['producteur' => $producteur->id, 'type' => $key]) }}" class="btn btn-outline-success btn-sm ms-2">Remplir digitalement</a>
                                         @elseif(!$doc && $key === 'fiche_enquete')
                                             <a href="{{ route('admin.producteurs.documents.create', ['producteur' => $producteur->id, 'type' => $key]) }}" class="btn btn-outline-success btn-sm ms-2">Remplir digitalement</a>
                                         @endif

@@ -86,6 +86,34 @@ class NavigationService
                 'type' => 'item'
             ],
             [
+                'title' => 'Gestion Logistique',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Centres de Collecte',
+                'icon' => 'ri-map-pin-line',
+                'url' => route('admin.centres-collecte.index'),
+                'active' => request()->routeIs('admin.centres-collecte.*'),
+                'badge' => \App\Models\CentreCollecte::count(),
+                'type' => 'item'
+            ],
+                   [
+           'title' => 'Connaissements',
+           'icon' => 'ri-file-list-line',
+           'url' => route('admin.connaissements.index'),
+           'active' => request()->routeIs('admin.connaissements.*'),
+           'badge' => \App\Models\Connaissement::count(),
+           'type' => 'item'
+       ],
+       [
+           'title' => 'Tickets de Pesée',
+           'icon' => 'ri-scales-line',
+           'url' => route('admin.tickets-pesee.index'),
+           'active' => request()->routeIs('admin.tickets-pesee.*'),
+           'badge' => \App\Models\TicketPesee::count(),
+           'type' => 'item'
+       ],
+            [
                 'title' => 'Paramètres Système',
                 'icon' => 'ri-settings-3-line',
                 'url' => '#',
