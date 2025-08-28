@@ -105,14 +105,38 @@ class NavigationService
            'badge' => \App\Models\Connaissement::count(),
            'type' => 'item'
        ],
-       [
-           'title' => 'Tickets de Pesée',
-           'icon' => 'ri-scales-line',
-           'url' => route('admin.tickets-pesee.index'),
-           'active' => request()->routeIs('admin.tickets-pesee.*'),
-           'badge' => \App\Models\TicketPesee::count(),
-           'type' => 'item'
-       ],
+                   [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'badge' => \App\Models\TicketPesee::count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Finance',
+                'icon' => 'ri-money-dollar-circle-line',
+                'url' => route('admin.finance.index'),
+                'active' => request()->routeIs('admin.finance.*'),
+                'badge' => \App\Models\TicketPesee::where('statut', 'valide')->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Validation ENE CI',
+                'icon' => 'ri-shield-check-line',
+                'url' => route('admin.ene-validation.index'),
+                'active' => request()->routeIs('admin.ene-validation.*'),
+                'badge' => \App\Models\TicketPesee::where('statut', 'valide')->where('statut_ene', 'en_attente')->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Gestion des Factures',
+                'icon' => 'ri-file-list-3-line',
+                'url' => route('admin.factures.index'),
+                'active' => request()->routeIs('admin.factures.*'),
+                'badge' => \App\Models\Facture::where('statut', 'brouillon')->count(),
+                'type' => 'item'
+            ],
             [
                 'title' => 'Paramètres Système',
                 'icon' => 'ri-settings-3-line',

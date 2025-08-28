@@ -54,11 +54,28 @@
                             <option>50</option>
                             <option>100</option>
                         </select>
+                        
+                        <!-- Filtre par Statut -->
+                        <form class="d-flex align-items-center gap-2" method="GET" action="{{ route('admin.connaissements.index') }}">
+                            @if(request('search'))
+                                <input type="hidden" name="search" value="{{ request('search') }}">
+                            @endif
+                            <select name="statut" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
+                                <option value="all" {{ $statut === 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                                <option value="programme" {{ $statut === 'programme' ? 'selected' : '' }}>Programmé</option>
+                                <option value="valide" {{ $statut === 'valide' ? 'selected' : '' }}>Validé pour ticket de pesée</option>
+                            </select>
+                        </form>
+                        
                         <form class="navbar-search" method="GET" action="{{ route('admin.connaissements.index') }}">
+                            @if(request('statut') && request('statut') !== 'all')
+                                <input type="hidden" name="statut" value="{{ request('statut') }}">
+                            @endif
                             <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ request('search') }}">
                             <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
                         </form>
-                        @if(request('search'))
+                        
+                        @if(request('search') || (request('statut') && request('statut') !== 'all'))
                             <a href="{{ route('admin.connaissements.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
                                 <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
                                 Effacer les filtres
@@ -89,7 +106,7 @@
                         <tbody>
                             @foreach($connaissements as $index => $connaissement)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $connaissements->firstItem() + $index }}</td>
                                 <td>{{ $connaissement->numero }}</td>
                                 <td>{{ $connaissement->cooperative->nom }}</td>
                                 <td>{{ number_format($connaissement->poids_brut_estime, 2) }}</td>
@@ -150,23 +167,59 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Pagination -->
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
-                    <span>Affichage de 1 à {{ count($connaissements) }} sur {{ count($connaissements) }} entrées</span>
-                    <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-                        <li class="page-item">
-                            <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white" href="javascript:void(0)">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                            </a>
-                        </li>
-                    </ul>
+                    <span>Affichage de {{ $connaissements->firstItem() ?? 0 }} à {{ $connaissements->lastItem() ?? 0 }} sur {{ $connaissements->total() }} entrées</span>
+                    
+                    @if($connaissements->hasPages())
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center mb-0">
+                                <!-- Bouton Précédent -->
+                                @if($connaissements->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
+                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                                        </span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $connaissements->previousPageUrl() }}">
+                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                <!-- Pages -->
+                                @foreach($connaissements->getUrlRange(1, $connaissements->lastPage()) as $page => $url)
+                                    @if($page == $connaissements->currentPage())
+                                        <li class="page-item active">
+                                            <span class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $url }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endforeach
+
+                                <!-- Bouton Suivant -->
+                                @if($connaissements->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $connaissements->nextPageUrl() }}">
+                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
+                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                        </span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    @endif
                 </div>
             </div>
         </div>

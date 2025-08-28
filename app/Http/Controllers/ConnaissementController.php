@@ -22,15 +22,36 @@ class ConnaissementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $connaissements = Connaissement::with(['cooperative', 'centreCollecte', 'createdBy'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Récupérer les filtres
+        $statut = $request->get('statut', 'all');
+        $search = $request->get('search', '');
+        
+        // Construire la requête de base
+        $query = Connaissement::with(['cooperative', 'centreCollecte', 'createdBy']);
+        
+        // Appliquer le filtre de statut
+        if ($statut !== 'all') {
+            $query->where('statut', $statut);
+        }
+        
+        // Appliquer la recherche
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('numero', 'like', "%{$search}%")
+                  ->orWhereHas('cooperative', function($q2) use ($search) {
+                      $q2->where('nom', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Paginer les résultats
+        $connaissements = $query->orderBy('created_at', 'desc')->paginate(10);
         
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.connaissements.index', compact('connaissements', 'navigation'));
+        return view('admin.connaissements.index', compact('connaissements', 'navigation', 'statut', 'search'));
     }
 
     /**

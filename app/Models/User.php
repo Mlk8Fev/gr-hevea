@@ -18,14 +18,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'username',
         'name',
-        'nom',
-        'prenom',
         'email',
         'password',
+        'fonction_id',
+        'cooperative_id',
+        'centre_collecte_id',
         'role',
         'secteur',
-        'fonction',
         'siege',
         'status',
     ];
@@ -51,6 +52,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'siege' => 'boolean',
+            'peut_gerer_cooperative' => 'boolean'
         ];
     }
 
@@ -105,5 +107,45 @@ class User extends Authenticatable
     public function secteurRelation()
     {
         return $this->belongsTo(Secteur::class, 'secteur', 'code');
+    }
+
+    /**
+     * Relation avec la fonction
+     */
+    public function fonction()
+    {
+        return $this->belongsTo(Fonction::class);
+    }
+
+    /**
+     * Relation avec la coopérative
+     */
+    public function cooperative()
+    {
+        return $this->belongsTo(Cooperative::class);
+    }
+
+    /**
+     * Relation avec le centre de collecte
+     */
+    public function centreCollecte()
+    {
+        return $this->belongsTo(CentreCollecte::class);
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut gérer une coopérative
+     */
+    public function peutGererCooperative(): bool
+    {
+        return $this->fonction && $this->fonction->peut_gerer_cooperative;
+    }
+
+    /**
+     * Méthode pour vérifier le niveau d'accès
+     */
+    public function hasNiveauAcces($niveau): bool
+    {
+        return $this->fonction && $this->fonction->niveau_acces === $niveau;
     }
 }

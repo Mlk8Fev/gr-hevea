@@ -75,6 +75,14 @@
                         <label for="kilometrage" class="form-label">Kilométrage</label>
                         <input type="text" class="form-control" id="kilometrage" name="kilometrage" value="{{ old('kilometrage', $cooperative->kilometrage) }}">
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="a_sechoir" class="form-label">Séchoir</label>
+                        <select class="form-select" id="a_sechoir" name="a_sechoir">
+                            <option value="0" {{ old('a_sechoir', $cooperative->a_sechoir) == 0 ? 'selected' : '' }}>Non</option>
+                            <option value="1" {{ old('a_sechoir', $cooperative->a_sechoir) == 1 ? 'selected' : '' }}>Oui</option>
+                        </select>
+                        <div class="form-text">La coopérative dispose-t-elle d'un séchoir ?</div>
+                    </div>
                 </div>
                 <h5 class="mt-4">Données bancaires</h5>
                 <div class="row">
@@ -104,11 +112,29 @@
                             $doc = $cooperative->documents->where('type', $key)->first();
                         @endphp
                         @if($doc)
-                            <div class="mb-2">
-                                <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank">Document existant</a>
+                            <div class="mb-2 p-2 bg-success-focus border border-success-main radius-4">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <iconify-icon icon="solar:check-circle-bold" class="text-success"></iconify-icon>
+                                    <span class="text-success-600 fw-medium">Document déjà fourni</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-success btn-sm">
+                                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                                    Voir le document
+                                </a>
+                                <small class="text-muted d-block mt-1">Uploadé le {{ $doc->created_at->format('d/m/Y H:i') }}</small>
+                            </div>
+                        @else
+                            <div class="mb-2 p-2 bg-neutral-200 border border-neutral-400 radius-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <iconify-icon icon="solar:close-circle-bold" class="text-danger"></iconify-icon>
+                                    <span class="text-neutral-600">Document non fourni</span>
+                                </div>
                             </div>
                         @endif
                         <input type="file" class="form-control" id="{{ $key }}" name="{{ $key }}" accept=".pdf,image/*">
+                        @if($doc)
+                            <small class="form-text text-success">Un nouveau fichier remplacera l'ancien</small>
+                        @endif
                     </div>
                     @endforeach
                 </div>

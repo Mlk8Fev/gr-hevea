@@ -81,6 +81,17 @@
                                     <span class="fw-semibold">Kilométrage :</span> {{ $cooperative->kilometrage }}
                                 </div>
                             </li>
+                            <li class="list-group-item border text-secondary-light p-16 bg-base">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="d-flex"><iconify-icon icon="solar:fire-bold" class="text-xl text-warning"></iconify-icon></span>
+                                    <span class="fw-semibold">Séchoir :</span> 
+                                    @if($cooperative->a_sechoir)
+                                        <span class="badge bg-success">Oui</span>
+                                    @else
+                                        <span class="badge bg-secondary">Non</span>
+                                    @endif
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -121,9 +132,22 @@
                 </div>
                 <div class="card mb-24 radius-12">
                     <div class="card-header border-bottom bg-base py-16 px-24">
-                        <h6 class="text-lg fw-semibold mb-0">Documents de traçabilité</h6>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="text-lg fw-semibold mb-0">Documents de traçabilité</h6>
+                            <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning btn-sm">
+                                <iconify-icon icon="solar:pen-bold"></iconify-icon>
+                                Modifier les documents
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body p-24">
+                        <div class="alert alert-info mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <iconify-icon icon="solar:info-circle-bold"></iconify-icon>
+                                <strong>Information :</strong> Seuls les documents marqués d'une coche verte sont actuellement fournis. 
+                                Cliquez sur "Modifier les documents" pour ajouter ou remplacer des documents.
+                            </div>
+                        </div>
                         <ul class="list-group radius-8">
                             @foreach($documentTypes as $key => $label)
                                 @php $doc = $cooperative->documents->where('type', $key)->first(); @endphp
@@ -131,13 +155,11 @@
                                     <div class="d-flex align-items-center gap-2">
                                         @if($doc)
                                             <iconify-icon icon="solar:check-circle-bold" class="text-success text-xl"></iconify-icon>
-                                        @else
-                                            <iconify-icon icon="solar:close-circle-bold" class="text-danger text-xl"></iconify-icon>
-                                        @endif
-                                        <span class="fw-semibold">{{ $label }}</span>
-                                        @if($doc)
+                                            <span class="fw-semibold">{{ $label }}</span>
                                             <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-primary btn-sm ms-2">Voir</a>
                                         @else
+                                            <iconify-icon icon="solar:close-circle-bold" class="text-danger text-xl"></iconify-icon>
+                                            <span class="fw-semibold">{{ $label }}</span>
                                             <span class="text-muted ms-2">Non fourni</span>
                                         @endif
                                     </div>

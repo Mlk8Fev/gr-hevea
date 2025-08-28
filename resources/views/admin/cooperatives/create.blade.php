@@ -69,6 +69,14 @@
                         <label for="kilometrage" class="form-label">Kilométrage</label>
                         <input type="text" class="form-control" id="kilometrage" name="kilometrage" value="{{ old('kilometrage') }}">
                     </div>
+                    <div class="col-md-6">
+                        <label for="a_sechoir" class="form-label">Séchoir</label>
+                        <select class="form-select" id="a_sechoir" name="a_sechoir">
+                            <option value="0" {{ old('a_sechoir') == '0' ? 'selected' : '' }}>Non</option>
+                            <option value="1" {{ old('a_sechoir') == '1' ? 'selected' : '' }}>Oui</option>
+                        </select>
+                        <div class="form-text">La coopérative dispose-t-elle d'un séchoir ?</div>
+                    </div>
                 </div>
             </div>
             <div class="card p-24 radius-12 mb-24">

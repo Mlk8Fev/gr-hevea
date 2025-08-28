@@ -60,7 +60,6 @@
                                 <label for="code" class="form-label">Code *</label>
                                 <input type="text" class="form-control @error('code') is-invalid @enderror" 
                                        id="code" name="code" value="{{ old('code', $centres_collecte->code) }}" 
-                                       placeholder="Ex: CC1, CC2, etc." required>
                                 @error('code')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

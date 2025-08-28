@@ -166,7 +166,38 @@
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
                         </select>
                     </form>
-                    @if(request('search') || (request('status') && request('status') !== 'all'))
+                    <form method="GET" action="{{ route('admin.users.index') }}" class="d-inline">
+                        @if(request('search'))
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                        @endif
+                        @if(request('status') && request('status') !== 'all')
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                        @endif
+                        <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" name="fonction_id" onchange="this.form.submit()">
+                            <option value="all" {{ request('fonction_id') == 'all' || !request('fonction_id') ? 'selected' : '' }}>Toutes les fonctions</option>
+                            @foreach($fonctions as $fonction)
+                                <option value="{{ $fonction->id }}" {{ request('fonction_id') == $fonction->id ? 'selected' : '' }}>{{ $fonction->nom }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+                    <form method="GET" action="{{ route('admin.users.index') }}" class="d-inline">
+                        @if(request('search'))
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                        @endif
+                        @if(request('status') && request('status') !== 'all')
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                        @endif
+                        @if(request('fonction_id') && request('fonction_id') !== 'all')
+                            <input type="hidden" name="fonction_id" value="{{ request('fonction_id') }}">
+                        @endif
+                        <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" name="cooperative_id" onchange="this.form.submit()">
+                            <option value="all" {{ request('cooperative_id') == 'all' || !request('cooperative_id') ? 'selected' : '' }}>Toutes les coopératives</option>
+                            @foreach($cooperatives as $cooperative)
+                                <option value="{{ $cooperative->id }}" {{ request('cooperative_id') == $cooperative->id ? 'selected' : '' }}>{{ $cooperative->nom }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+                    @if(request('search') || (request('status') && request('status') !== 'all') || (request('fonction_id') && request('fonction_id') !== 'all') || (request('cooperative_id') && request('cooperative_id') !== 'all'))
                         <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
                             <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
                             Effacer les filtres
@@ -203,8 +234,8 @@
                                     </div>
                                 </td>
                                 <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $user->email }}</span></td>
-                                <td>{{ $user->secteur ?: 'Non défini' }}</td>
-                                <td>{{ $user->fonction ?: 'Non défini' }}</td>
+                                <td>{{ $user->secteurRelation ? $user->secteurRelation->nom : 'Non défini' }}</td>
+                                <td>{{ $user->fonction ? $user->fonction->nom : 'Non défini' }}</td>
                                 <td class="text-center">
                                     @if($user->status === 'active')
                                         <span class="bg-success-focus text-success-600 border border-success-main px-24 py-4 radius-4 fw-medium text-sm">Active</span>
@@ -215,19 +246,33 @@
                                 <td class="text-center">
                                     <div class="d-flex align-items-center gap-10 justify-content-center">
                                         <!-- Bouton Voir -->
-                                        <button type="button" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Voir">
+                                        <button type="button" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle show-user-btn" 
+                                                data-user="{{ $user->id }}"
+                                                data-name="{{ $user->name }}"
+                                                data-username="{{ $user->username }}"
+                                                data-email="{{ $user->email }}"
+                                                data-role="{{ $user->role }}"
+                                                data-secteur="{{ $user->secteur }}"
+                                                data-fonction="{{ $user->fonction ? $user->fonction->nom : 'Non défini' }}"
+                                                data-cooperative="{{ $user->cooperative ? $user->cooperative->nom : 'Non défini' }}"
+                                                data-siege="{{ $user->siege ? 'Oui' : 'Non' }}"
+                                                data-status="{{ $user->status }}"
+                                                data-created="{{ $user->created_at->format('d/m/Y H:i') }}"
+                                                data-updated="{{ $user->updated_at->format('d/m/Y H:i') }}"
+                                                title="Voir">
                                             <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                         </button>
                                         
                                         <!-- Bouton Modifier (Vert) -->
                                         <button type="button" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle edit-user-btn" 
                                                 data-user="{{ $user->id }}"
-                                                data-prenom="{{ $user->prenom }}"
-                                                data-nom="{{ $user->nom }}"
+                                                data-username="{{ $user->username }}"
+                                                data-name="{{ $user->name }}"
                                                 data-email="{{ $user->email }}"
                                                 data-role="{{ $user->role }}"
                                                 data-secteur="{{ $user->secteur }}"
-                                                data-fonction="{{ $user->fonction }}"
+                                                data-fonction="{{ $user->fonction ? $user->fonction->id : '' }}"
+                                                data-cooperative="{{ $user->cooperative ? $user->cooperative->id : '' }}"
                                                 data-siege="{{ $user->siege ? '1' : '0' }}"
                                                 data-status="{{ $user->status }}"
                                                 title="Modifier">
@@ -299,26 +344,27 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="prenom" class="form-label">Prénom *</label>
-                            <input type="text" class="form-control" id="prenom" name="prenom" required>
+                            <label for="username" class="form-label">Nom d'utilisateur *</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="nom" class="form-label">Nom *</label>
-                            <input type="text" class="form-control" id="nom" name="nom" required>
+                            <label for="name" class="form-label">Nom complet *</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Prénom + Nom" required>
                         </div>
                     </div>
                     <div class="row">
+
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email *</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="password" class="form-label">Mot de passe *</label>
                             <input type="password" class="form-control" id="password" name="password" required minlength="8">
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="role" class="form-label">Rôle *</label>
                             <select class="form-select" id="role" name="role" required>
                                 <option value="">Sélectionner un rôle</option>
@@ -328,7 +374,30 @@
                                 <option value="user">Utilisateur</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="fonction_id" class="form-label">Fonction *</label>
+                            <select class="form-select" id="fonction_id" name="fonction_id" required>
+                                <option value="">Sélectionner une fonction</option>
+                                @foreach($fonctions as $fonction)
+                                    <option value="{{ $fonction->id }}">{{ $fonction->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cooperative_id" class="form-label">Coopérative</label>
+                            <select class="form-select" id="cooperative_id" name="cooperative_id">
+                                <option value="">Sélectionner une coopérative</option>
+                                @foreach($cooperatives as $cooperative)
+                                    <option value="{{ $cooperative->id }}">{{ $cooperative->nom }} ({{ $cooperative->code }})</option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">Obligatoire si la fonction nécessite une coopérative</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label for="secteur" class="form-label">Secteur</label>
                             <select class="form-select" id="secteur" name="secteur">
                                 <option value="">Sélectionner un secteur</option>
@@ -337,23 +406,20 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="fonction" class="form-label">Fonction</label>
-                            <input type="text" class="form-control" id="fonction" name="fonction" placeholder="Ex: Chef de service">
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="siege" name="siege" value="1">
                                 <label class="form-check-label" for="siege">
-                                    Accès siège (accès global)
+                                    Utilisateur du siège
                                 </label>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="status" class="form-label">Statut *</label>
                             <select class="form-select" id="status" name="status" required>
+                                <option value="">Sélectionner un statut</option>
                                 <option value="active">Actif</option>
                                 <option value="inactive">Inactif</option>
                             </select>
@@ -389,12 +455,12 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="edit_prenom" class="form-label">Prénom *</label>
-                            <input type="text" class="form-control" id="edit_prenom" name="prenom" required>
+                            <label for="edit_username" class="form-label">Nom d'utilisateur *</label>
+                            <input type="text" class="form-control" id="edit_username" name="username" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="edit_nom" class="form-label">Nom *</label>
-                            <input type="text" class="form-control" id="edit_nom" name="nom" required>
+                            <label for="edit_name" class="form-label">Nom complet *</label>
+                            <input type="text" class="form-control" id="edit_name" name="name" placeholder="Prénom + Nom" required>
                         </div>
                     </div>
                     <div class="row">
@@ -408,7 +474,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="edit_role" class="form-label">Rôle *</label>
                             <select class="form-select" id="edit_role" name="role" required>
                                 <option value="">Sélectionner un rôle</option>
@@ -418,7 +484,28 @@
                                 <option value="user">Utilisateur</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_fonction_id" class="form-label">Fonction *</label>
+                            <select class="form-select" id="edit_fonction_id" name="fonction_id" required>
+                                <option value="">Sélectionner une fonction</option>
+                                @foreach($fonctions as $fonction)
+                                    <option value="{{ $fonction->id }}">{{ $fonction->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_cooperative_id" class="form-label">Coopérative</label>
+                            <select class="form-select" id="edit_cooperative_id" name="cooperative_id">
+                                <option value="">Sélectionner une coopérative</option>
+                                @foreach($cooperatives as $cooperative)
+                                    <option value="{{ $cooperative->id }}">{{ $cooperative->nom }} ({{ $cooperative->code }})</option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">Obligatoire si la fonction nécessite une coopérative</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label for="edit_secteur" class="form-label">Secteur</label>
                             <select class="form-select" id="edit_secteur" name="secteur">
                                 <option value="">Sélectionner un secteur</option>
@@ -427,23 +514,20 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="edit_fonction" class="form-label">Fonction</label>
-                            <input type="text" class="form-control" id="edit_fonction" name="fonction" placeholder="Ex: Chef de service">
-                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="edit_siege" name="siege" value="1">
                                 <label class="form-check-label" for="edit_siege">
-                                    Accès siège (accès global)
+                                    Utilisateur du siège
                                 </label>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="edit_status" class="form-label">Statut *</label>
                             <select class="form-select" id="edit_status" name="status" required>
+                                <option value="">Sélectionner un statut</option>
                                 <option value="active">Actif</option>
                                 <option value="inactive">Inactif</option>
                             </select>
@@ -459,6 +543,94 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Voir Utilisateur -->
+<div class="modal fade" id="showUserModal" tabindex="-1" aria-labelledby="showUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="showUserModalLabel">
+                    <i class="ri-user-line me-2"></i>Détails de l'utilisateur
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Informations de base</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">ID :</td>
+                                <td id="show_user_id"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Nom d'utilisateur :</td>
+                                <td id="show_username"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Nom complet :</td>
+                                <td id="show_name"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Email :</td>
+                                <td id="show_email"></td>
+                                </tr>
+                            <tr>
+                                <td class="fw-bold">Rôle :</td>
+                                <td id="show_role"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Informations professionnelles</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">Fonction :</td>
+                                <td id="show_fonction"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Coopérative :</td>
+                                <td id="show_cooperative"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Secteur :</td>
+                                <td id="show_secteur"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Utilisateur du siège :</td>
+                                <td id="show_siege"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Statut :</td>
+                                <td id="show_status"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-primary mb-3">Informations système</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">Créé le :</td>
+                                <td id="show_created"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Dernière modification :</td>
+                                <td id="show_updated"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i>Fermer
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -493,25 +665,74 @@
 
 <script>
 $(document).ready(function() {
-    // Gestion du bouton Éditer
-    $('.edit-user-btn').on('click', function() {
+    // Gestion du bouton Voir
+    $('.show-user-btn').on('click', function() {
         var userId = $(this).data('user');
-        var prenom = $(this).data('prenom');
-        var nom = $(this).data('nom');
+        var name = $(this).data('name');
+        var username = $(this).data('username');
         var email = $(this).data('email');
         var role = $(this).data('role');
         var secteur = $(this).data('secteur');
         var fonction = $(this).data('fonction');
+        var cooperative = $(this).data('cooperative');
+        var siege = $(this).data('siege');
+        var status = $(this).data('status');
+        var created = $(this).data('created');
+        var updated = $(this).data('updated');
+
+        // Remplir le modal de visualisation
+        $('#show_user_id').text(userId);
+        $('#show_username').text(username);
+        $('#show_name').text(name);
+        $('#show_email').text(email);
+        $('#show_role').text(role);
+        $('#show_secteur').text(secteur || 'Non défini');
+        $('#show_fonction').text(fonction);
+        $('#show_cooperative').text(cooperative);
+        $('#show_siege').text(siege);
+        $('#show_status').text(status === 'active' ? 'Actif' : 'Inactif');
+        $('#show_created').text(created);
+        $('#show_updated').text(updated);
+
+        // Ouvrir le modal
+        $('#showUserModal').modal('show');
+    });
+
+    // Gestion du bouton Éditer
+    $('.edit-user-btn').on('click', function() {
+        var userId = $(this).data('user');
+        var username = $(this).data('username');
+        var name = $(this).data('name');
+        var email = $(this).data('email');
+        var role = $(this).data('role');
+        var secteur = $(this).data('secteur');
+        var fonction = $(this).data('fonction');
+        var cooperative = $(this).data('cooperative');
         var siege = $(this).data('siege');
         var status = $(this).data('status');
 
-        // Remplir le formulaire d'édition
-        $('#edit_prenom').val(prenom);
-        $('#edit_nom').val(nom);
+        // Afficher les données récupérées dans la console pour déboguer
+        console.log('=== DONNÉES RÉCUPÉRÉES POUR L\'ÉDITION ===');
+        console.log('ID:', userId);
+        console.log('Username:', username);
+        console.log('Name:', name);
+        console.log('Email:', email);
+        console.log('Role:', role);
+        console.log('Secteur:', secteur);
+        console.log('Fonction:', fonction);
+        console.log('Coopérative:', cooperative);
+        console.log('Siège:', siege);
+        console.log('Status:', status);
+        console.log('==========================================');
+
+        // Remplir TOUS les champs du formulaire d'édition avec les données existantes
+        $('#edit_username').val(username);
+        $('#edit_name').val(name);
         $('#edit_email').val(email);
         $('#edit_role').val(role);
         $('#edit_secteur').val(secteur);
-        $('#edit_fonction').val(fonction);
+        $('#edit_fonction_id').val(fonction);
+        $('#edit_cooperative_id').val(cooperative);
         $('#edit_status').val(status);
         
         // Gérer la checkbox siège
@@ -547,6 +768,58 @@ $(document).ready(function() {
     $(".remove-item-btn").on("click", function() {
         $(this).closest("tr").addClass("d-none");
     });
+
+    // Validation intelligente du champ coopérative (Modal Ajout)
+    $('#fonction_id').on('change', function() {
+        var selectedFonction = $(this).val();
+        var cooperativeSelect = $('#cooperative_id');
+        
+        if (selectedFonction) {
+            // Récupérer le nom de la fonction sélectionnée
+            var fonctionText = $(this).find('option:selected').text();
+            
+            // Vérifier si la fonction nécessite une coopérative
+            var cooperativeRequired = ['Responsable Coopérative', 'Chef de Coopérative'].includes(fonctionText);
+            
+            if (cooperativeRequired) {
+                cooperativeSelect.prop('required', true);
+                cooperativeSelect.addClass('is-invalid');
+                cooperativeSelect.siblings('.form-text').addClass('text-danger').removeClass('text-muted');
+            } else {
+                cooperativeSelect.prop('required', false);
+                cooperativeSelect.removeClass('is-invalid');
+                cooperativeSelect.siblings('.form-text').removeClass('text-danger').addClass('text-muted');
+            }
+        }
+    });
+
+    // Validation intelligente du champ coopérative (Modal Édition)
+    $('#edit_fonction_id').on('change', function() {
+        var selectedFonction = $(this).val();
+        var cooperativeSelect = $('#edit_cooperative_id');
+        
+        if (selectedFonction) {
+            // Récupérer le nom de la fonction sélectionnée
+            var fonctionText = $(this).find('option:selected').text();
+            
+            // Vérifier si la fonction nécessite une coopérative
+            var cooperativeRequired = ['Responsable Coopérative', 'Chef de Coopérative'].includes(fonctionText);
+            
+            if (cooperativeRequired) {
+                cooperativeSelect.prop('required', true);
+                cooperativeSelect.addClass('is-invalid');
+                cooperativeSelect.siblings('.form-text').addClass('text-danger').removeClass('text-muted');
+            } else {
+                cooperativeSelect.prop('required', false);
+                cooperativeSelect.removeClass('is-invalid');
+                cooperativeSelect.siblings('.form-text').removeClass('text-danger').addClass('text-muted');
+            }
+        }
+    });
+
+    // Vérifier au chargement de la page
+    $('#fonction_id').trigger('change');
+    $('#edit_fonction_id').trigger('change');
 });
 </script>
 

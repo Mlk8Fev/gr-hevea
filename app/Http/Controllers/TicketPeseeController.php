@@ -20,15 +20,39 @@ class TicketPeseeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tickets = TicketPesee::with(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Récupérer les filtres
+        $statut = $request->get('statut', 'all');
+        $search = $request->get('search', '');
+        
+        // Construire la requête de base
+        $query = TicketPesee::with(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy']);
+        
+        // Appliquer le filtre de statut
+        if ($statut !== 'all') {
+            $query->where('statut', $statut);
+        }
+        
+        // Appliquer la recherche
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('numero_ticket', 'like', "%{$search}%")
+                  ->orWhereHas('connaissement.cooperative', function($q2) use ($search) {
+                      $q2->where('nom', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('connaissement', function($q2) use ($search) {
+                      $q2->where('numero', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Paginer les résultats
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(10);
         
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.tickets-pesee.index', compact('tickets', 'navigation'));
+        return view('admin.tickets-pesee.index', compact('tickets', 'navigation', 'statut', 'search'));
     }
 
     /**

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TicketPesee extends Model
 {
@@ -43,9 +45,13 @@ class TicketPesee extends Model
         'nom_peseur',
         'signature',
         'statut',
+        'statut_ene',
         'created_by',
         'validated_by',
-        'date_validation'
+        'valide_par_ene',
+        'date_validation',
+        'date_validation_ene',
+        'commentaire_ene'
     ];
 
     protected $casts = [
@@ -62,7 +68,8 @@ class TicketPesee extends Model
         'heure_entree' => 'datetime',
         'date_sortie' => 'date',
         'heure_sortie' => 'datetime',
-        'date_validation' => 'datetime'
+        'date_validation' => 'datetime',
+        'date_validation_ene' => 'datetime'
     ];
 
     // Relations
@@ -76,9 +83,30 @@ class TicketPesee extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function validatedBy()
+    /**
+     * Relation avec l'utilisateur qui a validé le ticket
+     */
+    public function validatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'validated_by');
+    }
+
+    /**
+     * Relation avec l'utilisateur qui a validé par ENE CI
+     */
+    public function valideParEne(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'valide_par_ene');
+    }
+
+    /**
+     * Relation many-to-many avec les factures
+     */
+    public function factures(): BelongsToMany
+    {
+        return $this->belongsToMany(Facture::class, 'facture_ticket_pesee')
+                    ->withPivot('montant_ticket')
+                    ->withTimestamps();
     }
 
     // Scopes

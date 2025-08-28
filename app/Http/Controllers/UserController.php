@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Fonction;
+use App\Models\Cooperative;
+use App\Models\Secteur;
+use App\Models\CentreCollecte;
 use App\Services\NavigationService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -16,20 +21,25 @@ class UserController extends Controller
         $this->navigationService = $navigationService;
     }
 
-    // Afficher la liste des utilisateurs (superadmin seulement)
+    // Afficher la liste des utilisateurs
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::with(['fonction', 'cooperative', 'secteurRelation', 'centreCollecte'])
+                    ->orderBy('created_at', 'desc');
 
-        // Recherche par nom, prénom, email
+        // Filtre de recherche
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nom', 'LIKE', "%{$search}%")
-                  ->orWhere('prenom', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('secteur', 'LIKE', "%{$search}%")
-                  ->orWhere('fonction', 'LIKE', "%{$search}%");
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'LIKE', "%{$request->search}%")
+                  ->orWhere('username', 'LIKE', "%{$request->search}%")
+                  ->orWhere('email', 'LIKE', "%{$request->search}%")
+                  ->orWhere('secteur', 'LIKE', "%{$request->search}%")
+                  ->orWhereHas('fonction', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%");
+                  })
+                  ->orWhereHas('cooperative', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%");
+                  });
             });
         }
 
@@ -38,44 +48,70 @@ class UserController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filtre par fonction
+        if ($request->filled('fonction_id') && $request->fonction_id !== 'all') {
+            $query->where('fonction_id', $request->fonction_id);
+        }
+
+        // Filtre par coopérative
+        if ($request->filled('cooperative_id') && $request->cooperative_id !== 'all') {
+            $query->where('cooperative_id', $request->cooperative_id);
+        }
+
         $users = $query->get();
-        $secteurs = \App\Models\Secteur::orderBy('code')->get();
+        $secteurs = Secteur::orderBy('code')->get();
+        $fonctions = Fonction::orderBy('nom')->get();
+        $cooperatives = Cooperative::orderBy('nom')->get();
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.users.wowdash', compact('users', 'secteurs', 'navigation'));
+        return view('admin.users.wowdash', compact('users', 'secteurs', 'fonctions', 'cooperatives', 'navigation'));
     }
 
-    // Afficher le formulaire de création d'utilisateur
+    // Afficher le formulaire de création
     public function create()
     {
+        $fonctions = Fonction::orderBy('nom')->get();
+        $cooperatives = Cooperative::orderBy('nom')->get();
+        $secteurs = Secteur::orderBy('code')->get();
+        $centresCollecte = CentreCollecte::orderBy('nom')->get();
         $navigation = $this->navigationService->getNavigation();
-        return view('admin.users.create', compact('navigation'));
+        
+        return view('admin.users.create', compact('fonctions', 'cooperatives', 'secteurs', 'centresCollecte', 'navigation'));
     }
 
-    // Créer un nouvel utilisateur
+    // Enregistrer un nouvel utilisateur
     public function store(Request $request)
     {
         $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => 'required|in:superadmin,admin,manager,user',
             'secteur' => 'nullable|string|max:255',
-            'fonction' => 'nullable|string|max:255',
+            'fonction_id' => 'required|exists:fonctions,id',
+            'cooperative_id' => 'nullable|exists:cooperatives,id',
+            'centre_collecte_id' => 'nullable|exists:centres_collecte,id',
             'siege' => 'boolean',
             'status' => 'required|in:active,inactive'
         ]);
 
+        // Vérifier si la fonction nécessite une coopérative
+        $fonction = Fonction::find($request->fonction_id);
+        if ($fonction && $fonction->peut_gerer_cooperative && !$request->cooperative_id) {
+            return back()->withErrors(['cooperative_id' => 'Cette fonction nécessite de spécifier une coopérative.']);
+        }
+
         User::create([
-            'name' => $request->prenom . ' ' . $request->nom,
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
+            'username' => $request->username,
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'secteur' => $request->secteur,
-            'fonction' => $request->fonction,
+            'fonction_id' => $request->fonction_id,
+            'cooperative_id' => $request->cooperative_id,
+            'centre_collecte_id' => $request->centre_collecte_id,
             'siege' => $request->siege ?? false,
             'status' => $request->status,
         ]);
@@ -86,62 +122,93 @@ class UserController extends Controller
     // Afficher le formulaire d'édition
     public function edit(User $user)
     {
+        $fonctions = Fonction::orderBy('nom')->get();
+        $cooperatives = Cooperative::orderBy('nom')->get();
+        $secteurs = Secteur::orderBy('code')->get();
+        $centresCollecte = CentreCollecte::orderBy('nom')->get();
         $navigation = $this->navigationService->getNavigation();
-        return view('admin.users.edit', compact('user', 'navigation'));
+        
+        return view('admin.users.edit', compact('user', 'fonctions', 'cooperatives', 'secteurs', 'centresCollecte', 'navigation'));
     }
 
     // Mettre à jour un utilisateur
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8',
+            'password' => 'nullable|string|min:8', // Mot de passe optionnel mais validé s'il est fourni
             'role' => 'required|in:superadmin,admin,manager,user',
             'secteur' => 'nullable|string|max:255',
-            'fonction' => 'nullable|string|max:255',
+            'fonction_id' => 'required|exists:fonctions,id',
+            'cooperative_id' => 'nullable|exists:cooperatives,id',
+            'centre_collecte_id' => 'nullable|exists:centres_collecte,id',
             'siege' => 'boolean',
             'status' => 'required|in:active,inactive'
         ]);
 
-        $data = [
-            'name' => $request->prenom . ' ' . $request->nom,
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
+        // Vérifier si la fonction nécessite une coopérative
+        $fonction = Fonction::find($request->fonction_id);
+        if ($fonction && $fonction->peut_gerer_cooperative && !$request->cooperative_id) {
+            return back()->withErrors(['cooperative_id' => 'Cette fonction nécessite de spécifier une coopérative.']);
+        }
+
+        // Préparer les données de mise à jour
+        $updateData = [
+            'username' => $request->username,
+            'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
             'secteur' => $request->secteur,
-            'fonction' => $request->fonction,
+            'fonction_id' => $request->fonction_id,
+            'cooperative_id' => $request->cooperative_id,
+            'centre_collecte_id' => $request->centre_collecte_id,
             'siege' => $request->siege ?? false,
             'status' => $request->status,
         ];
 
-        // Mettre à jour le mot de passe seulement s'il est fourni
+        // Ajouter le mot de passe seulement s'il est fourni
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $updateData['password'] = Hash::make($request->password);
         }
 
-        $user->update($data);
+        $user->update($updateData);
 
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur mis à jour avec succès !');
-    }
-
-    // Activer/Désactiver un utilisateur
-    public function toggleStatus(User $user)
-    {
-        $user->update([
-            'status' => $user->status === 'active' ? 'inactive' : 'active'
-        ]);
-
-        $status = $user->status === 'active' ? 'activé' : 'désactivé';
-        return redirect()->route('admin.users.index')->with('success', "Utilisateur $status avec succès !");
     }
 
     // Supprimer un utilisateur
     public function destroy(User $user)
     {
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès !');
+        try {
+            $user->delete();
+            return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès !');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.users.index')->with('error', 'Impossible de supprimer cet utilisateur.');
+        }
+    }
+
+    // Afficher les détails d'un utilisateur
+    public function show(User $user)
+    {
+        $user->load(['fonction', 'cooperative', 'secteurRelation', 'centreCollecte']);
+        $navigation = $this->navigationService->getNavigation();
+        
+        return view('admin.users.show', compact('user', 'navigation'));
+    }
+
+    // Activer/Désactiver un utilisateur
+    public function toggleStatus(User $user)
+    {
+        try {
+            $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+            $user->update(['status' => $newStatus]);
+            
+            $statusText = $newStatus === 'active' ? 'activé' : 'désactivé';
+            return redirect()->route('admin.users.index')->with('success', "Utilisateur $statusText avec succès !");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.users.index')->with('error', 'Erreur lors du changement de statut.');
+        }
     }
 }

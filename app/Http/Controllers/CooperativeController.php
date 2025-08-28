@@ -13,16 +13,16 @@ class CooperativeController extends Controller
 {
     // Liste des types de documents attendus
     private $documentTypes = [
-        'DFE' => 'DFE',
-        'Registre de commerce' => 'Registre de commerce',
-        'Statuts' => 'Statuts et règlements intérieurs',
-        'Délégation de pouvoir' => 'Délégation de pouvoir',
-        'Journal officiel' => 'Journal officiel',
-        'Contrat de bail' => 'Contrat de bail',
-        'Protocole FPH-CI' => 'Protocole d’accord avec la FPH-CI',
-        'Fiche enquête' => 'Fiche d’enquête',
-        'Fiche étalonnage' => 'Fiche d’étalonnage',
-        'Liste formation' => 'Liste de présence de formation',
+        'dfe' => 'DFE',
+        'registre_commerce' => 'Registre de commerce',
+        'statuts' => 'Statuts et règlements intérieurs',
+        'delegation_pouvoir' => 'Délégation de pouvoir',
+        'journal_officiel' => 'Journal officiel',
+        'contrat_bail' => 'Contrat de bail',
+        'protocole_fph_ci' => 'Protocole d\'accord avec la FPH-CI',
+        'fiche_enquete' => 'Fiche d\'enquête',
+        'fiche_etalonnage' => 'Fiche d\'étalonnage',
+        'liste_formation' => 'Liste de présence de formation',
     ];
 
     public function index()
@@ -72,6 +72,7 @@ class CooperativeController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'kilometrage' => $request->kilometrage,
+            'a_sechoir' => $request->boolean('a_sechoir'),
             'compte_bancaire' => $request->compte_bancaire,
             'code_banque' => $request->code_banque,
             'code_guichet' => $request->code_guichet,
@@ -82,7 +83,7 @@ class CooperativeController extends Controller
         foreach ($this->documentTypes as $key => $label) {
             if ($request->hasFile($key)) {
                 $file = $request->file($key);
-                $filename = $key . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filename = $key . '_' . $cooperative->code . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('cooperatives/' . $cooperative->code, $filename, 'public');
                 CooperativeDocument::create([
                     'cooperative_id' => $cooperative->id,
@@ -139,6 +140,7 @@ class CooperativeController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'kilometrage' => $request->kilometrage,
+            'a_sechoir' => $request->boolean('a_sechoir'),
             'compte_bancaire' => $request->compte_bancaire,
             'code_banque' => $request->code_banque,
             'code_guichet' => $request->code_guichet,
@@ -149,7 +151,7 @@ class CooperativeController extends Controller
         foreach ($this->documentTypes as $key => $label) {
             if ($request->hasFile($key)) {
                 $file = $request->file($key);
-                $filename = $key . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filename = $key . '_' . $cooperative->code . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('cooperatives/' . $cooperative->code, $filename, 'public');
                 // Supprimer l'ancien document si existe
                 $doc = $cooperative->documents()->where('type', $key)->first();

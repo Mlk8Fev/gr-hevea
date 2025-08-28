@@ -1,8 +1,7 @@
 <!-- meta tags and other links -->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8">
+<head>  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wowdash - Bootstrap 5 Admin Dashboard HTML Template</title>
   <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
@@ -69,9 +68,9 @@
                 @csrf
                 <div class="icon-field mb-16">
                     <span class="icon top-50 translate-middle-y">
-                        <iconify-icon icon="mage:email"></iconify-icon>
+                        <iconify-icon icon="mdi:account"></iconify-icon>
                     </span>
-                    <input type="email" name="email" class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Email" value="{{ old('email') }}" required>
+                    <input type="text" name="username" class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Nom d'utilisateur" value="{{ old('username') }}" required>
                 </div>
                 <div class="position-relative mb-20">
                     <div class="icon-field">

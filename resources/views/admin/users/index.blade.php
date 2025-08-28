@@ -103,7 +103,7 @@
                                             </span>
                                         </td>
                                         <td>{{ $user->secteur ?? 'Non défini' }}</td>
-                                        <td>{{ $user->fonction ?? 'Non défini' }}</td>
+                                        <td>{{ $user->fonction ? $user->fonction->nom : 'Non défini' }}</td>
                                         <td>
                                             @if($user->siege)
                                                 <span class="badge bg-success">Oui</span>
