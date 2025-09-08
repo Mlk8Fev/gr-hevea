@@ -66,10 +66,6 @@
                         <input type="text" class="form-control" id="longitude" name="longitude" value="{{ old('longitude') }}">
                     </div>
                     <div class="col-md-6">
-                        <label for="kilometrage" class="form-label">Kilométrage</label>
-                        <input type="text" class="form-control" id="kilometrage" name="kilometrage" value="{{ old('kilometrage') }}">
-                    </div>
-                    <div class="col-md-6">
                         <label for="a_sechoir" class="form-label">Séchoir</label>
                         <select class="form-select" id="a_sechoir" name="a_sechoir">
                             <option value="0" {{ old('a_sechoir') == '0' ? 'selected' : '' }}>Non</option>
@@ -79,6 +75,45 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Nouvelle section pour les distances -->
+            <div class="card p-24 radius-12 mb-24">
+                <h5 class="card-title mb-4">
+                    <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon> 
+                    Distances vers les centres de collecte (en km)
+                </h5>
+                <div class="row gy-3">
+                    <div class="col-md-4">
+                        <label for="distance_cotraf" class="form-label">Usine COTRAF *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_cotraf" name="distances[cotraf]" value="{{ old('distances.cotraf') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="distance_duekoue" class="form-label">Duekoué *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_duekoue" name="distances[duekoue]" value="{{ old('distances.duekoue') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="distance_guiglo" class="form-label">Guiglo *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_guiglo" name="distances[guiglo]" value="{{ old('distances.guiglo') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="distance_divo" class="form-label">Divo *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_divo" name="distances[divo]" value="{{ old('distances.divo') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="distance_abengourou" class="form-label">Abengourou *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_abengourou" name="distances[abengourou]" value="{{ old('distances.abengourou') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="distance_meagui" class="form-label">Méagui *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_meagui" name="distances[meagui]" value="{{ old('distances.meagui') }}" required>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="ri-information-line me-2"></i>
+                    <strong>Information :</strong> Ces distances seront utilisées pour calculer le coût de transport lors de la facturation.
+                </div>
+            </div>
+            
             <div class="card p-24 radius-12 mb-24">
                 <h5 class="card-title mb-4"><iconify-icon icon="solar:bank-outline" class="me-2 text-success"></iconify-icon> Données bancaires</h5>
                 <div class="row gy-3">

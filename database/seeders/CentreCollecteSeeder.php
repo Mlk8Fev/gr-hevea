@@ -15,39 +15,36 @@ class CentreCollecteSeeder extends Seeder
     {
         $centres = [
             [
-                'code' => 'CC1',
-                'nom' => 'PK24',
-                'adresse' => 'PK24, Route d\'Abidjan, Côte d\'Ivoire',
+                'code' => 'DUEK',
+                'nom' => 'Duekoué',
+                'adresse' => 'Centre de collecte Duekoué, Région du Guémon',
                 'statut' => 'actif'
             ],
             [
-                'code' => 'CC2',
-                'nom' => 'COTRAF',
-                'adresse' => 'COTRAF, Zone industrielle, Abidjan',
+                'code' => 'GUIG',
+                'nom' => 'Guiglo',
+                'adresse' => 'Centre de collecte Guiglo, Région du Cavally',
                 'statut' => 'actif'
             ],
             [
-                'code' => 'CC3',
-                'nom' => 'FPH-CI Entrepôt',
-                'adresse' => 'Entrepôt FPH-CI, Yopougon, Abidjan',
+                'code' => 'DIVO',
+                'nom' => 'Divo',
+                'adresse' => 'Centre de collecte Divo, Région du Lôh-Djiboua',
                 'statut' => 'actif'
             ],
             [
-                'code' => 'CC4',
-                'nom' => 'Centre Abengourou',
-                'adresse' => 'Centre de collecte Abengourou, Région de l\'Indénié-Djuablin',
-                'statut' => 'actif'
-            ],
-            [
-                'code' => 'CC5',
-                'nom' => 'Centre San-Pédro',
-                'adresse' => 'Centre de collecte San-Pédro, Région du Bas-Sassandra',
+                'code' => 'MEAG',
+                'nom' => 'Méagui',
+                'adresse' => 'Centre de collecte Méagui, Région du Nawa',
                 'statut' => 'actif'
             ]
         ];
 
         foreach ($centres as $centre) {
-            CentreCollecte::create($centre);
+            // Vérifier si le centre existe déjà
+            if (!CentreCollecte::where('nom', $centre['nom'])->exists()) {
+                CentreCollecte::create($centre);
+            }
         }
     }
 }

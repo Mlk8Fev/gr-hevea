@@ -90,12 +90,12 @@ class CentreCollecteController extends Controller
     public function destroy(CentreCollecte $centres_collecte)
     {
         // Vérifier s'il y a des connaissements liés
-        if ($centreCollecte->connaissements()->count() > 0) {
+        if ($centres_collecte->connaissements()->count() > 0) {
             return redirect()->route('admin.centres-collecte.index')
                 ->with('error', 'Impossible de supprimer ce centre de collecte car il est lié à des connaissements.');
         }
 
-        $centreCollecte->delete();
+        $centres_collecte->delete();
 
         return redirect()->route('admin.centres-collecte.index')
             ->with('success', 'Centre de collecte supprimé avec succès !');

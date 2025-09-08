@@ -64,4 +64,24 @@ class Cooperative extends Model
     {
         return $this->hasMany(Facture::class);
     }
+
+    /**
+     * Relation avec les distances vers les centres de collecte
+     */
+    public function distances(): HasMany
+    {
+        return $this->hasMany(CooperativeDistance::class);
+    }
+
+    /**
+     * Récupérer la distance vers un centre de collecte spécifique
+     */
+    public function getDistanceToCentre($centreCollecteId): ?float
+    {
+        $distance = $this->distances()
+            ->where('centre_collecte_id', $centreCollecteId)
+            ->first();
+            
+        return $distance ? $distance->distance_km : null;
+    }
 }

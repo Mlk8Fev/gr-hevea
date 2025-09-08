@@ -154,18 +154,24 @@ class CalculPrixService
     }
 
     /**
-     * Calculer la distance (utilise le kilométrage de la coopérative)
+     * Calculer la distance (utilise la distance vers le centre de collecte)
      */
     private function calculerDistance(TicketPesee $ticketPesee)
     {
-        // Récupérer le kilométrage de la coopérative
-        $kilometrage = $ticketPesee->connaissement->cooperative->kilometrage;
+        // Récupérer le centre de collecte du connaissement
+        $centreCollecte = $ticketPesee->connaissement->centreCollecte;
+        $cooperative = $ticketPesee->connaissement->cooperative;
         
-        if ($kilometrage && $kilometrage > 0) {
-            return $kilometrage;
+        if ($centreCollecte && $cooperative) {
+            // Récupérer la distance spécifique vers ce centre
+            $distance = $cooperative->getDistanceToCentre($centreCollecte->id);
+            
+            if ($distance && $distance > 0) {
+                return $distance;
+            }
         }
         
-        // Si pas de kilométrage, utiliser une distance par défaut
+        // Si pas de distance spécifique, utiliser une distance par défaut
         return 150;
     }
 
@@ -193,7 +199,8 @@ class CalculPrixService
             'montant_prive' => $montantPrive,
             'part_fphci' => $partFphci,
             'a_sechoir' => $this->cooperativeAvecSechoir($ticketPesee),
-            'distance' => $this->calculerDistance($ticketPesee)
+            'distance' => $this->calculerDistance($ticketPesee),
+            'centre_collecte' => $ticketPesee->connaissement->centreCollecte->nom ?? 'Non défini'
         ];
     }
 } 

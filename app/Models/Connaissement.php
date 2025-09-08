@@ -10,7 +10,8 @@ class Connaissement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'numero',
+        'numero_livraison',
+        'secteur_id',
         'statut',
         'cooperative_id',
         'centre_collecte_id',
@@ -51,6 +52,11 @@ class Connaissement extends Model
     ];
 
     // Relations
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class);
+    }
+
     public function cooperative()
     {
         return $this->belongsTo(Cooperative::class);

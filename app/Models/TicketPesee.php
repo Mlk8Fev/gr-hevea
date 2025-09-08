@@ -14,6 +14,7 @@ class TicketPesee extends Model
     protected $table = 'tickets_pesee';
 
     protected $fillable = [
+        'numero_livraison',
         'connaissement_id',
         'numero_ticket',
         'campagne',
@@ -48,8 +49,8 @@ class TicketPesee extends Model
         'statut_ene',
         'created_by',
         'validated_by',
-        'valide_par_ene',
         'date_validation',
+        'valide_par_ene',
         'date_validation_ene',
         'commentaire_ene'
     ];
@@ -59,97 +60,82 @@ class TicketPesee extends Model
         'poids_sortie' => 'decimal:2',
         'poids_net' => 'decimal:2',
         'poids_100_graines' => 'decimal:2',
-        'gp' => 'decimal:3',
-        'ga' => 'decimal:3',
-        'me' => 'decimal:3',
+        'gp' => 'decimal:2',
+        'ga' => 'decimal:2',
+        'me' => 'decimal:2',
         'taux_humidite' => 'decimal:2',
         'taux_impuretes' => 'decimal:2',
         'date_entree' => 'date',
-        'heure_entree' => 'datetime',
         'date_sortie' => 'date',
+        'heure_entree' => 'datetime',
         'heure_sortie' => 'datetime',
         'date_validation' => 'datetime',
         'date_validation_ene' => 'datetime'
     ];
 
     // Relations
-    public function connaissement()
+    public function connaissement(): BelongsTo
     {
         return $this->belongsTo(Connaissement::class);
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Relation avec l'utilisateur qui a validé le ticket
-     */
     public function validatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'validated_by');
     }
 
-    /**
-     * Relation avec l'utilisateur qui a validé par ENE CI
-     */
     public function valideParEne(): BelongsTo
     {
         return $this->belongsTo(User::class, 'valide_par_ene');
     }
 
-    /**
-     * Relation many-to-many avec les factures
-     */
     public function factures(): BelongsToMany
     {
-        return $this->belongsToMany(Facture::class, 'facture_ticket_pesee')
-                    ->withPivot('montant_ticket')
-                    ->withTimestamps();
+        return $this->belongsToMany(Facture::class, 'facture_ticket_pesee');
     }
 
     // Scopes
-    public function scopeEnAttente($query)
-    {
-        return $query->where('statut', 'en_attente');
-    }
-
     public function scopeValide($query)
     {
         return $query->where('statut', 'valide');
     }
 
-    public function scopeArchive($query)
+    public function scopeEnAttente($query)
     {
-        return $query->where('statut', 'archive');
+        return $query->where('statut', 'en_attente');
+    }
+
+    public function scopeValideEne($query)
+    {
+        return $query->where('statut_ene', 'valide_par_ene');
     }
 
     // Méthodes
-    public function isEnAttente()
-    {
-        return $this->statut === 'en_attente';
-    }
-
     public function isValide()
     {
         return $this->statut === 'valide';
     }
 
-    public function isArchive()
+    public function isValideEne()
     {
-        return $this->statut === 'archive';
+        return $this->statut_ene === 'valide_par_ene';
     }
 
-    // Calcul automatique du poids net
-    protected static function boot()
+    public function canBeFactured()
     {
-        parent::boot();
+        return $this->isValide() && $this->isValideEne() && $this->factures()->count() === 0;
+    }
 
-        static::saving(function ($ticket) {
-            if ($ticket->poids_entree && $ticket->poids_sortie) {
-                $ticket->poids_net = $ticket->poids_entree - $ticket->poids_sortie;
-            }
-        });
+    public function getPoidsNetAttribute($value)
+    {
+        if ($this->poids_entree && $this->poids_sortie) {
+            return $this->poids_entree - $this->poids_sortie;
+        }
+        return $value;
     }
 }

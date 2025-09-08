@@ -21,4 +21,20 @@ class Secteur extends Model
     {
         return $this->hasMany(User::class, 'secteur', 'code');
     }
+
+    /**
+     * Relation avec les coopératives
+     */
+    public function cooperatives()
+    {
+        return $this->hasMany(Cooperative::class, 'secteur_id');
+    }
+
+    /**
+     * Relation avec les producteurs
+     */
+    public function producteurs()
+    {
+        return $this->hasMany(Producteur::class, 'secteur_id');
+    }
 }

@@ -32,140 +32,524 @@
                 <div class="card border radius-16 overflow-hidden bg-base h-100 p-0">
                     <div class="card-header border-bottom bg-base py-16 px-24">
                         <div class="text-center mb-16">
+                            <div class="bg-primary rounded-circle p-3 d-inline-flex mb-3">
+                                <iconify-icon icon="solar:buildings-2-bold" class="text-white" style="font-size: 2rem;"></iconify-icon>
+                            </div>
                             <h3 class="fw-bold text-primary mb-2">{{ $cooperative->nom }}</h3>
                             <span class="badge bg-secondary fs-6">{{ $cooperative->code }}</span>
                         </div>
-                        <h6 class="text-lg fw-semibold mb-0">Informations principales</h6>
+                        <h6 class="text-lg fw-semibold mb-0">
+                            <iconify-icon icon="solar:info-circle-outline" class="me-2 text-info"></iconify-icon>
+                            Informations principales
+                        </h6>
                     </div>
                     <div class="card-body p-24">
-                        <ul class="list-group radius-8">
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:users-group-rounded-bold" class="text-xl text-primary"></iconify-icon></span>
-                                    <span class="fw-semibold">Nom :</span> {{ $cooperative->nom }}
+                        <div class="row g-3">
+                            <!-- Nom -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-primary rounded-circle p-2">
+                                                <iconify-icon icon="solar:users-group-rounded-bold" class="text-white"></iconify-icon>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Nom de la coopérative</h6>
+                                                <span class="text-muted">{{ $cooperative->nom }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:building-bold" class="text-xl text-info"></iconify-icon></span>
-                                    <span class="fw-semibold">Secteur :</span> {{ $cooperative->secteur ? $cooperative->secteur->code . ' - ' . $cooperative->secteur->nom : '-' }}
+                            </div>
+
+                            <!-- Secteur -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-info rounded-circle p-2">
+                                                <iconify-icon icon="solar:building-bold" class="text-white"></iconify-icon>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Secteur</h6>
+                                                <span class="text-muted">
+                                                    {{ $cooperative->secteur ? $cooperative->secteur->code . ' - ' . $cooperative->secteur->nom : 'Non défini' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:user-bold" class="text-xl text-success"></iconify-icon></span>
-                                    <span class="fw-semibold">Président :</span> {{ $cooperative->president }}
+                            </div>
+
+                            <!-- Président -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-success rounded-circle p-2">
+                                                <iconify-icon icon="solar:user-bold" class="text-white"></iconify-icon>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Président</h6>
+                                                <span class="text-muted">{{ $cooperative->president }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:phone-bold" class="text-xl text-warning"></iconify-icon></span>
-                                    <span class="fw-semibold">Contact :</span> {{ $cooperative->contact }}
+                            </div>
+
+                            <!-- Contact -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-warning rounded-circle p-2">
+                                                <iconify-icon icon="solar:phone-bold" class="text-white"></iconify-icon>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Contact</h6>
+                                                <span class="text-muted">{{ $cooperative->contact }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:hashtag-bold" class="text-xl text-primary"></iconify-icon></span>
-                                    <span class="fw-semibold">Sigle :</span> {{ $cooperative->sigle }}
+                            </div>
+
+                            <!-- Sigle -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-secondary rounded-circle p-2">
+                                                <iconify-icon icon="solar:hashtag-bold" class="text-white"></iconify-icon>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Sigle</h6>
+                                                <span class="text-muted">{{ $cooperative->sigle }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:map-point-bold" class="text-xl text-danger"></iconify-icon></span>
-                                    <span class="fw-semibold">GPS :</span> {{ $cooperative->latitude }}, {{ $cooperative->longitude }}
+                            </div>
+
+                            <!-- GPS -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-danger rounded-circle p-2">
+                                                <iconify-icon icon="solar:map-point-bold" class="text-white"></iconify-icon>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Coordonnées GPS</h6>
+                                                <span class="text-muted">{{ $cooperative->latitude }}, {{ $cooperative->longitude }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:road-bold" class="text-xl text-secondary"></iconify-icon></span>
-                                    <span class="fw-semibold">Kilométrage :</span> {{ $cooperative->kilometrage }}
+                            </div>
+
+                            <!-- Séchoir -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-{{ $cooperative->a_sechoir ? 'success' : 'danger' }} rounded-circle p-2">
+                                                <iconify-icon icon="solar:fire-bold" class="text-white"></iconify-icon>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:fire-bold" class="text-xl text-warning"></iconify-icon></span>
-                                    <span class="fw-semibold">Séchoir :</span> 
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-semibold">Séchoir</h6>
+                                                <span class="text-muted">
                                     @if($cooperative->a_sechoir)
-                                        <span class="badge bg-success">Oui</span>
+                                                        <span class="badge bg-success">Disponible</span>
                                     @else
-                                        <span class="badge bg-secondary">Non</span>
+                                                        <span class="badge bg-danger">Non disponible</span>
                                     @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-8">
                 <div class="card mb-24 radius-12">
                     <div class="card-header border-bottom bg-base py-16 px-24">
-                        <h6 class="text-lg fw-semibold mb-0">Données bancaires</h6>
+                        <h6 class="text-lg fw-semibold mb-0">
+                            <iconify-icon icon="solar:shield-check-outline" class="me-2 text-success"></iconify-icon>
+                            Données bancaires sécurisées
+                        </h6>
                     </div>
                     <div class="card-body p-24">
-                        <ul class="list-group radius-8">
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
+                        <div class="row g-3">
+                            <!-- Compte bancaire -->
+                            <div class="col-md-6">
+                                <div class="card border h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:bank-outline" class="text-xl text-success"></iconify-icon></span>
-                                    <span class="fw-semibold">Compte :</span> {{ $cooperative->compte_bancaire }}
+                                                <div class="bg-success rounded-circle p-2">
+                                                    <iconify-icon icon="solar:card-outline" class="text-white"></iconify-icon>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Compte bancaire</h6>
+                                                    <small class="text-muted">Numéro de compte</small>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-success btn-sm" onclick="toggleBankInfo('compte')">
+                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                                Voir
+                                            </button>
+                                        </div>
+                                        <div id="compte-display" class="text-muted">
+                                            <span class="badge bg-light text-dark">••••••••••••••••</span>
+                                        </div>
+                                        <div id="compte-value" class="d-none">
+                                            <span class="fw-semibold text-dark">{{ $cooperative->compte_bancaire }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
+                            </div>
+
+                            <!-- Code banque -->
+                            <div class="col-md-6">
+                                <div class="card border h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:bank-outline" class="text-xl text-info"></iconify-icon></span>
-                                    <span class="fw-semibold">Code banque :</span> {{ $cooperative->code_banque }}
+                                                <div class="bg-info rounded-circle p-2">
+                                                    <iconify-icon icon="solar:buildings-2-outline" class="text-white"></iconify-icon>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Code banque</h6>
+                                                    <small class="text-muted">Identifiant banque</small>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-info btn-sm" onclick="toggleBankInfo('banque')">
+                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                                Voir
+                                            </button>
+                                        </div>
+                                        <div id="banque-display" class="text-muted">
+                                            <span class="badge bg-light text-dark">••••</span>
+                                        </div>
+                                        <div id="banque-value" class="d-none">
+                                            <span class="fw-semibold text-dark">{{ $cooperative->code_banque }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base border-bottom-0">
+                            </div>
+
+                            <!-- Code guichet -->
+                            <div class="col-md-6">
+                                <div class="card border h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:bank-outline" class="text-xl text-warning"></iconify-icon></span>
-                                    <span class="fw-semibold">Code guichet :</span> {{ $cooperative->code_guichet }}
+                                                <div class="bg-warning rounded-circle p-2">
+                                                    <iconify-icon icon="solar:home-outline" class="text-white"></iconify-icon>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Code guichet</h6>
+                                                    <small class="text-muted">Identifiant agence</small>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleBankInfo('guichet')">
+                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                                Voir
+                                            </button>
+                                        </div>
+                                        <div id="guichet-display" class="text-muted">
+                                            <span class="badge bg-light text-dark">••••</span>
+                                        </div>
+                                        <div id="guichet-value" class="d-none">
+                                            <span class="fw-semibold text-dark">{{ $cooperative->code_guichet }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="list-group-item border text-secondary-light p-16 bg-base">
+                            </div>
+
+                            <!-- Nom à la banque -->
+                            <div class="col-md-6">
+                                <div class="card border h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="d-flex"><iconify-icon icon="solar:bank-outline" class="text-xl text-primary"></iconify-icon></span>
-                                    <span class="fw-semibold">Nom à la banque :</span> {{ $cooperative->nom_cooperative_banque }}
+                                                <div class="bg-primary rounded-circle p-2">
+                                                    <iconify-icon icon="solar:user-outline" class="text-white"></iconify-icon>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Nom à la banque</h6>
+                                                    <small class="text-muted">Titulaire du compte</small>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleBankInfo('nom')">
+                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                                Voir
+                                            </button>
+                                        </div>
+                                        <div id="nom-display" class="text-muted">
+                                            <span class="badge bg-light text-dark">••••••••••••••••</span>
+                                        </div>
+                                        <div id="nom-value" class="d-none">
+                                            <span class="fw-semibold text-dark">{{ $cooperative->nom_cooperative_banque }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            <iconify-icon icon="solar:shield-check-bold" class="me-2"></iconify-icon>
+                            <strong>Sécurité :</strong> Les informations bancaires sont masquées par défaut. Cliquez sur "Voir" pour les afficher.
+                        </div>
                     </div>
                 </div>
                 <div class="card mb-24 radius-12">
                     <div class="card-header border-bottom bg-base py-16 px-24">
                         <div class="d-flex align-items-center justify-content-between">
-                            <h6 class="text-lg fw-semibold mb-0">Documents de traçabilité</h6>
-                            <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning btn-sm">
-                                <iconify-icon icon="solar:pen-bold"></iconify-icon>
-                                Modifier les documents
-                            </a>
+                            <h6 class="text-lg fw-semibold mb-0">
+                                <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon>
+                                Distances vers les centres de collecte
+                            </h6>
+                            <span class="badge bg-primary">{{ $cooperative->distances->count() }}/6 centres</span>
                         </div>
                     </div>
                     <div class="card-body p-24">
-                        <div class="alert alert-info mb-3">
+                        @if($cooperative->distances->count() > 0)
+                            <!-- Vue en cartes -->
+                            <div class="row g-3 mb-4">
+                                @foreach($cooperative->distances as $distance)
+                                    @php
+                                        $distanceKm = $distance->distance_km;
+                                        $colorClass = '';
+                                        $transportCost = 0;
+                                        
+                                        if ($distanceKm <= 100) {
+                                            $colorClass = 'success';
+                                            $transportCost = 14;
+                                        } elseif ($distanceKm <= 200) {
+                                            $colorClass = 'info';
+                                            $transportCost = 15;
+                                        } elseif ($distanceKm <= 300) {
+                                            $colorClass = 'warning';
+                                            $transportCost = 16;
+                                        } elseif ($distanceKm <= 400) {
+                                            $colorClass = 'danger';
+                                            $transportCost = 22;
+                                        } elseif ($distanceKm <= 500) {
+                                            $colorClass = 'danger';
+                                            $transportCost = 22;
+                                        } elseif ($distanceKm <= 600) {
+                                            $colorClass = 'dark';
+                                            $transportCost = 23;
+                                        } else {
+                                            $colorClass = 'dark';
+                                            $transportCost = 25;
+                                        }
+                                    @endphp
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="card border h-100">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="bg-light rounded-circle p-2">
+                                                            <iconify-icon icon="solar:buildings-2-outline" class="text-secondary"></iconify-icon>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0 fw-semibold">{{ $distance->centreCollecte->nom }}</h6>
+                                                            <small class="text-muted">{{ $distance->centreCollecte->code }}</small>
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge bg-success text-white fs-6">
+                                                        {{ number_format($distanceKm, 0) }} km
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">Coût transport:</small>
+                                                    <strong class="text-dark">{{ $transportCost }} FCFA/kg</strong>
+                                                </div>
+                                                <!-- Barre de progression -->
+                                                <div class="progress mt-2" style="height: 3px;">
+                                                    <div class="progress-bar bg-secondary" 
+                                                         style="width: {{ min(($distanceKm / 600) * 100, 100) }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Légende des coûts -->
+                            <div class="alert alert-light border">
+                                <h6 class="fw-semibold mb-3">
+                                    <iconify-icon icon="solar:info-circle-bold" class="me-2"></iconify-icon>
+                                    Légende des coûts de transport
+                                </h6>
+                                <div class="row g-2">
+                                    <div class="col-md-2">
+                                        <span class="badge bg-success me-1">≤100km</span>
+                                        <small>14 FCFA/kg</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="badge bg-light text-dark border me-1">101-200km</span>
+                                        <small>15 FCFA/kg</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="badge bg-light text-dark border me-1">201-300km</span>
+                                        <small>16 FCFA/kg</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="badge bg-light text-dark border me-1">301-400km</span>
+                                        <small>22 FCFA/kg</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="badge bg-light text-dark border me-1">401-500km</span>
+                                        <small>22 FCFA/kg</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="badge bg-light text-dark border me-1">>500km</span>
+                                        <small>23-25 FCFA/kg</small>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <iconify-icon icon="solar:route-outline" class="text-muted" style="font-size: 4rem;"></iconify-icon>
+                                </div>
+                                <h5 class="text-muted mb-3">Aucune distance configurée</h5>
+                                <p class="text-muted mb-4">Configurez les distances vers les centres de collecte pour optimiser le calcul des coûts de transport.</p>
+                                <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-primary">
+                                    <iconify-icon icon="solar:pen-bold" class="me-2"></iconify-icon>
+                                    Configurer les distances
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="card mb-24 radius-12">
+                    <div class="card-header border-bottom bg-base py-16 px-24">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="text-lg fw-semibold mb-0">
+                                <iconify-icon icon="solar:document-text-outline" class="me-2 text-warning"></iconify-icon>
+                                Documents de traçabilité
+                            </h6>
                             <div class="d-flex align-items-center gap-2">
-                                <iconify-icon icon="solar:info-circle-bold"></iconify-icon>
-                                <strong>Information :</strong> Seuls les documents marqués d'une coche verte sont actuellement fournis. 
-                                Cliquez sur "Modifier les documents" pour ajouter ou remplacer des documents.
+                                @php
+                                    $providedDocs = $cooperative->documents->count();
+                                    $totalDocs = count($documentTypes);
+                                @endphp
+                                <span class="badge bg-{{ $providedDocs == $totalDocs ? 'success' : ($providedDocs > 0 ? 'warning' : 'danger') }}">
+                                    {{ $providedDocs }}/{{ $totalDocs }} documents
+                                </span>
+                                <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning btn-sm">
+                                    <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
+                                    Modifier
+                                </a>
                             </div>
                         </div>
-                        <ul class="list-group radius-8">
+                    </div>
+                    <div class="card-body p-24">
+                        <!-- Barre de progression globale -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">Progression des documents</span>
+                                <span class="text-muted">{{ number_format(($providedDocs / $totalDocs) * 100, 0) }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-{{ $providedDocs == $totalDocs ? 'success' : ($providedDocs > 0 ? 'warning' : 'danger') }}" 
+                                     style="width: {{ ($providedDocs / $totalDocs) * 100 }}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Grille des documents -->
+                        <div class="row g-3">
                             @foreach($documentTypes as $key => $label)
                                 @php $doc = $cooperative->documents->where('type', $key)->first(); @endphp
-                                <li class="list-group-item border text-secondary-light p-16 bg-base {{ !$loop->last ? 'border-bottom-0' : '' }}">
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card border h-100 {{ $doc ? 'border-success' : 'border-light' }}">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
                                     <div class="d-flex align-items-center gap-2">
+                                                    <div class="bg-{{ $doc ? 'success' : 'light' }} rounded-circle p-2">
+                                                        <iconify-icon icon="solar:document-outline" class="text-{{ $doc ? 'white' : 'muted' }}"></iconify-icon>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-semibold text-sm">{{ $label }}</h6>
+                                                        <small class="text-muted">{{ $key }}</small>
+                                                    </div>
+                                                </div>
+                                                @if($doc)
+                                                    <span class="badge bg-success">
+                                                        <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+                                                        Fourni
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-light text-muted">
+                                                        <iconify-icon icon="solar:close-circle-bold" class="me-1"></iconify-icon>
+                                                        Manquant
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            
                                         @if($doc)
-                                            <iconify-icon icon="solar:check-circle-bold" class="text-success text-xl"></iconify-icon>
-                                            <span class="fw-semibold">{{ $label }}</span>
-                                            <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-primary btn-sm ms-2">Voir</a>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        <iconify-icon icon="solar:calendar-outline" class="me-1"></iconify-icon>
+                                                        {{ $doc->created_at->format('d/m/Y') }}
+                                                    </small>
+                                                    <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-success btn-sm">
+                                                        <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                                        Voir
+                                                    </a>
+                                                </div>
                                         @else
-                                            <iconify-icon icon="solar:close-circle-bold" class="text-danger text-xl"></iconify-icon>
-                                            <span class="fw-semibold">{{ $label }}</span>
-                                            <span class="text-muted ms-2">Non fourni</span>
+                                                <div class="text-center py-2">
+                                                    <small class="text-muted">
+                                                        <iconify-icon icon="solar:file-download-outline" class="me-1"></iconify-icon>
+                                                        Document non fourni
+                                                    </small>
+                                                </div>
                                         @endif
+                                        </div>
                                     </div>
-                                </li>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
+
+                        <!-- Résumé et actions -->
+                        <div class="row mt-4">
+                            <div class="col-md-8">
+                                <div class="alert alert-{{ $providedDocs == $totalDocs ? 'success' : ($providedDocs > 0 ? 'warning' : 'danger') }}">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <iconify-icon icon="solar:info-circle-bold"></iconify-icon>
+                                        <div>
+                                            <strong>
+                                                @if($providedDocs == $totalDocs)
+                                                    Tous les documents sont fournis
+                                                @elseif($providedDocs > 0)
+                                                    {{ $totalDocs - $providedDocs }} document(s) manquant(s)
+                                                @else
+                                                    Aucun document fourni
+                                                @endif
+                                            </strong>
+                                            <br>
+                                            <small>Cliquez sur "Modifier" pour ajouter ou remplacer des documents.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
+                                    <iconify-icon icon="solar:pen-bold" class="me-2"></iconify-icon>
+                                    Gérer les documents
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="d-flex gap-3">
@@ -177,5 +561,27 @@
     </div>
 </main>
 @include('partials.wowdash-scripts')
+<script>
+function toggleBankInfo(type) {
+    const display = document.getElementById(type + '-display');
+    const value = document.getElementById(type + '-value');
+    const button = event.target.closest('button');
+    const icon = button.querySelector('iconify-icon');
+    
+    if (display.classList.contains('d-none')) {
+        // Masquer
+        display.classList.remove('d-none');
+        value.classList.add('d-none');
+        icon.setAttribute('icon', 'solar:eye-outline');
+        button.innerHTML = '<iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>Voir';
+    } else {
+        // Afficher
+        display.classList.add('d-none');
+        value.classList.remove('d-none');
+        icon.setAttribute('icon', 'solar:eye-closed-outline');
+        button.innerHTML = '<iconify-icon icon="solar:eye-closed-outline" class="me-1"></iconify-icon>Masquer';
+    }
+}
+</script>
 </body>
 </html> 

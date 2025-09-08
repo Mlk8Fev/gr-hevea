@@ -46,8 +46,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('connaissements/{connaissement}/validate', [\App\Http\Controllers\ConnaissementController::class, 'storeValidation'])->name('connaissements.store-validation');
         
         // Tickets de Pesée
-        Route::resource('tickets-pesee', \App\Http\Controllers\TicketPeseeController::class);
+        Route::resource('tickets-pesee', \App\Http\Controllers\TicketPeseeController::class)->parameters([
+            'tickets-pesee' => 'ticketPesee'
+        ]);
         Route::patch('tickets-pesee/{ticketPesee}/validate', [\App\Http\Controllers\TicketPeseeController::class, 'validate'])->name('tickets-pesee.validate');
+        Route::patch('tickets-pesee/{ticketPesee}/cancel-validation', [\App\Http\Controllers\TicketPeseeController::class, 'cancelValidation'])->name('tickets-pesee.cancel-validation');
         Route::patch('tickets-pesee/{ticketPesee}/archive', [\App\Http\Controllers\TicketPeseeController::class, 'archive'])->name('tickets-pesee.archive');
         Route::get('tickets-pesee/{ticketPesee}/pdf', [\App\Http\Controllers\TicketPeseeController::class, 'generatePdf'])->name('tickets-pesee.pdf');
         

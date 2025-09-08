@@ -66,24 +66,6 @@
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="secteur_id" class="form-label">Secteur *</label>
-                                <select class="form-select @error('secteur_id') is-invalid @enderror" 
-                                        id="secteur_id" name="secteur_id" required>
-                                    <option value="">Sélectionner un secteur</option>
-                                    @foreach($secteurs as $secteur)
-                                        <option value="{{ $secteur->id }}" {{ old('secteur_id') == $secteur->id ? 'selected' : '' }}>
-                                            {{ $secteur->nom }} ({{ $secteur->code }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('secteur_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="mb-3">
                                 <label for="cooperative_id" class="form-label">Coopérative *</label>
                                 <select class="form-select @error('cooperative_id') is-invalid @enderror" 
                                         id="cooperative_id" name="cooperative_id" required>
@@ -122,7 +104,8 @@
                             <div class="mb-3">
                                 <label for="lieu_depart" class="form-label">Lieu de Départ *</label>
                                 <input type="text" class="form-control @error('lieu_depart') is-invalid @enderror" 
-                                       id="lieu_depart" name="lieu_depart" value="{{ old('lieu_depart') }}" required>
+                                       id="lieu_depart" name="lieu_depart" value="{{ old('lieu_depart') }}" 
+                                       placeholder="Ex: Abengourou, San-Pédro, etc." required>
                                 @error('lieu_depart')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -133,7 +116,8 @@
                             <div class="mb-3">
                                 <label for="sous_prefecture" class="form-label">Sous-Préfecture *</label>
                                 <input type="text" class="form-control @error('sous_prefecture') is-invalid @enderror" 
-                                       id="sous_prefecture" name="sous_prefecture" value="{{ old('sous_prefecture') }}" required>
+                                       id="sous_prefecture" name="sous_prefecture" value="{{ old('sous_prefecture') }}" 
+                                       placeholder="Ex: Abengourou, San-Pédro, etc." required>
                                 @error('sous_prefecture')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -141,12 +125,12 @@
                         </div>
                     </div>
                     
-                    <!-- Informations transport -->
+                    <!-- Informations transporteur -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3 text-primary">
                                 <iconify-icon icon="majesticons:truck-line" class="icon me-2"></iconify-icon>
-                                Informations Transport
+                                Informations Transporteur
                             </h6>
                         </div>
                         
@@ -154,7 +138,8 @@
                             <div class="mb-3">
                                 <label for="transporteur_nom" class="form-label">Nom du Transporteur *</label>
                                 <input type="text" class="form-control @error('transporteur_nom') is-invalid @enderror" 
-                                       id="transporteur_nom" name="transporteur_nom" value="{{ old('transporteur_nom') }}" required>
+                                       id="transporteur_nom" name="transporteur_nom" value="{{ old('transporteur_nom') }}" 
+                                       placeholder="Nom de l'entreprise de transport" required>
                                 @error('transporteur_nom')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -165,7 +150,8 @@
                             <div class="mb-3">
                                 <label for="transporteur_immatriculation" class="form-label">Immatriculation *</label>
                                 <input type="text" class="form-control @error('transporteur_immatriculation') is-invalid @enderror" 
-                                       id="transporteur_immatriculation" name="transporteur_immatriculation" value="{{ old('transporteur_immatriculation') }}" required>
+                                       id="transporteur_immatriculation" name="transporteur_immatriculation" value="{{ old('transporteur_immatriculation') }}" 
+                                       placeholder="Ex: 123-AB-456" required>
                                 @error('transporteur_immatriculation')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -176,7 +162,8 @@
                             <div class="mb-3">
                                 <label for="chauffeur_nom" class="form-label">Nom du Chauffeur *</label>
                                 <input type="text" class="form-control @error('chauffeur_nom') is-invalid @enderror" 
-                                       id="chauffeur_nom" name="chauffeur_nom" value="{{ old('chauffeur_nom') }}" required>
+                                       id="chauffeur_nom" name="chauffeur_nom" value="{{ old('chauffeur_nom') }}" 
+                                       placeholder="Nom complet du chauffeur" required>
                                 @error('chauffeur_nom')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -188,7 +175,7 @@
                                 <label for="destinataire_type" class="form-label">Type de Destinataire *</label>
                                 <select class="form-select @error('destinataire_type') is-invalid @enderror" 
                                         id="destinataire_type" name="destinataire_type" required>
-                                    <option value="">Sélectionner un type</option>
+                                    <option value="">Sélectionner le type</option>
                                     <option value="entrepot" {{ old('destinataire_type') == 'entrepot' ? 'selected' : '' }}>Entrepôt</option>
                                     <option value="cooperative" {{ old('destinataire_type') == 'cooperative' ? 'selected' : '' }}>Coopérative</option>
                                     <option value="acheteur" {{ old('destinataire_type') == 'acheteur' ? 'selected' : '' }}>Acheteur</option>
@@ -200,12 +187,12 @@
                         </div>
                     </div>
                     
-                    <!-- Informations cargaison -->
+                    <!-- Informations marchandise -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3 text-primary">
                                 <iconify-icon icon="majesticons:package-line" class="icon me-2"></iconify-icon>
-                                Informations Cargaison
+                                Informations Marchandise
                             </h6>
                         </div>
                         
@@ -213,7 +200,8 @@
                             <div class="mb-3">
                                 <label for="nombre_sacs" class="form-label">Nombre de Sacs *</label>
                                 <input type="number" class="form-control @error('nombre_sacs') is-invalid @enderror" 
-                                       id="nombre_sacs" name="nombre_sacs" value="{{ old('nombre_sacs') }}" min="1" required>
+                                       id="nombre_sacs" name="nombre_sacs" value="{{ old('nombre_sacs') }}" 
+                                       placeholder="Nombre total de sacs" min="1" required>
                                 @error('nombre_sacs')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -224,18 +212,30 @@
                             <div class="mb-3">
                                 <label for="poids_brut_estime" class="form-label">Poids Brut Estimé (kg) *</label>
                                 <input type="number" step="0.01" class="form-control @error('poids_brut_estime') is-invalid @enderror" 
-                                       id="poids_brut_estime" name="poids_brut_estime" value="{{ old('poids_brut_estime') }}" min="0.01" required>
+                                       id="poids_brut_estime" name="poids_brut_estime" value="{{ old('poids_brut_estime') }}" 
+                                       placeholder="Poids estimé en kg" min="0.01" required>
                                 @error('poids_brut_estime')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                        
+                    </div>
+                    
+                    <!-- Signature -->
+                    <div class="row mb-4">
                         <div class="col-12">
+                            <h6 class="fw-semibold mb-3 text-primary">
+                                <iconify-icon icon="majesticons:signature-line" class="icon me-2"></iconify-icon>
+                                Signature
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-12">
                             <div class="mb-3">
-                                <label for="signature_cooperative" class="form-label">Signature Coopérative</label>
+                                <label for="signature_cooperative" class="form-label">Signature de la Coopérative</label>
                                 <textarea class="form-control @error('signature_cooperative') is-invalid @enderror" 
-                                          id="signature_cooperative" name="signature_cooperative" rows="3">{{ old('signature_cooperative') }}</textarea>
+                                          id="signature_cooperative" name="signature_cooperative" rows="3" 
+                                          placeholder="Signature du représentant de la coopérative">{{ old('signature_cooperative') }}</textarea>
                                 @error('signature_cooperative')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -243,15 +243,12 @@
                         </div>
                     </div>
                     
-                    <!-- Boutons d'action -->
-                    <div class="d-flex justify-content-end gap-3">
+                    <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.connaissements.index') }}" class="btn btn-secondary">
-                            <iconify-icon icon="lucide:x" class="icon me-1"></iconify-icon>
-                            Annuler
+                            <i class="ri-arrow-left-line me-1"></i> Retour
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <iconify-icon icon="lucide:save" class="icon me-1"></iconify-icon>
-                            Créer le Connaissement
+                            <i class="ri-save-line me-1"></i> Créer le Connaissement
                         </button>
                     </div>
                 </form>
@@ -262,4 +259,4 @@
 
 @include('partials.wowdash-scripts')
 </body>
-</html>
+</html> 

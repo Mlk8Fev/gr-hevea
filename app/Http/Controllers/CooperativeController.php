@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Cooperative;
 use App\Models\CooperativeDocument;
+use App\Models\CooperativeDistance;
+use App\Models\CentreCollecte;
 use App\Models\Secteur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -50,11 +52,16 @@ class CooperativeController extends Controller
             'sigle' => 'nullable|string|max:50',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'kilometrage' => 'nullable|numeric',
             'compte_bancaire' => 'required|digits:12',
             'code_banque' => 'required|digits:5',
             'code_guichet' => 'required|digits:5',
             'nom_cooperative_banque' => 'required|string|max:255',
+            'distances.cotraf' => 'required|numeric|min:0',
+            'distances.duekoue' => 'required|numeric|min:0',
+            'distances.guiglo' => 'required|numeric|min:0',
+            'distances.divo' => 'required|numeric|min:0',
+            'distances.abengourou' => 'required|numeric|min:0',
+            'distances.meagui' => 'required|numeric|min:0',
         ]);
 
         // Génération automatique du code
@@ -71,13 +78,33 @@ class CooperativeController extends Controller
             'sigle' => $request->sigle,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
-            'kilometrage' => $request->kilometrage,
             'a_sechoir' => $request->boolean('a_sechoir'),
             'compte_bancaire' => $request->compte_bancaire,
             'code_banque' => $request->code_banque,
             'code_guichet' => $request->code_guichet,
             'nom_cooperative_banque' => $request->nom_cooperative_banque,
         ]);
+
+        // Sauvegarder les distances vers les centres de collecte
+        $centreMapping = [
+            'cotraf' => 'COT1',
+            'duekoue' => 'DUEK', 
+            'guiglo' => 'GUIG',
+            'divo' => 'DIVO',
+            'abengourou' => 'ABENG',
+            'meagui' => 'MEAG'
+        ];
+        
+        foreach ($centreMapping as $key => $code) {
+            $centre = CentreCollecte::where('code', $code)->first();
+            if ($centre && isset($request->distances[$key])) {
+                CooperativeDistance::create([
+                    'cooperative_id' => $cooperative->id,
+                    'centre_collecte_id' => $centre->id,
+                    'distance_km' => $request->distances[$key]
+                ]);
+            }
+        }
 
         // Gestion des uploads de documents un à un
         foreach ($this->documentTypes as $key => $label) {
@@ -106,11 +133,18 @@ class CooperativeController extends Controller
 
     public function edit($id)
     {
-        $cooperative = Cooperative::with('documents')->findOrFail($id);
+        $cooperative = Cooperative::with(['documents', 'distances.centreCollecte'])->findOrFail($id);
         $secteurs = Secteur::orderBy('code')->get();
         $documentTypes = $this->documentTypes;
+        
+        // Créer un mapping des distances par code de centre
+        $distances = [];
+        foreach ($cooperative->distances as $distance) {
+            $distances[$distance->centreCollecte->code] = $distance->distance_km;
+        }
+        
         $navigation = app(\App\Services\NavigationService::class)->getNavigation();
-        return view('admin.cooperatives.edit', compact('cooperative', 'secteurs', 'documentTypes', 'navigation'));
+        return view('admin.cooperatives.edit', compact('cooperative', 'secteurs', 'documentTypes', 'distances', 'navigation'));
     }
 
     public function update(Request $request, $id)
@@ -146,6 +180,31 @@ class CooperativeController extends Controller
             'code_guichet' => $request->code_guichet,
             'nom_cooperative_banque' => $request->nom_cooperative_banque,
         ]);
+
+        // Mettre à jour les distances vers les centres de collecte
+        $centreMapping = [
+            'cotraf' => 'COT1',
+            'duekoue' => 'DUEK', 
+            'guiglo' => 'GUIG',
+            'divo' => 'DIVO',
+            'abengourou' => 'ABENG',
+            'meagui' => 'MEAG'
+        ];
+        
+        foreach ($centreMapping as $key => $code) {
+            $centre = CentreCollecte::where('code', $code)->first();
+            if ($centre && isset($request->distances[$key])) {
+                CooperativeDistance::updateOrCreate(
+                    [
+                        'cooperative_id' => $cooperative->id,
+                        'centre_collecte_id' => $centre->id
+                    ],
+                    [
+                        'distance_km' => $request->distances[$key]
+                    ]
+                );
+            }
+        }
 
         // Gestion des uploads de documents (ajout ou remplacement)
         foreach ($this->documentTypes as $key => $label) {

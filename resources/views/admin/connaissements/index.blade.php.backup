@@ -95,7 +95,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Numéro</th>
-                                <th scope="col">Secteur</th>                                <th scope="col">Coopérative</th>
+                                <th scope="col">Coopérative</th>
                                 <th scope="col">Poids (kg)</th>
                                 <th scope="col">Date Réception</th>
                                 <th scope="col">Heure Arrivée</th>
@@ -107,8 +107,8 @@
                             @foreach($connaissements as $index => $connaissement)
                             <tr>
                                 <td>{{ $connaissements->firstItem() + $index }}</td>
-                                <td>{{ $connaissement->numero_livraison ?: "N/A" }}</td>
-                                <td>{{ $connaissement->secteur ? $connaissement->secteur->nom : "N/A" }}</td>                                <td>{{ $connaissement->cooperative->nom }}</td>
+                                <td>{{ $connaissement->numero }}</td>
+                                <td>{{ $connaissement->cooperative->nom }}</td>
                                 <td>{{ number_format($connaissement->poids_brut_estime, 2) }}</td>
                                 <td>
                                     @if($connaissement->date_reception)

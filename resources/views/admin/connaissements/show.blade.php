@@ -8,189 +8,6 @@
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
-    <style>
-        @media print {
-            /* Masquer tous les éléments avec la classe no-print */
-            .no-print {
-                display: none !important;
-            }
-            
-            /* Masquer tous les éléments sauf la card du connaissement */
-            .sidebar,
-            .navbar-header,
-            .breadcrumb,
-            .card-header,
-            .btn,
-            .d-flex.flex-wrap.align-items-center.justify-content-between.gap-3.mb-24,
-            .row.mb-4,
-            .alert {
-                display: none !important;
-            }
-            
-            /* Masquer le conteneur principal et afficher seulement la card */
-            .dashboard-main-body {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* Afficher seulement la card */
-            #connaissement {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                max-width: none !important;
-            }
-            
-            /* Supprimer les bordures et ombres de la card externe */
-            .card {
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            .card-body {
-                padding: 0 !important;
-            }
-            
-            /* Garder seulement la card interne sans bordure - STYLE IMPRESSION COMPACT */
-            .shadow-4.border.radius-8 {
-                border: none !important;
-                padding: 10px !important;
-                margin: 0 !important;
-            }
-            
-            /* Réduire les tailles de police pour l'impression - STYLE IMPRESSION COMPACT */
-            .text-xl {
-                font-size: 14px !important;
-            }
-            
-            .text-md {
-                font-size: 10px !important;
-            }
-            
-            .text-base {
-                font-size: 8px !important;
-            }
-            
-            .text-sm {
-                font-size: 7px !important;
-            }
-            
-            .text-xs {
-                font-size: 6px !important;
-            }
-            
-            /* Réduire les marges et espacements - STYLE IMPRESSION COMPACT */
-            .mt-24 {
-                margin-top: 6px !important;
-            }
-            
-            .mb-16 {
-                margin-bottom: 5px !important;
-            }
-            
-            .mb-8 {
-                margin-bottom: 3px !important;
-            }
-            
-            .py-28 {
-                padding-top: 10px !important;
-                padding-bottom: 10px !important;
-            }
-            
-            .px-20 {
-                padding-left: 10px !important;
-                padding-right: 10px !important;
-            }
-            
-            .py-16 {
-                padding-top: 5px !important;
-                padding-bottom: 5px !important;
-            }
-            
-            .px-16 {
-                padding-left: 5px !important;
-                padding-right: 5px !important;
-            }
-            
-            table td {
-                padding: 1px 0 !important;
-            }
-            
-            .ps-8 {
-                padding-left: 15px !important;
-            }
-            
-            .ps-4 {
-                padding-left: 8px !important;
-            }
-            
-            .gap-3 {
-                gap: 5px !important;
-            }
-            
-            .gap-4 {
-                gap: 8px !important;
-            }
-            
-            .logo-section img {
-                max-height: 40px !important;
-            }
-            
-            [style*="padding-left: 100px"] {
-                padding-left: 30px !important;
-            }
-            
-            [style*="padding-left: 350px"] {
-                padding-left: 150px !important;
-            }
-            
-            [style*="padding-left: 400px"] {
-                padding-left: 150px !important;
-            }
-            
-            /* Optimisations spécifiques pour l'impression */
-            .table {
-                font-size: 6px !important;
-            }
-            
-            .table th {
-                padding: 2px !important;
-                font-size: 7px !important;
-            }
-            
-            .table td {
-                padding: 1px 2px !important;
-                font-size: 6px !important;
-            }
-            
-            .mt-16 {
-                margin-top: 5px !important;
-            }
-            
-            .mb-8 {
-                margin-bottom: 3px !important;
-            }
-            
-            .gap-3 {
-                gap: 5px !important;
-            }
-            
-            /* Réduire la taille des cases de signature */
-            [style*="min-height: 40px"] {
-                min-height: 25px !important;
-            }
-            
-            [style*="min-width: 80px"] {
-                min-width: 50px !important;
-            }
-            
-            .p-2 {
-                padding: 3px !important;
-            }
-        }
-    </style>
 </head>
 <body>
 @include('partials.sidebar', ['navigation' => $navigation])
@@ -209,17 +26,23 @@
                 <li>-</li>
                 <li class="fw-medium">
                     <a href="{{ route('admin.connaissements.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                        Liste des Connaissements
+                        Connaissements
                     </a>
                 </li>
                 <li>-</li>
-                <li class="fw-medium">{{ $connaissement->numero }}</li>
+                <li class="fw-medium">{{ $connaissement->numero_livraison }}</li>
             </ul>
         </div>
         
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="ri-check-line me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+        
         <!-- Status Badge -->
-        <div class="row mb-4 no-print">
+        <div class="row mb-4">
             <div class="col-12">
                 <div class="alert alert-info d-flex align-items-center" role="alert">
                     <i class="ri-information-line me-2"></i>
@@ -234,149 +57,203 @@
                 </div>
             </div>
         </div>
-        
-        <div class="card">
-            <div class="card-header no-print">
-                <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
-                    <button type="button" class="btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1" onclick="printConnaissement()">
-                        <iconify-icon icon="basil:printer-outline" class="text-xl"></iconify-icon>
-                        Imprimer
-                    </button>
-                </div>
+
+        <div class="card h-100 p-0 radius-12">
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <h6 class="mb-0">Informations du Connaissement</h6>
             </div>
-            <div class="card-body py-40">
-                <div class="row justify-content-center" id="connaissement">
-                    <div class="col-lg-10">
-                        <div class="shadow-4 border radius-8">
-                            <!-- En-tête du connaissement -->
-                            <div class="p-20 d-flex flex-wrap justify-content-between gap-3 border-bottom">
-                                <div>
-                                    <h3 class="text-xl">{{ $connaissement->numero }}</h3>
-                                    <p class="mb-1 text-sm">Date de Création: {{ $connaissement->created_at->format('d/m/Y') }}</p>
-                                    <p class="mb-0 text-sm">Heure: {{ $connaissement->created_at->format('H:i') }}</p>
-                                </div>
-                                <div>
-                                    <div class="mb-8">
-                                        <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="FPH-CI" class="img-fluid" style="max-height: 80px;">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Informations principales -->
-                            <div class="py-16 px-16">
-                                <table class="table bordered-table sm-table mb-0 text-xs">
-                                    <tbody>
-                                        <tr>
-                                            <th colspan="4" class="bg-base text-dark fw-semibold text-center py-2">Informations Coopérative</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Coopérative</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->cooperative->nom }}</span></td>
-                                            <td class="py-1">Centre de Collecte</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->centreCollecte->nom }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Lieu de Départ</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->lieu_depart }}</span></td>
-                                            <td class="py-1">Sous-Préfecture</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->sous_prefecture }}</span></td>
-                                        </tr>
-
-                                        <tr>
-                                            <th colspan="4" class="bg-base text-dark fw-semibold text-center py-2">Informations Connaissement</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">N° Connaissement</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->numero }}</span></td>
-                                            <td class="py-1">Destinataire Type</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ ucfirst($connaissement->destinataire_type) }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Nombre de Sacs</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->nombre_sacs }}</span></td>
-                                            <td class="py-1"></td>
-                                            <td class="py-1"></td>
-                                        </tr>
-
-                                        <tr>
-                                            <th colspan="4" class="bg-base text-dark fw-semibold text-center py-2">Détails de Transport</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Transporteur</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->transporteur_nom }}</span></td>
-                                            <td class="py-1">Immatriculation</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->transporteur_immatriculation }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Chauffeur</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->chauffeur_nom }}</span></td>
-                                            <td class="py-1">Poids Brut Estimé</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ number_format($connaissement->poids_brut_estime, 2) }} kg</span></td>
-                                        </tr>
-                                        @if($connaissement->poids_net)
-                                        <tr>
-                                            <td class="py-1">Poids Net Réel</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ number_format($connaissement->poids_net, 2) }} kg</span></td>
-                                            <td class="py-1"></td>
-                                            <td class="py-1"></td>
-                                        </tr>
-                                        @endif
-
-                                        <tr>
-                                            <th colspan="4" class="bg-base text-dark fw-semibold text-center py-2">Programmation et Validation</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Date Réception</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->date_reception ? $connaissement->date_reception->format('d/m/Y') : '-' }}</span></td>
-                                            <td class="py-1">Heure Arrivée</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->heure_arrivee ? $connaissement->heure_arrivee : '-' }}</span></td>
-                                        </tr>
-                                        @if($connaissement->date_validation)
-                                        <tr>
-                                            <td class="py-1">Date Validation</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->date_validation->format('d/m/Y') }}</span></td>
-                                            <td class="py-1"></td>
-                                            <td class="py-1"></td>
-                                        </tr>
-                                        @endif
-
-                                        <tr>
-                                            <th colspan="4" class="bg-base text-dark fw-semibold text-center py-2">Informations de Création</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1">Crée par</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->createdBy->name ?? 'N/A' }}</span></td>
-                                            <td class="py-1">Date Création</td>
-                                            <td class="ps-4 py-1"><span class="text-dark fw-bold">{{ $connaissement->created_at->format('d/m/Y H:i') }}</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <!-- Signatures en bas -->
-                                <div class="mt-16 text-center">
-                                    <h6 class="text-sm mb-8">Signatures</h6>
-                                    <div class="d-flex justify-content-center gap-3">
-                                        @if($connaissement->signature_cooperative)
-                                        <div class="text-center">
-                                            <p class="text-xs mb-1">Signature Coopérative</p>
-                                            <div class="border rounded p-2" style="min-height: 40px; min-width: 80px;">
-                                                <span class="text-success">✓</span>
-                                            </div>
-                                        </div>
-                                        @endif
-                                        @if($connaissement->signature_fphci)
-                                        <div class="text-center">
-                                            <p class="text-xs mb-1">Signature FPH-CI</p>
-                                            <div class="border rounded p-2" style="min-height: 40px; min-width: 80px;">
-                                                <span class="text-success">✓</span>
-                                            </div>
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
+            <div class="card-body p-24">
+                
+                <!-- Informations de départ -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <iconify-icon icon="majesticons:map-pin-line" class="icon me-2"></iconify-icon>
+                            Informations de Départ
+                        </h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Secteur</label>
+                            <p class="form-control-plaintext">{{ $connaissement->secteur ? $connaissement->secteur->nom . ' (' . $connaissement->secteur->code . ')' : 'N/A' }}</p>
                         </div>
                     </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Coopérative</label>
+                            <p class="form-control-plaintext">{{ $connaissement->cooperative->nom }} ({{ $connaissement->cooperative->code }})</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Centre de Collecte</label>
+                            <p class="form-control-plaintext">{{ $connaissement->centreCollecte->nom }} ({{ $connaissement->centreCollecte->code }})</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Lieu de Départ</label>
+                            <p class="form-control-plaintext">{{ $connaissement->lieu_depart }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Sous-Préfecture</label>
+                            <p class="form-control-plaintext">{{ $connaissement->sous_prefecture }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informations transport -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <iconify-icon icon="majesticons:truck-line" class="icon me-2"></iconify-icon>
+                            Informations Transport
+                        </h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom du Transporteur</label>
+                            <p class="form-control-plaintext">{{ $connaissement->transporteur_nom }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Immatriculation</label>
+                            <p class="form-control-plaintext">{{ $connaissement->transporteur_immatriculation }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom du Chauffeur</label>
+                            <p class="form-control-plaintext">{{ $connaissement->chauffeur_nom }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Type de Destinataire</label>
+                            <p class="form-control-plaintext">{{ ucfirst($connaissement->destinataire_type) }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informations cargaison -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <iconify-icon icon="majesticons:package-line" class="icon me-2"></iconify-icon>
+                            Informations Cargaison
+                        </h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nombre de Sacs</label>
+                            <p class="form-control-plaintext">{{ $connaissement->nombre_sacs }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Poids Brut Estimé (kg)</label>
+                            <p class="form-control-plaintext">{{ number_format($connaissement->poids_brut_estime, 2) }}</p>
+                        </div>
+                    </div>
+                    
+                    @if($connaissement->signature_cooperative)
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Signature Coopérative</label>
+                            <p class="form-control-plaintext">{{ $connaissement->signature_cooperative }}</p>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Informations de programmation -->
+                @if($connaissement->date_reception)
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <iconify-icon icon="lucide:calendar" class="icon me-2"></iconify-icon>
+                            Informations de Programmation
+                        </h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Date de Réception</label>
+                            <p class="form-control-plaintext">{{ $connaissement->date_reception->format('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Heure d'Arrivée</label>
+                            <p class="form-control-plaintext">{{ $connaissement->heure_arrivee }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Informations de validation -->
+                @if($connaissement->statut === 'valide' && $connaissement->poids_net_reel)
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <iconify-icon icon="lucide:check-circle" class="icon me-2"></iconify-icon>
+                            Informations de Validation
+                        </h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Poids Net Réel (kg)</label>
+                            <p class="form-control-plaintext">{{ number_format($connaissement->poids_net_reel, 2) }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Date de Validation</label>
+                            <p class="form-control-plaintext">{{ $connaissement->date_validation_reelle->format('d/m/Y H:i') }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                <!-- Boutons d'action -->
+                <div class="d-flex justify-content-end gap-3">
+                    <a href="{{ route('admin.connaissements.index') }}" class="btn btn-secondary">
+                        <iconify-icon icon="lucide:arrow-left" class="icon me-1"></iconify-icon>
+                        Retour à la liste
+                    </a>
+                    <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="btn btn-warning">
+                        <iconify-icon icon="lucide:edit" class="icon me-1"></iconify-icon>
+                        Modifier
+                    </a>
+                    @if($connaissement->statut === 'programme' && !$connaissement->date_reception)
+                        <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="btn btn-primary">
+                            <iconify-icon icon="lucide:calendar" class="icon me-1"></iconify-icon>
+                            Programmer
+                        </a>
+                    @endif
+                    @if($connaissement->statut === 'programme' && $connaissement->date_reception)
+                        <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="btn btn-success">
+                            <iconify-icon icon="lucide:check" class="icon me-1"></iconify-icon>
+                            Valider
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -384,10 +261,5 @@
 </main>
 
 @include('partials.wowdash-scripts')
-<script>
-function printConnaissement() {
-    window.print();
-}
-</script>
 </body>
-</html> 
+</html>

@@ -75,17 +75,25 @@
             <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
                 <div class="d-flex align-items-center flex-wrap gap-3">
                     <span class="text-md fw-medium text-secondary-light mb-0">Show</span>
-                    <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                        <option>100</option>
-                    </select>
+                    <form method="GET" action="{{ route('admin.secteurs.index') }}" class="d-inline">
+                        @if(request('search'))
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                        @endif
+                        <select name="per_page" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
+                            <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                    </form>
                     <form class="navbar-search" method="GET" action="{{ route('admin.secteurs.index') }}">
+                        @if(request('per_page'))
+                            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                        @endif
                         <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ request('search') }}">
                         <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
                     </form>
-                    @if(request('search'))
+                    @if(request('search') || request('per_page') != 10)
                         <a href="{{ route('admin.secteurs.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
                             <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
                             Effacer les filtres
@@ -105,6 +113,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Code Secteur</th>
                                 <th scope="col">Nom Secteur</th>
+                                <th scope="col">Statistiques</th>
                                 <th scope="col" class="text-center">Modifier</th>
                                 <th scope="col" class="text-center">Supprimer</th>
                             </tr>
@@ -112,9 +121,32 @@
                         <tbody>
                             @foreach($secteurs as $index => $secteur)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $secteur->code }}</span></td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $secteur->nom }}</span></td>
+                                <td>{{ $secteurs->firstItem() + $index }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary rounded-circle p-1">
+                                            <iconify-icon icon="solar:buildings-2-bold" class="text-white" style="font-size: 0.8rem;"></iconify-icon>
+                                        </div>
+                                        <span class="text-md mb-0 fw-normal text-secondary-light">{{ $secteur->code }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="text-md mb-0 fw-semibold text-dark">{{ $secteur->nom }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-success">
+                                            <iconify-icon icon="" class="me-1"></iconify-icon>
+                                            {{ $secteur->cooperatives_count ?? 0 }} Coopératives
+                                        </span>
+                                        <span class="badge bg-info">
+                                            <iconify-icon icon="" class="me-1"></iconify-icon>
+                                            {{ $secteur->producteurs_count ?? 0 }} Producteurs
+                                        </span>
+                                    </div>
+                                </td>
                                 <td class="text-center">
                                     <button type="button" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle edit-secteur-btn" 
                                             data-secteur="{{ $secteur->id }}"
@@ -142,24 +174,61 @@
                     </table>
                 </div>
 
+                <!-- Pagination WowDash -->
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
-                    <span>Showing 1 to {{ count($secteurs) }} of {{ count($secteurs) }} entries</span>
+                    <span>Affichage de {{ $secteurs->firstItem() }} à {{ $secteurs->lastItem() }} sur {{ $secteurs->total() }} entrées</span>
                     <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-                        <li class="page-item">
-                            <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white" href="javascript:void(0)">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                            </a>
-                        </li>
+                        <!-- Page précédente -->
+                        @if($secteurs->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
+                                    <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                                </span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="{{ $secteurs->previousPageUrl() }}">
+                                    <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                                </a>
+                            </li>
+                        @endif
+
+                        <!-- Numéros de pages -->
+                        @foreach($secteurs->getUrlRange(1, $secteurs->lastPage()) as $page => $url)
+                            @if($page == $secteurs->currentPage())
+                                <li class="page-item active">
+                                    <span class="page-link text-white fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600">{{ $page }}</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="{{ $url }}">{{ $page }}</a>
+                                </li>
+                            @endif
+                        @endforeach
+
+                        <!-- Page suivante -->
+                        @if($secteurs->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="{{ $secteurs->nextPageUrl() }}">
+                                    <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                </a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
+                                    <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                </span>
+                            </li>
+                        @endif
                     </ul>
                 </div>
+
+                @if($secteurs->total() > 10)
+                    <div class="alert alert-info mt-3">
+                        <iconify-icon icon="solar:info-circle-bold" class="me-2"></iconify-icon>
+                        <strong>Note :</strong> {{ $secteurs->total() }} secteurs au total. Utilisez la recherche pour filtrer les résultats ou naviguez avec les flèches.
+                    </div>
+                @endif
             </div>
         </div>
     </div>

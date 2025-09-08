@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\TicketPesee;
 use App\Models\Connaissement;
 use App\Services\NavigationService;
+use App\Services\TicketNumberService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class TicketPeseeController extends Controller
 {
     protected $navigationService;
+    protected $ticketNumberService;
 
-    public function __construct(NavigationService $navigationService)
+    public function __construct(NavigationService $navigationService, TicketNumberService $ticketNumberService)
     {
         $this->navigationService = $navigationService;
+        $this->ticketNumberService = $ticketNumberService;
     }
 
     /**
@@ -27,7 +30,7 @@ class TicketPeseeController extends Controller
         $search = $request->get('search', '');
         
         // Construire la requête de base
-        $query = TicketPesee::with(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy']);
+        $query = TicketPesee::with(['connaissement.cooperative', 'connaissement.centreCollecte', 'connaissement.secteur', 'createdBy']);
         
         // Appliquer le filtre de statut
         if ($statut !== 'all') {
@@ -37,12 +40,15 @@ class TicketPeseeController extends Controller
         // Appliquer la recherche
         if ($search) {
             $query->where(function($q) use ($search) {
-                $q->where('numero_ticket', 'like', "%{$search}%")
+                $q->where('numero_livraison', 'like', "%{$search}%")
                   ->orWhereHas('connaissement.cooperative', function($q2) use ($search) {
                       $q2->where('nom', 'like', "%{$search}%");
                   })
+                  ->orWhereHas('connaissement.secteur', function($q2) use ($search) {
+                      $q2->where('nom', 'like', "%{$search}%");
+                  })
                   ->orWhereHas('connaissement', function($q2) use ($search) {
-                      $q2->where('numero', 'like', "%{$search}%");
+                      $q2->where('numero_livraison', 'like', "%{$search}%");
                   });
             });
         }
@@ -56,21 +62,114 @@ class TicketPeseeController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        // Récupérer seulement les connaissements validés qui n'ont pas encore de ticket de pesée
+        $connaissements = Connaissement::where('statut', 'valide')
+            ->whereDoesntHave('ticketsPesee') // Exclure ceux qui ont déjà un ticket
+            ->with(['cooperative', 'centreCollecte', 'secteur'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $navigation = $this->navigationService->getNavigation();
+        
+        return view('admin.tickets-pesee.create', compact('connaissements', 'navigation'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'connaissement_id' => 'required|exists:connaissements,id',
+            'campagne' => 'required|string|max:255',
+            'client' => 'required|string|max:255',
+            'fournisseur' => 'required|string|max:255',
+            'origine' => 'required|string|max:255',
+            'destination' => 'required|string|max:255',
+            'numero_camion' => 'required|string|max:255',
+            'transporteur' => 'required|string|max:255',
+            'chauffeur' => 'required|string|max:255',
+            'poids_entree' => 'required|numeric|min:0.01',
+            'poids_sortie' => 'required|numeric|min:0.01',
+            'nombre_sacs_bidons_cartons' => 'required|integer|min:1',
+            'date_entree' => 'required|date',
+            'heure_entree' => 'required|date_format:H:i',
+            'date_sortie' => 'required|date',
+            'heure_sortie' => 'required|date_format:H:i',
+            'nom_peseur' => 'required|string|max:255',
+            'poids_100_graines' => 'nullable|numeric|min:0',
+            'gp' => 'nullable|numeric|min:0|max:100',
+            'ga' => 'nullable|numeric|min:0|max:100',
+            'me' => 'nullable|numeric|min:0|max:100',
+            'taux_humidite' => 'nullable|numeric|min:0|max:100',
+            'taux_impuretes' => 'nullable|numeric|min:0|max:100'
+        ]);
+
+        // Vérifier qu'il n'existe pas déjà un ticket pour ce connaissement
+        $existingTicket = TicketPesee::where('connaissement_id', $request->connaissement_id)->first();
+        if ($existingTicket) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Un ticket de pesée existe déjà pour ce connaissement (N° ' . $existingTicket->numero_ticket . '). Vous pouvez le modifier mais pas en créer un nouveau.');
+        }
+
+        // Récupérer le connaissement pour obtenir le numéro de livraison
+        $connaissement = Connaissement::findOrFail($request->connaissement_id);
+
+        // Générer le numéro de ticket unique
+        $numeroTicket = $this->ticketNumberService->generateNumber($connaissement->numero_livraison);
+
+        // Calculer le poids net automatiquement
+        $poidsNet = $request->poids_entree - $request->poids_sortie;
+        
+        // Calculer le taux d'impuretés automatiquement (GP + GA + ME)
+        $tauxImpuretes = ($request->gp ?? 0) + ($request->ga ?? 0) + ($request->me ?? 0);
+
+        $ticketPesee = TicketPesee::create([
+            'numero_livraison' => $connaissement->numero_livraison,
+            'numero_ticket' => $numeroTicket,
+            'connaissement_id' => $request->connaissement_id,
+            'campagne' => $request->campagne,
+            'client' => $request->client,
+            'fournisseur' => $request->fournisseur,
+            'origine' => $request->origine,
+            'destination' => $request->destination,
+            'numero_camion' => $request->numero_camion,
+            'transporteur' => $request->transporteur,
+            'chauffeur' => $request->chauffeur,
+            'poids_entree' => $request->poids_entree,
+            'poids_sortie' => $request->poids_sortie,
+            'poids_net' => $poidsNet,
+            'nombre_sacs_bidons_cartons' => $request->nombre_sacs_bidons_cartons,
+            'date_entree' => $request->date_entree,
+            'heure_entree' => $request->heure_entree,
+            'date_sortie' => $request->date_sortie,
+            'heure_sortie' => $request->heure_sortie,
+            'nom_peseur' => $request->nom_peseur,
+            'poids_100_graines' => $request->poids_100_graines,
+            'gp' => $request->gp,
+            'ga' => $request->ga,
+            'me' => $request->me,
+            'taux_humidite' => $request->taux_humidite,
+            'taux_impuretes' => $tauxImpuretes,
+            'statut' => 'en_attente',
+            'created_by' => auth()->id()
+        ]);
+
+        return redirect()->route('admin.tickets-pesee.index')
+            ->with('success', "Ticket de pesée créé avec succès ! Numéro de ticket : {$numeroTicket}");
+    }
+
+    /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(TicketPesee $ticketPesee)
     {
-        // Debug temporaire - forcer la récupération
-        $ticketPesee = TicketPesee::findOrFail($id);
-        
-        \Log::info('TicketPesee show method', [
-            'id' => $ticketPesee->id ?? 'NULL',
-            'numero_ticket' => $ticketPesee->numero_ticket ?? 'NULL',
-            'exists' => $ticketPesee->exists ?? 'NULL',
-            'attributes' => $ticketPesee->getAttributes() ?? []
-        ]);
-        
-        $ticketPesee->load(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy', 'validatedBy']);
+        $ticketPesee->load(['connaissement.cooperative', 'connaissement.centreCollecte', 'connaissement.secteur', 'createdBy', 'validatedBy']);
         $navigation = $this->navigationService->getNavigation();
         
         return view('admin.tickets-pesee.show', compact('ticketPesee', 'navigation'));
@@ -83,7 +182,7 @@ class TicketPeseeController extends Controller
     {
         $connaissements = Connaissement::where('statut', 'valide')
             ->orWhere('id', $ticketPesee->connaissement_id)
-            ->with(['cooperative', 'centreCollecte'])
+            ->with(['cooperative', 'centreCollecte', 'secteur'])
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -123,7 +222,35 @@ class TicketPeseeController extends Controller
             'taux_impuretes' => 'nullable|numeric|min:0|max:100'
         ]);
 
-        $ticketPesee->update($request->all());
+        // Récupérer le connaissement pour obtenir le numéro de livraison
+        $connaissement = Connaissement::findOrFail($request->connaissement_id);
+
+        $ticketPesee->update([
+            'numero_livraison' => $connaissement->numero_livraison,
+            'connaissement_id' => $request->connaissement_id,
+            'campagne' => $request->campagne,
+            'client' => $request->client,
+            'fournisseur' => $request->fournisseur,
+            'origine' => $request->origine,
+            'destination' => $request->destination,
+            'numero_camion' => $request->numero_camion,
+            'transporteur' => $request->transporteur,
+            'chauffeur' => $request->chauffeur,
+            'poids_entree' => $request->poids_entree,
+            'poids_sortie' => $request->poids_sortie,
+            'nombre_sacs_bidons_cartons' => $request->nombre_sacs_bidons_cartons,
+            'date_entree' => $request->date_entree,
+            'heure_entree' => $request->heure_entree,
+            'date_sortie' => $request->date_sortie,
+            'heure_sortie' => $request->heure_sortie,
+            'nom_peseur' => $request->nom_peseur,
+            'poids_100_graines' => $request->poids_100_graines,
+            'gp' => $request->gp,
+            'ga' => $request->ga,
+            'me' => $request->me,
+            'taux_humidite' => $request->taux_humidite,
+            'taux_impuretes' => $request->taux_impuretes,
+        ]);
 
         return redirect()->route('admin.tickets-pesee.index')
             ->with('success', 'Ticket de pesée modifié avec succès !');
@@ -148,155 +275,35 @@ class TicketPeseeController extends Controller
     /**
      * Valider un ticket de pesée
      */
-    public function validate(TicketPesee $ticketPesee)
+    public function validate(Request $request, TicketPesee $ticketPesee)
     {
-        if ($ticketPesee->statut === 'valide') {
-            return redirect()->route('admin.tickets-pesee.index')
-                ->with('error', 'Ce ticket de pesée est déjà validé pour paiement.');
-        }
+        // Utiliser le poids net déjà calculé
+        $poidsNet = $ticketPesee->poids_net ?? ($ticketPesee->poids_entree - $ticketPesee->poids_sortie);
 
         $ticketPesee->update([
             'statut' => 'valide',
+            'poids_net' => $poidsNet,
             'date_validation' => now(),
-            'validated_by' => auth()->id()
+            'validated_by' => auth()->id(),
         ]);
 
         return redirect()->route('admin.tickets-pesee.index')
-            ->with('success', 'Ticket de pesée validé pour paiement avec succès !');
+            ->with('success', 'Ticket de pesée validé avec succès !');
     }
 
     /**
-     * Archiver un ticket de pesée
+     * Annuler la validation d'un ticket de pesée
      */
-    public function archive(TicketPesee $ticketPesee)
+    public function cancelValidation(TicketPesee $ticketPesee)
     {
-        if ($ticketPesee->statut !== 'valide') {
-            return redirect()->route('admin.tickets-pesee.index')
-                ->with('error', 'Seuls les tickets validés pour paiement peuvent être archivés.');
-        }
-
         $ticketPesee->update([
-            'statut' => 'archive'
+            'statut' => 'en_attente',
+            'poids_net' => null,
+            'date_validation' => null,
+            'validated_by' => null,
         ]);
 
         return redirect()->route('admin.tickets-pesee.index')
-            ->with('success', 'Ticket de pesée archivé avec succès !');
-    }
-
-    /**
-     * Générer le PDF du ticket de pesée
-     */
-    public function generatePdf($id)
-    {
-        // Debug temporaire - forcer la récupération
-        $ticketPesee = TicketPesee::findOrFail($id);
-        
-        \Log::info('TicketPesee generatePdf method', [
-            'id' => $ticketPesee->id ?? 'NULL',
-            'numero_ticket' => $ticketPesee->numero_ticket ?? 'NULL',
-            'exists' => $ticketPesee->exists ?? 'NULL'
-        ]);
-        
-        $ticketPesee->load(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy', 'validatedBy']);
-        
-        // Ici on utilisera DomPDF pour générer le PDF
-        // Pour l'instant, on redirige vers la vue show
-        return view('admin.tickets-pesee.pdf', compact('ticketPesee'));
-    }
-
-    public function create()
-    {
-        // Récupérer seulement les connaissements validés pour ticket de pesée avec toutes les informations nécessaires
-        $connaissements = Connaissement::where('statut', 'valide')
-            ->whereDoesntHave('ticketPesee') // Éviter les doublons
-            ->with(['cooperative', 'centreCollecte'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($connaissement) {
-                // Ajouter des informations calculées ou par défaut
-                $connaissement->date_reception_formatted = $connaissement->date_reception ? $connaissement->date_reception->format('Y-m-d') : null;
-                return $connaissement;
-            });
-        
-        $navigation = $this->navigationService->getNavigation();
-        return view('admin.tickets-pesee.create', compact('connaissements', 'navigation'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'connaissement_id' => 'required|exists:connaissements,id',
-            'campagne' => 'required|string|max:255',
-            'client' => 'required|string|max:255',
-            'fournisseur' => 'required|string|max:255',
-            'origine' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'numero_camion' => 'required|string|max:255',
-            'equipe_chargement' => 'nullable|string|max:255',
-            'equipe_dechargement' => 'nullable|string|max:255',
-            'poids_entree' => 'required|numeric|min:0.01',
-            'poids_sortie' => 'required|numeric|min:0.01',
-            'nombre_sacs_bidons_cartons' => 'required|integer|min:1',
-            'date_entree' => 'required|date',
-            'heure_entree' => 'required',
-            'date_sortie' => 'required|date',
-            'heure_sortie' => 'required',
-            'nom_peseur' => 'required|string|max:255',
-            'poids_100_graines' => 'nullable|numeric|min:0',
-            'gp' => 'nullable|numeric|min:0|max:100',
-            'ga' => 'nullable|numeric|min:0|max:100',
-            'me' => 'nullable|numeric|min:0|max:100',
-            'taux_humidite' => 'nullable|numeric|min:0|max:100',
-        ]);
-
-        // Vérifier que le connaissement est validé pour ticket de pesée
-        $connaissement = Connaissement::findOrFail($request->connaissement_id);
-        if ($connaissement->statut !== 'valide') {
-            return redirect()->back()->withErrors(['connaissement_id' => 'Le connaissement doit être validé pour ticket de pesée pour créer un ticket de pesée.']);
-        }
-
-        // Vérifier qu'il n'y a pas déjà un ticket pour ce connaissement
-        if ($connaissement->ticketPesee) {
-            return redirect()->back()->withErrors(['connaissement_id' => 'Un ticket de pesée existe déjà pour ce connaissement.']);
-        }
-
-        // Générer le numéro de ticket unique
-        $numeroTicket = 'TP' . date('Y') . str_pad(TicketPesee::count() + 1, 4, '0', STR_PAD_LEFT);
-
-        // Créer le ticket de pesée
-        $ticketPesee = TicketPesee::create([
-            'connaissement_id' => $request->connaissement_id,
-            'numero_ticket' => $numeroTicket,
-            'campagne' => $request->campagne,
-            'client' => $request->client,
-            'fournisseur' => $request->fournisseur,
-            'numero_bl' => $connaissement->numero,
-            'origine' => $request->origine,
-            'destination' => $request->destination,
-            'produit' => 'GRAINE DE HEVEA',
-            'numero_camion' => $request->numero_camion,
-            'transporteur' => $connaissement->transporteur_nom,
-            'chauffeur' => $connaissement->chauffeur_nom,
-            'equipe_chargement' => $request->equipe_chargement,
-            'equipe_dechargement' => $request->equipe_dechargement,
-            'poids_entree' => $request->poids_entree,
-            'poids_sortie' => $request->poids_sortie,
-            'nombre_sacs_bidons_cartons' => $request->nombre_sacs_bidons_cartons,
-            'poids_100_graines' => $request->poids_100_graines,
-            'gp' => $request->gp,
-            'ga' => $request->ga,
-            'me' => $request->me,
-            'taux_humidite' => $request->taux_humidite,
-            'taux_impuretes' => ($request->gp ?? 0) + ($request->ga ?? 0) + ($request->me ?? 0),
-            'date_entree' => $request->date_entree,
-            'heure_entree' => $request->heure_entree,
-            'date_sortie' => $request->date_sortie,
-            'heure_sortie' => $request->heure_sortie,
-            'nom_peseur' => $request->nom_peseur,
-            'created_by' => auth()->id(),
-        ]);
-
-        return redirect()->route('admin.tickets-pesee.index')
-            ->with('success', 'Ticket de pesée créé avec succès !');
+            ->with('success', 'Validation du ticket de pesée annulée avec succès !');
     }
 }

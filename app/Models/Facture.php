@@ -14,9 +14,11 @@ class Facture extends Model
 
     protected $fillable = [
         'numero_facture',
+        'numero_livraison',
         'type',
         'statut',
         'cooperative_id',
+        'montant_total',
         'montant_ht',
         'montant_tva',
         'montant_ttc',
@@ -24,12 +26,13 @@ class Facture extends Model
         'date_emission',
         'date_echeance',
         'date_paiement',
+        'date_validation',
+        'date_annulation',
         'conditions_paiement',
         'notes',
         'devise',
         'created_by',
-        'validee_par',
-        'date_validation'
+        'validee_par'
     ];
 
     protected $casts = [
@@ -37,6 +40,8 @@ class Facture extends Model
         'date_echeance' => 'date',
         'date_paiement' => 'date',
         'date_validation' => 'datetime',
+        'date_annulation' => 'datetime',
+        'montant_total' => 'decimal:2',
         'montant_ht' => 'decimal:2',
         'montant_tva' => 'decimal:2',
         'montant_ttc' => 'decimal:2',
@@ -68,118 +73,157 @@ class Facture extends Model
     }
 
     /**
-     * Relation many-to-many avec les tickets de pesée
+     * Relation avec les tickets de pesée
      */
     public function ticketsPesee(): BelongsToMany
     {
-        return $this->belongsToMany(TicketPesee::class, 'facture_ticket_pesee')
-                    ->withPivot('montant_ticket')
-                    ->withTimestamps();
+        return $this->belongsToMany(TicketPesee::class, 'facture_ticket_pesee');
     }
 
     /**
-     * Relation avec la table pivot pour accéder aux montants
+     * Relation avec les tickets de pesée via la table pivot (avec données supplémentaires)
      */
-    public function factureTicketsPesee(): HasMany
+    public function factureTicketsPesee()
     {
         return $this->hasMany(FactureTicketPesee::class);
     }
 
     /**
-     * Scope pour les factures individuelles
+     * Scopes
      */
-    public function scopeIndividuelles($query)
+    public function scopeValidee($query)
+    {
+        return $query->where('statut', 'validee');
+    }
+
+    public function scopeBrouillon($query)
+    {
+        return $query->where('statut', 'brouillon');
+    }
+
+    public function scopeAnnulee($query)
+    {
+        return $query->where('statut', 'annulee');
+    }
+
+    public function scopeIndividuelle($query)
     {
         return $query->where('type', 'individuelle');
     }
 
-    /**
-     * Scope pour les factures globales
-     */
-    public function scopeGlobales($query)
+    public function scopeGlobale($query)
     {
         return $query->where('type', 'globale');
     }
 
     /**
-     * Scope pour les factures en brouillon
+     * Méthodes
      */
-    public function scopeBrouillons($query)
-    {
-        return $query->where('statut', 'brouillon');
-    }
-
     /**
-     * Scope pour les factures validées
+     * Vérifie si la facture est en brouillon
      */
-    public function scopeValidees($query)
-    {
-        return $query->where('statut', 'validee');
-    }
-
-    /**
-     * Scope pour les factures payées
-     */
-    public function scopePayees($query)
-    {
-        return $query->where('statut', 'payee');
-    }
-
-    /**
-     * Scope pour les factures en retard
-     */
-    public function scopeEnRetard($query)
-    {
-        return $query->where('date_echeance', '<', now())
-                    ->where('statut', '!=', 'payee');
-    }
-
-    /**
-     * Vérifier si la facture est en retard
-     */
-    public function isEnRetard(): bool
-    {
-        return $this->date_echeance < now() && $this->statut !== 'payee';
-    }
-
-    /**
-     * Vérifier si la facture peut être validée
-     */
-    public function canBeValidated(): bool
+    public function isBrouillon()
     {
         return $this->statut === 'brouillon';
     }
 
     /**
-     * Vérifier si la facture peut être payée
+     * Vérifie si la facture est validée
      */
-    public function canBePaid(): bool
+    public function isValidee()
     {
         return $this->statut === 'validee';
     }
 
     /**
-     * Calculer le montant restant à payer
+     * Vérifie si la facture est payée
      */
-    public function getMontantRestantAttribute(): float
+    public function isPayee()
+    {
+        return $this->statut === 'payee';
+    }
+
+    /**
+     * Vérifie si la facture est annulée
+     */
+    public function isAnnulee()
+    {
+        return $this->statut === 'annulee';
+    }
+
+    /**
+     * Vérifie si la facture est individuelle
+     */
+    public function isIndividuelle()
+    {
+        return $this->type === 'individuelle';
+    }
+
+    /**
+     * Vérifie si la facture est globale
+     */
+    public function isGlobale()
+    {
+        return $this->type === 'globale';
+    }
+
+    /**
+     * Calcule le montant restant à payer
+     */
+    public function getMontantRestantAttribute()
     {
         return $this->montant_ttc - $this->montant_paye;
     }
 
     /**
-     * Générer le numéro de facture suivant
+     * Vérifie si la facture est complètement payée
      */
-    public static function generateNumeroFacture(): string
+    public function isCompletementPayee()
     {
-        $derniereFacture = self::orderBy('id', 'desc')->first();
-        
-        if ($derniereFacture) {
-            $numero = (int) substr($derniereFacture->numero_facture, 4); // Enlever "FACT"
-            $numero++;
-        } else {
-            $numero = 1;
-        }
-        
-        return 'FACT' . $numero;
+        return $this->montant_paye >= $this->montant_ttc;
+    }
+
+    /**
+     * Vérifie si la facture est partiellement payée
+     */
+    public function isPartiellementPayee()
+    {
+        return $this->montant_paye > 0 && $this->montant_paye < $this->montant_ttc;
+    }
+
+    /**
+     * Vérifie si la facture est en retard
+     */
+    public function isEnRetard()
+    {
+        return $this->date_echeance && $this->date_echeance < now() && !$this->isCompletementPayee();
+    }
+
+    /**
+     * Vérifie si la facture peut être validée
+     */
+    public function canBeValidated()
+    {
+        // Une facture peut être validée si :
+        // 1. Elle est en statut brouillon
+        // 2. Elle a au moins un ticket de pesée associé
+        // 3. Elle n'est pas déjà validée
+        return $this->isBrouillon() && 
+               $this->ticketsPesee()->count() > 0 && 
+               !$this->isValidee();
+    }
+
+    /**
+     * Vérifie si la facture peut être payée
+     */
+    public function canBePaid()
+    {
+        // Une facture peut être payée si :
+        // 1. Elle est validée
+        // 2. Elle n'est pas déjà payée
+        // 3. Elle n'est pas annulée
+        return $this->isValidee() && 
+               !$this->isCompletementPayee() && 
+               !$this->isAnnulee();
     }
 }

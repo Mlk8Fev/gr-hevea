@@ -72,10 +72,6 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="kilometrage" class="form-label">Kilométrage</label>
-                        <input type="text" class="form-control" id="kilometrage" name="kilometrage" value="{{ old('kilometrage', $cooperative->kilometrage) }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
                         <label for="a_sechoir" class="form-label">Séchoir</label>
                         <select class="form-select" id="a_sechoir" name="a_sechoir">
                             <option value="0" {{ old('a_sechoir', $cooperative->a_sechoir) == 0 ? 'selected' : '' }}>Non</option>
@@ -84,6 +80,49 @@
                         <div class="form-text">La coopérative dispose-t-elle d'un séchoir ?</div>
                     </div>
                 </div>
+                
+                <!-- Section des distances -->
+                <h5 class="mt-4">
+                    <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon> 
+                    Distances vers les centres de collecte (en km)
+                </h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_cotraf" class="form-label">Usine COTRAF *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_cotraf" name="distances[cotraf]" 
+                               value="{{ old('distances.cotraf', $distances['COT1'] ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_duekoue" class="form-label">Duekoué *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_duekoue" name="distances[duekoue]" 
+                               value="{{ old('distances.duekoue', $distances['DUEK'] ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_guiglo" class="form-label">Guiglo *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_guiglo" name="distances[guiglo]" 
+                               value="{{ old('distances.guiglo', $distances['GUIG'] ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_divo" class="form-label">Divo *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_divo" name="distances[divo]" 
+                               value="{{ old('distances.divo', $distances['DIVO'] ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_abengourou" class="form-label">Abengourou *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_abengourou" name="distances[abengourou]" 
+                               value="{{ old('distances.abengourou', $distances['ABENG'] ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_meagui" class="form-label">Méagui *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_meagui" name="distances[meagui]" 
+                               value="{{ old('distances.meagui', $distances['MEAG'] ?? '') }}" required>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="ri-information-line me-2"></i>
+                    <strong>Information :</strong> Ces distances seront utilisées pour calculer le coût de transport lors de la facturation.
+                </div>
+                
                 <h5 class="mt-4">Données bancaires</h5>
                 <div class="row">
                     <div class="col-md-3 mb-3">

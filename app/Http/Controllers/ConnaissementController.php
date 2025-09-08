@@ -6,17 +6,21 @@ use App\Models\Connaissement;
 use App\Models\Cooperative;
 use App\Models\CentreCollecte;
 use App\Models\User;
+use App\Models\Secteur;
 use App\Services\NavigationService;
+use App\Services\LivraisonNumberService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ConnaissementController extends Controller
 {
     protected $navigationService;
+    protected $livraisonNumberService;
 
-    public function __construct(NavigationService $navigationService)
+    public function __construct(NavigationService $navigationService, LivraisonNumberService $livraisonNumberService)
     {
         $this->navigationService = $navigationService;
+        $this->livraisonNumberService = $livraisonNumberService;
     }
 
     /**
@@ -29,7 +33,7 @@ class ConnaissementController extends Controller
         $search = $request->get('search', '');
         
         // Construire la requête de base
-        $query = Connaissement::with(['cooperative', 'centreCollecte', 'createdBy']);
+        $query = Connaissement::with(['cooperative', 'centreCollecte', 'createdBy', 'secteur']);
         
         // Appliquer le filtre de statut
         if ($statut !== 'all') {
@@ -39,8 +43,11 @@ class ConnaissementController extends Controller
         // Appliquer la recherche
         if ($search) {
             $query->where(function($q) use ($search) {
-                $q->where('numero', 'like', "%{$search}%")
+                $q->where('numero_livraison', 'like', "%{$search}%")
                   ->orWhereHas('cooperative', function($q2) use ($search) {
+                      $q2->where('nom', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('secteur', function($q2) use ($search) {
                       $q2->where('nom', 'like', "%{$search}%");
                   });
             });
@@ -60,10 +67,11 @@ class ConnaissementController extends Controller
     public function create()
     {
         $cooperatives = Cooperative::orderBy('nom')->get();
-        $centresCollecte = CentreCollecte::where('statut', 'actif')->orderBy('nom')->get();
+        $centresCollecte = CentreCollecte::orderBy('nom')->get();
+        $secteurs = Secteur::orderBy('nom')->get();
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.connaissements.create', compact('cooperatives', 'centresCollecte', 'navigation'));
+        return view('admin.connaissements.create', compact('cooperatives', 'centresCollecte', 'secteurs', 'navigation'));
     }
 
     /**
@@ -72,6 +80,7 @@ class ConnaissementController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'secteur_id' => 'required|exists:secteurs,id',
             'cooperative_id' => 'required|exists:cooperatives,id',
             'centre_collecte_id' => 'required|exists:centres_collecte,id',
             'lieu_depart' => 'required|string|max:255',
@@ -86,11 +95,15 @@ class ConnaissementController extends Controller
             'signature_cooperative' => 'nullable|string'
         ]);
 
-        // Générer le numéro de connaissement
-        $numero = 'CONN-' . date('Y') . '-' . str_pad(Connaissement::count() + 1, 4, '0', STR_PAD_LEFT);
+        // Récupérer le secteur pour obtenir son code
+        $secteur = Secteur::findOrFail($request->secteur_id);
+        
+        // Générer le numéro de livraison automatiquement
+        $numeroLivraison = $this->livraisonNumberService->generateNumber($secteur->code);
 
         $connaissement = Connaissement::create([
-            'numero' => $numero,
+            'numero_livraison' => $numeroLivraison,
+            'secteur_id' => $request->secteur_id,
             'statut' => 'programme',
             'cooperative_id' => $request->cooperative_id,
             'centre_collecte_id' => $request->centre_collecte_id,
@@ -108,7 +121,7 @@ class ConnaissementController extends Controller
         ]);
 
         return redirect()->route('admin.connaissements.index')
-            ->with('success', 'Connaissement créé avec succès !');
+            ->with('success', "Connaissement créé avec succès ! Numéro de livraison : {$numeroLivraison}");
     }
 
     /**
@@ -116,7 +129,7 @@ class ConnaissementController extends Controller
      */
     public function show(Connaissement $connaissement)
     {
-        $connaissement->load(['cooperative', 'centreCollecte', 'createdBy', 'validatedBy']);
+        $connaissement->load(['cooperative', 'centreCollecte', 'createdBy', 'validatedBy', 'secteur']);
         $navigation = $this->navigationService->getNavigation();
         
         return view('admin.connaissements.show', compact('connaissement', 'navigation'));
@@ -128,10 +141,11 @@ class ConnaissementController extends Controller
     public function edit(Connaissement $connaissement)
     {
         $cooperatives = Cooperative::orderBy('nom')->get();
-        $centresCollecte = CentreCollecte::where('statut', 'actif')->orderBy('nom')->get();
+        $centresCollecte = CentreCollecte::orderBy('nom')->get();
+        $secteurs = Secteur::orderBy('nom')->get();
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.connaissements.edit', compact('connaissement', 'cooperatives', 'centresCollecte', 'navigation'));
+        return view('admin.connaissements.edit', compact('connaissement', 'cooperatives', 'centresCollecte', 'secteurs', 'navigation'));
     }
 
     /**
@@ -140,6 +154,7 @@ class ConnaissementController extends Controller
     public function update(Request $request, Connaissement $connaissement)
     {
         $request->validate([
+            'secteur_id' => 'required|exists:secteurs,id',
             'cooperative_id' => 'required|exists:cooperatives,id',
             'centre_collecte_id' => 'required|exists:centres_collecte,id',
             'lieu_depart' => 'required|string|max:255',
@@ -154,10 +169,24 @@ class ConnaissementController extends Controller
             'signature_cooperative' => 'nullable|string'
         ]);
 
-        $connaissement->update($request->all());
+        $connaissement->update([
+            'secteur_id' => $request->secteur_id,
+            'cooperative_id' => $request->cooperative_id,
+            'centre_collecte_id' => $request->centre_collecte_id,
+            'lieu_depart' => $request->lieu_depart,
+            'sous_prefecture' => $request->sous_prefecture,
+            'transporteur_nom' => $request->transporteur_nom,
+            'transporteur_immatriculation' => $request->transporteur_immatriculation,
+            'chauffeur_nom' => $request->chauffeur_nom,
+            'destinataire_type' => $request->destinataire_type,
+            'destinataire_id' => $request->destinataire_id,
+            'nombre_sacs' => $request->nombre_sacs,
+            'poids_brut_estime' => $request->poids_brut_estime,
+            'signature_cooperative' => $request->signature_cooperative,
+        ]);
 
         return redirect()->route('admin.connaissements.index')
-            ->with('success', 'Connaissement modifié avec succès !');
+            ->with('success', 'Connaissement mis à jour avec succès !');
     }
 
     /**
@@ -165,19 +194,14 @@ class ConnaissementController extends Controller
      */
     public function destroy(Connaissement $connaissement)
     {
-        if ($connaissement->statut === 'valide') {
-            return redirect()->route('admin.connaissements.index')
-                ->with('error', 'Impossible de supprimer un connaissement validé pour ticket de pesée.');
-        }
-
         $connaissement->delete();
-
+        
         return redirect()->route('admin.connaissements.index')
             ->with('success', 'Connaissement supprimé avec succès !');
     }
 
     /**
-     * Programmer un connaissement
+     * Show the form for programming a connaissement.
      */
     public function program(Connaissement $connaissement)
     {
@@ -187,28 +211,28 @@ class ConnaissementController extends Controller
     }
 
     /**
-     * Sauvegarder la programmation
+     * Store the programming of a connaissement.
      */
     public function storeProgram(Request $request, Connaissement $connaissement)
     {
         $request->validate([
-            'date_reception' => 'required|date|after_or_equal:today',
-            'heure_arrivee' => 'required|date_format:H:i'
+            'date_reception' => 'required|date',
+            'heure_arrivee' => 'required|date_format:H:i',
         ]);
 
         $connaissement->update([
             'date_reception' => $request->date_reception,
             'heure_arrivee' => $request->heure_arrivee,
             'programmed_by' => auth()->id(),
-            'date_programmation' => now()
+            'date_programmation' => now(),
         ]);
 
-        return redirect()->route('admin.connaissements.index')
-            ->with('success', 'Livraison programmée avec succès !');
+        return redirect()->route('admin.connaissements.show', $connaissement)
+            ->with('success', 'Connaissement programmé avec succès !');
     }
 
     /**
-     * Valider un connaissement
+     * Show the form for validating a connaissement.
      */
     public function validate(Connaissement $connaissement)
     {
@@ -218,29 +242,22 @@ class ConnaissementController extends Controller
     }
 
     /**
-     * Sauvegarder la validation
+     * Store the validation of a connaissement.
      */
     public function storeValidation(Request $request, Connaissement $connaissement)
     {
         $request->validate([
             'poids_net_reel' => 'required|numeric|min:0.01',
-            'signature_fphci' => 'nullable|string'
         ]);
-
-        if ($connaissement->statut === 'valide') {
-            return redirect()->route('admin.connaissements.index')
-                ->with('error', 'Ce connaissement est déjà validé pour ticket de pesée.');
-        }
 
         $connaissement->update([
             'statut' => 'valide',
             'poids_net_reel' => $request->poids_net_reel,
             'date_validation_reelle' => now(),
             'validated_by' => auth()->id(),
-            'signature_fphci' => $request->signature_fphci
         ]);
 
-        return redirect()->route('admin.connaissements.index')
-            ->with('success', 'Connaissement validé pour ticket de pesée avec succès !');
+        return redirect()->route('admin.connaissements.show', $connaissement)
+            ->with('success', 'Connaissement validé avec succès !');
     }
 }

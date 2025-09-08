@@ -100,7 +100,7 @@
                                                            data-montant="{{ $prix ? $prix['details']['montant_public'] : 0 }}">
                                                 </td>
                                                 <td>
-                                                    <span class="fw-medium">{{ $ticket->numero_ticket }}</span>
+                                                    <span class="fw-medium">{{ $ticket->numero_livraison }}</span>
                                                 </td>
                                                 <td>
                                                     <span class="text-muted">{{ $ticket->connaissement->cooperative->nom }}</span>
@@ -201,117 +201,81 @@ let ticketsData = {};
     ticketsData[{{ $ticket->id }}] = {
         poids: {{ $ticket->poids_net }},
         montant: {{ $prix ? $prix['details']['montant_public'] : 0 }},
-        cooperativeName: "{{ $ticket->connaissement->cooperative->nom }}"
+        cooperative: '{{ $ticket->connaissement->cooperative->nom }}'
     };
 @endforeach
 
 // Gérer la sélection des tickets
-document.querySelectorAll('.ticket-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        const ticketId = parseInt(this.value);
-        
-        if (this.checked) {
-            selectedTickets.add(ticketId);
-        } else {
-            selectedTickets.delete(ticketId);
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.ticket-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const ticketId = parseInt(this.value);
+            
+            if (this.checked) {
+                selectedTickets.add(ticketId);
+            } else {
+                selectedTickets.delete(ticketId);
+            }
+            
+            updateSummary();
+            updateSubmitButton();
+        });
+    });
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+            const ticketId = parseInt(checkbox.value);
+            
+            if (this.checked) {
+                selectedTickets.add(ticketId);
+            } else {
+                selectedTickets.delete(ticketId);
+            }
+        });
         
         updateSummary();
         updateSubmitButton();
     });
-});
-
-// Mettre à jour le résumé
-function updateSummary() {
-    let count = 0;
-    let poidsTotal = 0;
-    let montantTotal = 0;
-    let cooperativeName = '-';
     
-    if (selectedTickets.size > 0) {
-        const firstTicketId = Array.from(selectedTickets)[0];
-        cooperativeName = ticketsData[firstTicketId].cooperativeName;
+    function updateSummary() {
+        let poidsTotal = 0;
+        let montantTotal = 0;
+        let cooperatives = new Set();
+        
+        selectedTickets.forEach(ticketId => {
+            const data = ticketsData[ticketId];
+            if (data) {
+                poidsTotal += data.poids;
+                montantTotal += data.montant;
+                cooperatives.add(data.cooperative);
+            }
+        });
+        
+        document.getElementById('ticketsCount').textContent = selectedTickets.size;
+        document.getElementById('poidsTotal').textContent = poidsTotal.toFixed(2) + ' kg';
+        document.getElementById('montantTotal').textContent = montantTotal.toLocaleString() + ' FCFA';
+        document.getElementById('cooperativeSelected').textContent = cooperatives.size === 1 ? Array.from(cooperatives)[0] : 'Multiple';
     }
     
-    selectedTickets.forEach(ticketId => {
-        const ticketData = ticketsData[ticketId];
-        count++;
-        poidsTotal += ticketData.poids;
-        montantTotal += ticketData.montant;
-    });
-    
-    document.getElementById('ticketsCount').textContent = count;
-    document.getElementById('poidsTotal').textContent = poidsTotal.toLocaleString() + ' kg';
-    document.getElementById('montantTotal').textContent = montantTotal.toLocaleString() + ' FCFA';
-    document.getElementById('cooperativeSelected').textContent = cooperativeName;
-}
-
-// Mettre à jour le bouton de soumission
-function updateSubmitButton() {
-    const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
+    function updateSubmitButton() {
         submitBtn.disabled = selectedTickets.size === 0;
     }
-}
+});
 
-// Sélectionner tous les tickets
 function selectAllTickets() {
-    document.querySelectorAll('.ticket-checkbox').forEach(checkbox => {
-        checkbox.checked = true;
-        selectedTickets.add(parseInt(checkbox.value));
-    });
-    
-    updateSummary();
-    updateSubmitButton();
+    document.getElementById('selectAll').checked = true;
+    document.getElementById('selectAll').dispatchEvent(new Event('change'));
 }
 
-// Désélectionner tous les tickets
 function deselectAllTickets() {
-    document.querySelectorAll('.ticket-checkbox').forEach(checkbox => {
-        checkbox.checked = false;
-    });
-    
-    selectedTickets.clear();
-    updateSummary();
-    updateSubmitButton();
+    document.getElementById('selectAll').checked = false;
+    document.getElementById('selectAll').dispatchEvent(new Event('change'));
 }
-
-// Gérer la case "Tout sélectionner"
-document.getElementById('selectAll').addEventListener('change', function() {
-    if (this.checked) {
-        selectAllTickets();
-    } else {
-        deselectAllTickets();
-    }
-});
-
-// Validation du formulaire
-document.getElementById('createFactureForm').addEventListener('submit', function(e) {
-    if (selectedTickets.size === 0) {
-        e.preventDefault();
-        alert('Veuillez sélectionner au moins un ticket.');
-        return false;
-    }
-    
-    // Vérifier que tous les tickets sélectionnés appartiennent à la même coopérative
-    let sameCooperative = true;
-    let firstCooperative = null;
-    
-    selectedTickets.forEach(ticketId => {
-        const ticketData = ticketsData[ticketId];
-        if (firstCooperative === null) {
-            firstCooperative = ticketData.cooperativeName;
-        } else if (ticketData.cooperativeName !== firstCooperative) {
-            sameCooperative = false;
-        }
-    });
-    
-    if (!sameCooperative) {
-        e.preventDefault();
-        alert('Tous les tickets sélectionnés doivent appartenir à la même coopérative.');
-        return false;
-    }
-});
 </script>
 
 </body>

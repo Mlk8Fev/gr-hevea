@@ -20,7 +20,7 @@ class SecteurController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Secteur::query();
+        $query = Secteur::withCount(['cooperatives', 'producteurs']);
 
         // Recherche par code ou nom
         if ($request->filled('search')) {
@@ -31,7 +31,9 @@ class SecteurController extends Controller
             });
         }
 
-        $secteurs = $query->orderBy('code')->get();
+        // Pagination avec nombre d'éléments par page configurable
+        $perPage = $request->get('per_page', 10);
+        $secteurs = $query->orderBy('code')->paginate($perPage);
         $navigation = $this->navigationService->getNavigation();
         
         return view('admin.secteurs.index', compact('secteurs', 'navigation'));

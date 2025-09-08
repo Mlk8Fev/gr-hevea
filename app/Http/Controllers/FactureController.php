@@ -53,6 +53,7 @@ class FactureController extends Controller
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('numero_facture', 'like', "%{$search}%")
+                  ->orWhere('numero_livraison', 'like', "%{$search}%")
                   ->orWhereHas('cooperative', function($q2) use ($search) {
                       $q2->where('nom', 'like', "%{$search}%");
                   });
@@ -82,7 +83,7 @@ class FactureController extends Controller
         $ticketsEligibles = TicketPesee::where('statut', 'valide')
             ->where('statut_ene', 'valide_par_ene')
             ->whereDoesntHave('factures') // Pas encore facturés
-            ->with(['connaissement.cooperative', 'connaissement.centreCollecte'])
+            ->with(['connaissement.cooperative', 'connaissement.centreCollecte', 'connaissement.secteur'])
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -98,135 +99,193 @@ class FactureController extends Controller
             } catch (\Exception $e) {
                 Log::error('Erreur calcul prix pour facturation', [
                     'ticket_id' => $ticket->id,
-                    'erreur' => $e->getMessage()
+                    'error' => $e->getMessage()
                 ]);
             }
         }
         
-        // Grouper par coopérative
-        $ticketsParCooperative = collect($ticketsAvecPrix)->groupBy('ticket.connaissement.cooperative_id');
-        
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.factures.create', compact('type', 'ticketsAvecPrix', 'ticketsParCooperative', 'navigation'));
+        return view('admin.factures.create', compact('ticketsAvecPrix', 'type', 'navigation'));
     }
 
     /**
-     * Créer une nouvelle facture
+     * Créer une facture individuelle
      */
     public function store(Request $request)
     {
         $request->validate([
-            'type' => 'required|in:individuelle,globale',
             'tickets_ids' => 'required|array|min:1',
-            'tickets_ids.*' => 'exists:tickets_pesee,id'
+            'tickets_ids.*' => 'exists:tickets_pesee,id',
+            'type' => 'required|in:individuelle,globale',
         ]);
 
+        DB::beginTransaction();
+        
         try {
-            DB::beginTransaction();
+            // Récupérer les tickets de pesée
+            $ticketsPesee = TicketPesee::with(['connaissement'])->whereIn('id', $request->tickets_ids)->get();
             
-            // Récupérer les tickets sélectionnés
-            $tickets = TicketPesee::whereIn('id', $request->tickets_ids)
-                ->where('statut', 'valide')
-                ->where('statut_ene', 'valide_par_ene')
-                ->whereDoesntHave('factures')
-                ->with('connaissement.cooperative')
-                ->get();
-            
-            if ($tickets->isEmpty()) {
-                return back()->with('error', 'Aucun ticket éligible trouvé pour la facturation.');
+            if ($ticketsPesee->isEmpty()) {
+                throw new \Exception('Aucun ticket valide sélectionné');
             }
             
             // Vérifier que tous les tickets appartiennent à la même coopérative
-            $cooperativeIds = $tickets->pluck('connaissement.cooperative_id')->unique();
-            if ($cooperativeIds->count() > 1) {
-                return back()->with('error', 'Tous les tickets sélectionnés doivent appartenir à la même coopérative.');
-            }
-            
-            $cooperativeId = $cooperativeIds->first();
-            
-            // Calculer les totaux
-            $montantHt = 0;
-            $montantTtc = 0;
-            $ticketsMontants = [];
-            
-            foreach ($tickets as $ticket) {
-                try {
-                    // Récupérer le prix calculé depuis le service Finance
-                    $prix = $this->calculPrixService->calculerPrixTicket($ticket);
-                    $montantTicket = $prix['details']['montant_public'];
-                    
-                    $montantHt += $montantTicket;
-                    $montantTtc += $montantTicket; // Pas de TVA pour l'instant
-                    
-                    $ticketsMontants[$ticket->id] = $montantTicket;
-                } catch (\Exception $e) {
-                    Log::error('Erreur calcul prix pour facturation', [
-                        'ticket_id' => $ticket->id,
-                        'erreur' => $e->getMessage()
-                    ]);
-                    return back()->with('error', 'Erreur lors du calcul des prix pour la facturation.');
+            $cooperativeId = $ticketsPesee->first()->connaissement->cooperative_id;
+            foreach ($ticketsPesee as $ticket) {
+                if ($ticket->connaissement->cooperative_id !== $cooperativeId) {
+                    throw new \Exception('Tous les tickets doivent appartenir à la même coopérative');
                 }
             }
             
-            // Créer la facture
+            // Calculer les montants totaux
+            $montantHt = 0;
+            $montantTva = 0;
+            $montantTtc = 0;
+            
+            foreach ($ticketsPesee as $ticket) {
+                try {
+                    $prix = $this->calculPrixService->calculerPrixTicket($ticket);
+                    $montantTicket = $prix['details']['montant_public'] ?? 0;
+                    $montantHt += $montantTicket;
+                } catch (\Exception $e) {
+                    Log::warning('Erreur calcul prix pour facturation', [
+                        'ticket_id' => $ticket->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
+            // Pour l'instant, on considère que le montant HT = montant total (pas de TVA)
+            $montantTva = 0;
+            $montantTtc = $montantHt;
+            
+            // Générer le numéro de facture
+            $numeroFacture = 'FACT-' . date('Y') . '-' . str_pad(Facture::count() + 1, 4, '0', STR_PAD_LEFT);
+            
+            // Créer la facture avec tous les montants
             $facture = Facture::create([
-                'numero_facture' => Facture::generateNumeroFacture(),
+                'numero_facture' => $numeroFacture,
+                'numero_livraison' => $ticketsPesee->first()->numero_livraison,
                 'type' => $request->type,
-                'statut' => 'brouillon',
                 'cooperative_id' => $cooperativeId,
+                'statut' => 'brouillon',
                 'montant_ht' => $montantHt,
-                'montant_tva' => 0, // Pas de TVA pour l'instant
+                'montant_tva' => $montantTva,
                 'montant_ttc' => $montantTtc,
                 'montant_paye' => 0,
-                'date_emission' => now(),
-                'date_echeance' => now()->addDays(30), // Date d'échéance par défaut
-                'conditions_paiement' => 'Paiement à 30 jours par virement bancaire',
-                'notes' => 'Facture générée automatiquement',
-                'devise' => 'XOF',
+                'date_emission' => now()->toDateString(),
+                'date_echeance' => now()->addDays(30)->toDateString(),
+                'devise' => 'XOF', // 3 caractères max
                 'created_by' => auth()->id()
             ]);
             
-            // Lier les tickets à la facture
-            foreach ($ticketsMontants as $ticketId => $montant) {
-                $facture->ticketsPesee()->attach($ticketId, [
-                    'montant_ticket' => $montant
-                ]);
+            // Associer les tickets à la facture avec les montants
+            $ticketsData = [];
+            foreach ($ticketsPesee as $ticket) {
+                try {
+                    $prix = $this->calculPrixService->calculerPrixTicket($ticket);
+                    $montantTicket = $prix['details']['montant_public'] ?? 0;
+                    
+                    $ticketsData[$ticket->id] = [
+                        'montant_ticket' => $montantTicket,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                } catch (\Exception $e) {
+                    Log::warning('Erreur calcul prix pour facturation', [
+                        'ticket_id' => $ticket->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    
+                    // Montant par défaut en cas d'erreur
+                    $ticketsData[$ticket->id] = [
+                        'montant_ticket' => 0,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
             }
+            
+            // Associer les tickets à la facture avec les montants
+            $facture->ticketsPesee()->sync($ticketsData);
             
             DB::commit();
             
             return redirect()->route('admin.factures.show', $facture)
-                ->with('success', 'Facture créée avec succès !');
+                ->with('success', "Facture créée avec succès ! Numéro : {$numeroFacture}");
                 
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollback();
             Log::error('Erreur création facture', [
-                'erreur' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage(),
+                'tickets_ids' => $request->tickets_ids
             ]);
             
-            return back()->with('error', 'Erreur lors de la création de la facture : ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la création de la facture : ' . $e->getMessage());
         }
     }
 
     /**
-     * Afficher une facture
+     * Afficher les détails d'une facture
      */
     public function show(Facture $facture)
     {
-        $facture->load([
-            'cooperative',
-            'createdBy',
-            'valideePar',
-            'ticketsPesee.connaissement.cooperative',
-            'ticketsPesee.connaissement.centreCollecte',
-            'factureTicketsPesee.ticketPesee'
-        ]);
+        $facture->load(['cooperative', 'ticketsPesee.connaissement.secteur', 'createdBy', 'valideePar']);
+        
+        // Calculer les prix pour chaque ticket
+        $ticketsAvecPrix = [];
+        foreach ($facture->ticketsPesee as $ticket) {
+            try {
+                $prix = $this->calculPrixService->calculerPrixTicket($ticket);
+                $ticketsAvecPrix[] = [
+                    'ticket' => $ticket,
+                    'prix' => $prix
+                ];
+            } catch (\Exception $e) {
+                Log::error('Erreur calcul prix pour affichage facture', [
+                    'ticket_id' => $ticket->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
         
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.factures.show', compact('facture', 'navigation'));
+        return view('admin.factures.show', compact('facture', 'ticketsAvecPrix', 'navigation'));
+    }
+
+    /**
+     * Aperçu d'une facture
+     */
+    public function preview(Facture $facture)
+    {
+        $facture->load(['cooperative', 'ticketsPesee.connaissement.secteur', 'createdBy', 'valideePar']);
+        
+        // Calculer les prix pour chaque ticket
+        $ticketsAvecPrix = [];
+        foreach ($facture->ticketsPesee as $ticket) {
+            try {
+                $prix = $this->calculPrixService->calculerPrixTicket($ticket);
+                $ticketsAvecPrix[] = [
+                    'ticket' => $ticket,
+                    'prix' => $prix
+                ];
+            } catch (\Exception $e) {
+                Log::error('Erreur calcul prix pour aperçu facture', [
+                    'ticket_id' => $ticket->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        $navigation = $this->navigationService->getNavigation();
+        
+        // Utiliser la bonne vue selon le type de facture
+        $viewName = $facture->isGlobale() ? 'admin.factures.preview-globale' : 'admin.factures.preview-individuelle';
+        
+        return view($viewName, compact('facture', 'ticketsAvecPrix', 'navigation'));
     }
 
     /**
@@ -234,125 +293,95 @@ class FactureController extends Controller
      */
     public function validate(Request $request, Facture $facture)
     {
-        if (!$facture->canBeValidated()) {
-            return back()->with('error', 'Cette facture ne peut pas être validée.');
-        }
-        
+        // Pas besoin de validation de montant car il est déjà calculé
         $facture->update([
             'statut' => 'validee',
+            'date_validation' => now(),
             'validee_par' => auth()->id(),
-            'date_validation' => now()
         ]);
-        
-        return back()->with('success', 'Facture validée avec succès !');
+
+        return redirect()->route('admin.factures.show', $facture)
+            ->with('success', 'Facture validée avec succès !');
     }
 
     /**
-     * Marquer une facture comme payée
+     * Annuler une facture
      */
-    public function markAsPaid(Request $request, Facture $facture)
+    public function cancel(Facture $facture)
     {
-        if (!$facture->canBePaid()) {
-            return back()->with('error', 'Cette facture ne peut pas être marquée comme payée.');
+        if ($facture->statut === 'validee') {
+            return redirect()->back()
+                ->with('error', 'Impossible d\'annuler une facture validée.');
         }
-        
-        $request->validate([
-            'montant_paye' => 'required|numeric|min:0.01|max:' . $facture->montant_ttc
-        ]);
-        
+
         $facture->update([
-            'montant_paye' => $request->montant_paye,
-            'date_paiement' => now()
+            'statut' => 'annulee',
+            'date_annulation' => now(),
         ]);
-        
-        // Si le montant payé est égal au montant TTC, marquer comme payée
-        if ($facture->montant_paye >= $facture->montant_ttc) {
-            $facture->update(['statut' => 'payee']);
-        }
-        
-        return back()->with('success', 'Paiement enregistré avec succès !');
+
+        return redirect()->route('admin.factures.index')
+            ->with('success', 'Facture annulée avec succès !');
     }
 
     /**
-     * Afficher la preview de la facture
-     */
-    public function preview(Facture $facture)
-    {
-        // Charger les relations nécessaires
-        $facture->load([
-            'cooperative',
-            'factureTicketsPesee.ticketPesee.connaissement.centreCollecte',
-            'createdBy',
-            'valideePar'
-        ]);
-        
-        // Choisir la vue de preview selon le type de facture
-        $view = $facture->type === 'globale' ? 'admin.factures.preview-globale' : 'admin.factures.preview-individuelle';
-        
-        return view($view, compact('facture'));
-    }
-
-    /**
-     * Générer le PDF de la facture
-     */
-    public function generatePdf(Facture $facture)
-    {
-        try {
-            // Charger les relations nécessaires
-            $facture->load([
-                'cooperative',
-                'factureTicketsPesee.ticketPesee.connaissement.centreCollecte',
-                'createdBy',
-                'valideePar'
-            ]);
-            
-            // Choisir la vue PDF selon le type de facture
-            $view = $facture->type === 'globale' ? 'admin.factures.pdf-globale' : 'admin.factures.pdf-individuelle';
-            
-            // Générer le PDF
-            $pdf = \PDF::loadView($view, compact('facture'));
-            
-            // Configuration du PDF
-            $pdf->setPaper('A4', 'portrait');
-            $pdf->setOptions([
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-                'defaultFont' => 'DejaVu Sans',
-                'chroot' => public_path()
-            ]);
-            
-            // Nom du fichier
-            $filename = 'Facture_' . $facture->numero_facture . '_' . $facture->cooperative->nom . '.pdf';
-            
-            // Retourner le PDF pour téléchargement
-            return $pdf->download($filename);
-            
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la génération du PDF', [
-                'facture_id' => $facture->id,
-                'erreur' => $e->getMessage()
-            ]);
-            
-            return back()->with('error', 'Erreur lors de la génération du PDF : ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Supprimer une facture (seulement si en brouillon)
+     * Supprimer une facture
      */
     public function destroy(Facture $facture)
     {
-        if ($facture->statut !== 'brouillon') {
-            return back()->with('error', 'Impossible de supprimer une facture qui n\'est pas en brouillon.');
+        if ($facture->statut === 'validee') {
+            return redirect()->back()
+                ->with('error', 'Impossible de supprimer une facture validée.');
         }
-        
-        // Supprimer les liens avec les tickets
-        $facture->ticketsPesee()->detach();
-        
-        // Supprimer la facture
+
         $facture->delete();
-        
+
         return redirect()->route('admin.factures.index')
             ->with('success', 'Facture supprimée avec succès !');
+    }
+
+    /**
+     * Générer le PDF d'une facture
+     */
+    public function pdf(Facture $facture)
+    {
+        $facture->load(['cooperative', 'ticketsPesee.connaissement.secteur', 'createdBy', 'valideePar']);
+        
+        // Calculer les prix pour chaque ticket
+        $ticketsAvecPrix = [];
+        foreach ($facture->ticketsPesee as $ticket) {
+            try {
+                $prix = $this->calculPrixService->calculerPrixTicket($ticket);
+                $ticketsAvecPrix[] = [
+                    'ticket' => $ticket,
+                    'prix' => $prix
+                ];
+            } catch (\Exception $e) {
+                Log::error('Erreur calcul prix pour PDF facture', [
+                    'ticket_id' => $ticket->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        return view('admin.factures.pdf', compact('facture', 'ticketsAvecPrix'));
+    }
+
+    /**
+     * Générer le PDF global des factures
+     */
+    public function pdfGlobale(Request $request)
+    {
+        $request->validate([
+            'date_debut' => 'required|date',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
+        ]);
+
+        $factures = Facture::where('statut', 'validee')
+            ->whereBetween('date_validation', [$request->date_debut, $request->date_fin])
+            ->with(['cooperative', 'ticketsPesee.connaissement.secteur'])
+            ->orderBy('date_validation')
+            ->get();
+
+        return view('admin.factures.pdf-globale', compact('factures'));
     }
 }
