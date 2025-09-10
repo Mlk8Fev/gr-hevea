@@ -212,20 +212,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     
     checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const ticketId = parseInt(this.value);
-            
-            if (this.checked) {
-                selectedTickets.add(ticketId);
-            } else {
-                selectedTickets.delete(ticketId);
-            }
-            
-            updateSummary();
-            updateSubmitButton();
-        });
+    checkbox.addEventListener('change', function() {
+        const ticketId = parseInt(this.value);
+        
+        if (this.checked) {
+            selectedTickets.add(ticketId);
+        } else {
+            selectedTickets.delete(ticketId);
+        }
+        
+        updateSummary();
+        updateSubmitButton();
     });
-    
+});
+
     selectAllCheckbox.addEventListener('change', function() {
         checkboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -236,10 +236,10 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 selectedTickets.delete(ticketId);
             }
-        });
-        
-        updateSummary();
-        updateSubmitButton();
+    });
+    
+    updateSummary();
+    updateSubmitButton();
     });
     
     function updateSummary() {
@@ -270,12 +270,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function selectAllTickets() {
     document.getElementById('selectAll').checked = true;
     document.getElementById('selectAll').dispatchEvent(new Event('change'));
-}
+        }
 
 function deselectAllTickets() {
     document.getElementById('selectAll').checked = false;
     document.getElementById('selectAll').dispatchEvent(new Event('change'));
-}
+    }
 </script>
 
 </body>

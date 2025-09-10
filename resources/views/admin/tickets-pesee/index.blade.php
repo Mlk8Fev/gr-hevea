@@ -123,7 +123,7 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Valider">
-                                                    <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
+                                                <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </form>
                                         @endif
@@ -132,7 +132,7 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Annuler validation">
-                                                    <iconify-icon icon="lucide:x" class="menu-icon"></iconify-icon>
+                                                <iconify-icon icon="lucide:x" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </form>
                                         @endif

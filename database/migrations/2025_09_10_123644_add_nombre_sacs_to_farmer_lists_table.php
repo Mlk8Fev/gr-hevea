@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('farmer_lists', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('farmer_lists', function (Blueprint $table) {
+            //
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('farmer_lists');
+        Schema::table('farmer_lists', function (Blueprint $table) {
+            //
+        });
     }
 };

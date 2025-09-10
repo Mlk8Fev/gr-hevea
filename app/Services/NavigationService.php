@@ -138,6 +138,16 @@ class NavigationService
                 'type' => 'item'
             ],
             [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'badge' => \App\Models\Connaissement::whereHas('ticketsPesee', function($q) {
+                    $q->where('statut', 'valide');
+                })->count(),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Paramètres Système',
                 'icon' => 'ri-settings-3-line',
                 'url' => '#',

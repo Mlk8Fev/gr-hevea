@@ -74,5 +74,24 @@ Route::middleware(['auth'])->group(function () {
         Route::post('factures/{facture}/mark-as-paid', [\App\Http\Controllers\FactureController::class, 'markAsPaid'])->name('factures.mark-as-paid');
         Route::get('factures/{facture}/pdf', [\App\Http\Controllers\FactureController::class, 'generatePdf'])->name('factures.pdf');
         Route::get('factures/{facture}/preview', [\App\Http\Controllers\FactureController::class, 'preview'])->name('factures.preview');
+        
+        // Farmer Lists
+        Route::get('farmer-lists', [\App\Http\Controllers\FarmerListController::class, 'index'])->name('farmer-lists.index');
+        Route::get('farmer-lists/{connaissement}', [\App\Http\Controllers\FarmerListController::class, 'show'])->name('farmer-lists.show');
+        Route::get('farmer-lists/{connaissement}/create', [\App\Http\Controllers\FarmerListController::class, 'create'])->name('farmer-lists.create');
+        Route::post('farmer-lists/{connaissement}', [\App\Http\Controllers\FarmerListController::class, 'store'])->name('farmer-lists.store');
+        Route::get('farmer-lists/{farmerList}/edit', [\App\Http\Controllers\FarmerListController::class, 'edit'])->name('farmer-lists.edit');
+        Route::put('farmer-lists/{farmerList}', [\App\Http\Controllers\FarmerListController::class, 'update'])->name('farmer-lists.update');
+        Route::delete('farmer-lists/{farmerList}', [\App\Http\Controllers\FarmerListController::class, 'destroy'])->name('farmer-lists.destroy');
+        Route::get('farmer-lists/{connaissement}/pdf', [\App\Http\Controllers\FarmerListController::class, 'pdf'])->name('farmer-lists.pdf');
+        Route::get('farmer-lists/{connaissement}/view', [\App\Http\Controllers\FarmerListController::class, 'view'])->name('farmer-lists.view');
+
+        // Reçus d'achat
+        Route::get('farmer-lists/{connaissement}/recus/{farmerList}/create', [\App\Http\Controllers\RecuAchatController::class, 'create'])->name('recus-achat.create');
+        Route::post('farmer-lists/{connaissement}/recus/{farmerList}', [\App\Http\Controllers\RecuAchatController::class, 'store'])->name('recus-achat.store');
+        Route::get('recus-achat/{recuAchat}', [\App\Http\Controllers\RecuAchatController::class, 'show'])->name('recus-achat.show');
+        Route::get('recus-achat/{recuAchat}/edit', [\App\Http\Controllers\RecuAchatController::class, 'edit'])->name('recus-achat.edit');
+        Route::put('recus-achat/{recuAchat}', [\App\Http\Controllers\RecuAchatController::class, 'update'])->name('recus-achat.update');
+        Route::get('recus-achat/{recuAchat}/pdf', [\App\Http\Controllers\RecuAchatController::class, 'pdf'])->name('recus-achat.pdf');
     });
 });

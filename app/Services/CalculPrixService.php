@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\MatricePrix;
 use App\Models\TicketPesee;
+use App\Models\Cooperative;
+use App\Models\CentreCollecte;
 
 class CalculPrixService
 {
@@ -202,5 +204,40 @@ class CalculPrixService
             'distance' => $this->calculerDistance($ticketPesee),
             'centre_collecte' => $ticketPesee->connaissement->centreCollecte->nom ?? 'Non défini'
         ];
+    }
+
+    /**
+     * Récupérer le prix de base (sans part FPH-CI) pour les reçus d'achat
+     */
+    public function getPrixBase($cooperativeId, $centreCollecteId, $quantite)
+    {
+        $cooperative = Cooperative::find($cooperativeId);
+        $centreCollecte = CentreCollecte::find($centreCollecteId);
+        
+        if (!$cooperative || !$centreCollecte) {
+            return 0;
+        }
+
+        // Créer un ticket de pesée fictif pour le calcul
+        $ticketPesee = new \App\Models\TicketPesee();
+        $ticketPesee->poids_net = $quantite;
+        $ticketPesee->connaissement_id = 1; // ID fictif
+        
+        // Récupérer la distance
+        $distance = $cooperative->getDistanceToCentre($centreCollecteId);
+        
+        // Calculer le prix de base
+        $prixBase = $this->calculerPrixBase($ticketPesee);
+        
+        return $prixBase;
+    }
+
+    /**
+     * Récupérer le prix final de la livraison pour les reçus d'achat
+     */
+    public function getPrixFinalLivraison($connaissementId)
+    {
+        // Prix fixe : 72 FCFA par kg
+        return 72;
     }
 } 

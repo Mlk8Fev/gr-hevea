@@ -43,7 +43,7 @@ class CentreCollecteSeeder extends Seeder
         foreach ($centres as $centre) {
             // Vérifier si le centre existe déjà
             if (!CentreCollecte::where('nom', $centre['nom'])->exists()) {
-                CentreCollecte::create($centre);
+            CentreCollecte::create($centre);
             }
         }
     }

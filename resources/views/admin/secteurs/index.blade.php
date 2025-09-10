@@ -84,7 +84,7 @@
                             <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
                             <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        </select>
+                    </select>
                     </form>
                     <form class="navbar-search" method="GET" action="{{ route('admin.secteurs.index') }}">
                         @if(request('per_page'))
@@ -186,11 +186,11 @@
                                 </span>
                             </li>
                         @else
-                            <li class="page-item">
+                        <li class="page-item">
                                 <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="{{ $secteurs->previousPageUrl() }}">
-                                    <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                                </a>
-                            </li>
+                                <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                            </a>
+                        </li>
                         @endif
 
                         <!-- Numéros de pages -->
@@ -200,19 +200,19 @@
                                     <span class="page-link text-white fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600">{{ $page }}</span>
                                 </li>
                             @else
-                                <li class="page-item">
+                        <li class="page-item">
                                     <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="{{ $url }}">{{ $page }}</a>
-                                </li>
+                        </li>
                             @endif
                         @endforeach
 
                         <!-- Page suivante -->
                         @if($secteurs->hasMorePages())
-                            <li class="page-item">
+                        <li class="page-item">
                                 <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="{{ $secteurs->nextPageUrl() }}">
-                                    <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                                </a>
-                            </li>
+                                <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                            </a>
+                        </li>
                         @else
                             <li class="page-item disabled">
                                 <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
