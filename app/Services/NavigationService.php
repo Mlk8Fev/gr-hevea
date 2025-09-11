@@ -148,6 +148,20 @@ class NavigationService
                 'type' => 'item'
             ],
             [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Statistiques Avancées',
+                'icon' => 'ri-line-chart-line',
+                'url' => route('admin.statistiques.avancees'),
+                'active' => request()->routeIs('admin.statistiques.avancees'),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Paramètres Système',
                 'icon' => 'ri-settings-3-line',
                 'url' => '#',

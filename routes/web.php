@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SecteurController;
+use App\Http\Controllers\StatistiquesController;
 use App\Http\Controllers\Auth\LoginController;
 
 /*
@@ -93,5 +94,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('recus-achat/{recuAchat}/edit', [\App\Http\Controllers\RecuAchatController::class, 'edit'])->name('recus-achat.edit');
         Route::put('recus-achat/{recuAchat}', [\App\Http\Controllers\RecuAchatController::class, 'update'])->name('recus-achat.update');
         Route::get('recus-achat/{recuAchat}/pdf', [\App\Http\Controllers\RecuAchatController::class, 'pdf'])->name('recus-achat.pdf');
+        // Statistiques
+        Route::get('statistiques', [StatistiquesController::class, 'index'])->name('statistiques.index');
+        Route::get('statistiques/avancees', [StatistiquesController::class, 'avancees'])->name('statistiques.avancees');
     });
 });

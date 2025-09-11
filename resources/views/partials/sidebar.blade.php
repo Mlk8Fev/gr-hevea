@@ -17,7 +17,7 @@
                 @else
                     <li>
                         <a href="{{ $item['url'] }}" class="{{ $item['active'] ? 'active' : '' }}">
-                            <i class="{{ $item['icon'] }} menu-icon"></i>
+                            <iconify-icon icon="{{ str_replace('ri-', 'ri:', $item['icon']) }}" class="menu-icon"></iconify-icon>
                             <span>{{ $item['title'] }}</span>
                             @if(isset($item['badge']))
                                 <span class="badge bg-danger ms-auto">{{ $item['badge'] }}</span>

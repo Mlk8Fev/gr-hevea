@@ -50,11 +50,19 @@ class Cooperative extends Model
     }
 
     /**
-     * Relation avec les tickets de pesée
+     * Relation avec les connaissements
      */
-    public function ticketsPesee(): HasMany
+    public function connaissements(): HasMany
     {
-        return $this->hasMany(TicketPesee::class);
+        return $this->hasMany(Connaissement::class);
+    }
+
+    /**
+     * Relation avec les tickets de pesée via les connaissements
+     */
+    public function ticketsPesee()
+    {
+        return $this->hasManyThrough(TicketPesee::class, Connaissement::class);
     }
 
     /**

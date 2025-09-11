@@ -99,6 +99,14 @@ class TicketPesee extends Model
         return $this->belongsToMany(Facture::class, 'facture_ticket_pesee');
     }
 
+    /**
+     * Relation avec la coopérative via le connaissement
+     */
+    public function cooperative()
+    {
+        return $this->connaissement->cooperative();
+    }
+
     // Scopes
     public function scopeValide($query)
     {
