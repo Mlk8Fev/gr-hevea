@@ -45,6 +45,7 @@ class CooperativeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'code' => 'required|string|max:50|unique:cooperatives,code',
             'nom' => 'required|string|max:255',
             'secteur_id' => 'required|exists:secteurs,id',
             'president' => 'required|string|max:255',
@@ -64,13 +65,8 @@ class CooperativeController extends Controller
             'distances.meagui' => 'required|numeric|min:0',
         ]);
 
-        // Génération automatique du code
-        $secteur = Secteur::findOrFail($request->secteur_id);
-        $count = Cooperative::where('secteur_id', $secteur->id)->count() + 1;
-        $code = $secteur->code . '-COOP' . $count;
-
         $cooperative = Cooperative::create([
-            'code' => $code,
+            'code' => $request->code,
             'nom' => $request->nom,
             'secteur_id' => $request->secteur_id,
             'president' => $request->president,
@@ -151,6 +147,7 @@ class CooperativeController extends Controller
     {
         $cooperative = Cooperative::findOrFail($id);
         $request->validate([
+            'code' => 'required|string|max:50|unique:cooperatives,code,' . $cooperative->id,
             'nom' => 'required|string|max:255',
             'secteur_id' => 'required|exists:secteurs,id',
             'president' => 'required|string|max:255',
@@ -166,6 +163,7 @@ class CooperativeController extends Controller
         ]);
 
         $cooperative->update([
+            'code' => $request->code,
             'nom' => $request->nom,
             'secteur_id' => $request->secteur_id,
             'president' => $request->president,

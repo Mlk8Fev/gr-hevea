@@ -33,6 +33,11 @@
                 <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations générales</h5>
                 <div class="row gy-3">
                     <div class="col-md-6">
+                        <label for="code" class="form-label">Code de la coopérative *</label>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}" required>
+                        <div class="form-text">Exemple: AB01-COOP1, COT1-COOP1, etc.</div>
+                    </div>
+                    <div class="col-md-6">
                         <label for="nom" class="form-label">Nom de la coopérative *</label>
                         <input type="text" class="form-control" id="nom" name="nom" value="{{ old('nom') }}" required>
                     </div>

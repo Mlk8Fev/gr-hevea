@@ -300,10 +300,6 @@
                         <input type="number" class="form-control" id="montant_paye" name="montant_paye" step="0.01" required>
                         <div class="form-text">Montant total de la facture : <span id="montantTotal"></span> FCFA</div>
                     </div>
-                    <div class="mb-3">
-                        <label for="date_paiement" class="form-label">Date de paiement</label>
-                        <input type="date" class="form-control" id="date_paiement" name="date_paiement" required>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -320,7 +316,7 @@ function markAsPaid(factureId, montantTotal) {
     document.getElementById('montant_paye').value = montantTotal;
     document.getElementById('montant_paye').max = montantTotal;
     document.getElementById('markAsPaidForm').action = `/admin/factures/${factureId}/mark-as-paid`;
-    document.getElementById('date_paiement').value = new Date().toISOString().split('T')[0];    
+    
     new bootstrap.Modal(document.getElementById('markAsPaidModal')).show();
 }
 </script>

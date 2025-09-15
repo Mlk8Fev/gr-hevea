@@ -31,12 +31,17 @@
             <form action="{{ route('admin.cooperatives.update', $cooperative) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label for="code" class="form-label">Code de la coopérative *</label>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ old('code', $cooperative->code) }}" required>
+                        <div class="form-text">Exemple: AB01-COOP1, COT1-COOP1, etc.</div>
+                    </div>
+                    <div class="col-md-6">
                         <label for="nom" class="form-label">Nom de la coopérative *</label>
                         <input type="text" class="form-control" id="nom" name="nom" value="{{ old('nom', $cooperative->nom) }}" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <label for="secteur_id" class="form-label">Secteur *</label>
                         <select class="form-select" id="secteur_id" name="secteur_id" required>
                             <option value="">Sélectionner un secteur</option>

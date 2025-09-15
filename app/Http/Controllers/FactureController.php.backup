@@ -303,35 +303,6 @@ class FactureController extends Controller
         return redirect()->route('admin.factures.show', $facture)
             ->with('success', 'Facture validée avec succès !');
     }
-    /**
-     * Marquer une facture comme payée
-     */
-    public function markAsPaid(Request $request, Facture $facture)
-    {
-        $request->validate([
-            'montant_paye' => 'required|numeric|min:0|max:' . $facture->montant_ttc,
-            'date_paiement' => 'required|date|before_or_equal:today',
-        ]);
-
-        if ($facture->statut !== 'validee') {
-            return redirect()->back()
-                ->with('error', 'Seules les factures validées peuvent être marquées comme payées.');
-        }
-
-        $montantPaye = $request->montant_paye;
-        $statut = 'payee';
-
-        $facture->update([
-            'montant_paye' => $montantPaye,
-            'statut' => $statut,
-            'date_paiement' => $request->date_paiement,
-        ]);
-
-        $message = 'Facture marquée comme payée !';
-
-        return redirect()->route('admin.factures.show', $facture)
-            ->with('success', $message);
-    }
 
     /**
      * Annuler une facture

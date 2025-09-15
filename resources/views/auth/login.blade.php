@@ -3,8 +3,8 @@
 <html lang="en" data-theme="light">
 <head>  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wowdash - Bootstrap 5 Admin Dashboard HTML Template</title>
-  <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+  <title>FPH-CI Systeme de Gestion et de Tracabilité de la Graine d'Hevea</title>
+  <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
   <!-- remix icon font css  -->
   <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
   <!-- BootStrap css -->
@@ -39,17 +39,15 @@
   <body>
 
 <section class="auth bg-base d-flex flex-wrap">  
-    <div class="auth-left d-lg-block d-none">
-        <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-            <img src="{{ asset('wowdash/images/auth/auth-img.png') }}" alt="">
-        </div>
+    <div class="auth-left d-lg-block d-none" style="background-image: url('{{ asset('wowdash/images/Couv.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
     </div>
     <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
         <div class="max-w-464-px mx-auto w-100">
             <div>
                 <a href="{{ url('/') }}" class="mb-40 max-w-290-px">
-                    <img src="{{ asset('wowdash/images/logo.png') }}" alt="">
+                    <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="">
                 </a>
+                <h4 class="mb-16 fw-bold" style="color: #447748;">FPH-CI Systeme de Gestion et de Tracabilité de la Graine d'Hevea</h4>
                 <h4 class="mb-12">Connexion à votre compte</h4>
                 <p class="mb-32 text-secondary-light text-lg">Bienvenue ! Veuillez entrer vos identifiants</p>
             </div>

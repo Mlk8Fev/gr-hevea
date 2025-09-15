@@ -111,18 +111,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="superficie_totale" class="form-label">Superficie totale (ha)</label>
-                        <input type="number" step="0.01" class="form-control" id="superficie_totale" name="superficie_totale" value="{{ old('superficie_totale', $producteur->superficie_totale) }}" readonly>
-                        <div class="form-text">Calculée automatiquement à partir des parcelles</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="agronica_id" class="form-label">ID AGRONICA</label>
-                        <input type="text" class="form-control" id="agronica_id" name="agronica_id" value="{{ old('agronica_id', $producteur->agronica_id) }}">
-                        <div class="form-text">Identifiant AGRONICA du producteur</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="localite" class="form-label">Localité</label>
-                        <input type="text" class="form-control" id="localite" name="localite" value="{{ old('localite', $producteur->localite) }}">
-                        <div class="form-text">Village ou localité du producteur</div>
+                        <input type="number" step="0.01" class="form-control" id="superficie_totale" name="superficie_totale" value="{{ old('superficie_totale', $producteur->superficie_totale) }}">
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">Coopératives (max 5) *</label>
@@ -155,84 +144,6 @@
                         </div>
                         <small class="text-muted">Vous pouvez ajouter jusqu'à 5 coopératives</small>
                     </div>
-                </div>
-            </div>
-            <!-- Section Parcelles -->
-            <div class="card p-24 radius-12 mb-24">
-                <h5 class="card-title mb-4">
-                    <iconify-icon icon="solar:map-outline" class="me-2 text-primary"></iconify-icon> 
-                    Parcelles (max 10)
-                </h5>
-                <div id="parcelles-container">
-                    @php $parcelles = old('parcelles', $producteur->parcelles->toArray()); @endphp
-                    @if(count($parcelles) > 0)
-                        @foreach($parcelles as $index => $parcelle)
-                        <div class="parcelle-row mb-3 p-3 border rounded">
-                            <div class="row gy-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Nom de la parcelle</label>
-                                    <input type="text" class="form-control" name="parcelles[{{ $index }}][nom_parcelle]" value="{{ $parcelle['nom_parcelle'] ?? 'PARC' . ($index + 1) . $producteur->code_fphci }}" readonly>
-                                    <div class="form-text">Généré automatiquement</div>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Latitude *</label>
-                                    <input type="number" step="0.00000001" class="form-control" name="parcelles[{{ $index }}][latitude]" value="{{ $parcelle['latitude'] ?? '' }}" placeholder="Ex: 5.12345678">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Longitude *</label>
-                                    <input type="number" step="0.00000001" class="form-control" name="parcelles[{{ $index }}][longitude]" value="{{ $parcelle['longitude'] ?? '' }}" placeholder="Ex: -4.12345678">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Superficie (ha) *</label>
-                                    <input type="number" step="0.01" class="form-control" name="parcelles[{{ $index }}][superficie]" value="{{ $parcelle['superficie'] ?? '' }}" placeholder="Ex: 2.5">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Actions</label>
-                                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeParcelle(this)">
-                                        <iconify-icon icon="solar:trash-bin-outline"></iconify-icon> Supprimer
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    @else
-                        <div class="parcelle-row mb-3 p-3 border rounded">
-                            <div class="row gy-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Nom de la parcelle</label>
-                                    <input type="text" class="form-control" name="parcelles[0][nom_parcelle]" value="PARC1{{ $producteur->code_fphci }}" readonly>
-                                    <div class="form-text">Généré automatiquement</div>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Latitude *</label>
-                                    <input type="number" step="0.00000001" class="form-control" name="parcelles[0][latitude]" placeholder="Ex: 5.12345678">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Longitude *</label>
-                                    <input type="number" step="0.00000001" class="form-control" name="parcelles[0][longitude]" placeholder="Ex: -4.12345678">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Superficie (ha) *</label>
-                                    <input type="number" step="0.01" class="form-control" name="parcelles[0][superficie]" placeholder="Ex: 2.5">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Actions</label>
-                                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeParcelle(this)">
-                                        <iconify-icon icon="solar:trash-bin-outline"></iconify-icon> Supprimer
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-                <button type="button" class="btn btn-outline-primary" onclick="addParcelle()">
-                    <iconify-icon icon="solar:add-circle-outline"></iconify-icon> Ajouter une parcelle
-                </button>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <iconify-icon icon="solar:info-circle-outline"></iconify-icon>
-                        La superficie totale sera calculée automatiquement à partir des parcelles ajoutées.
-                    </small>
                 </div>
             </div>
             <div class="card p-24 radius-12 mb-24">
@@ -295,65 +206,6 @@ $(function() {
     applySelect2();
     updateButtons();
 });
-
-let parcelleCount = {{ count($parcelles) }};
-
-function addParcelle() {
-    if (parcelleCount >= 10) {
-        alert('Vous ne pouvez pas ajouter plus de 10 parcelles.');
-        return;
-    }
-    
-    const container = document.getElementById('parcelles-container');
-    const newRow = document.createElement('div');
-    newRow.className = 'parcelle-row mb-3 p-3 border rounded';
-    newRow.innerHTML = `
-        <div class="row gy-3">
-            <div class="col-md-4">
-                <label class="form-label">Nom de la parcelle</label>
-                <input type="text" class="form-control" name="parcelles[${parcelleCount}][nom_parcelle]" value="PARC" + (parcelleCount + 1) + "{{ $producteur->code_fphci }}" readonly>
-                <div class="form-text">Généré automatiquement</div>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Latitude *</label>
-                <input type="number" step="0.00000001" class="form-control" name="parcelles[${parcelleCount}][latitude]" placeholder="Ex: 5.12345678">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Longitude *</label>
-                <input type="number" step="0.00000001" class="form-control" name="parcelles[${parcelleCount}][longitude]" placeholder="Ex: -4.12345678">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Superficie (ha) *</label>
-                <input type="number" step="0.01" class="form-control" name="parcelles[${parcelleCount}][superficie]" placeholder="Ex: 2.5">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Actions</label>
-                <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeParcelle(this)">
-                    <iconify-icon icon="solar:trash-bin-outline"></iconify-icon> Supprimer
-                </button>
-            </div>
-        </div>
-    `;
-    container.appendChild(newRow);
-    parcelleCount++;
-}
-
-function removeParcelle(button) {
-    const row = button.closest('.parcelle-row');
-    row.remove();
-    parcelleCount--;
-    updateParcelleIndexes();
-}
-
-function updateParcelleIndexes() {
-    const rows = document.querySelectorAll('.parcelle-row');
-    rows.forEach((row, index) => {
-        const inputs = row.querySelectorAll('input[name*="parcelles["]');
-        inputs.forEach(input => {
-            input.name = input.name.replace(/parcelles\[\d+\]/, `parcelles[${index}]`);
-        });
-    });
-}
 </script>
 </body>
 </html> 
