@@ -81,43 +81,32 @@
                             Informations Générales
                         </h5>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="campagne" class="form-label">Campagne *</label>
-                        <input type="text" name="campagne" id="campagne" class="form-control @error('campagne') is-invalid @enderror" value="{{ old('campagne', $ticketPesee->campagne) }}" required>
-                        @error('campagne')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="campagne" name="campagne" value="2025" readonly>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="client" class="form-label">Client *</label>
-                        <input type="text" name="client" id="client" class="form-control @error('client') is-invalid @enderror" value="{{ old('client', $ticketPesee->client) }}" required>
-                        @error('client')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="client" name="client" value="COTRAF SA" readonly>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="fournisseur" class="form-label">Fournisseur *</label>
-                        <input type="text" name="fournisseur" id="fournisseur" class="form-control @error('fournisseur') is-invalid @enderror" value="{{ old('fournisseur', $ticketPesee->fournisseur) }}" required>
-                        @error('fournisseur')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="fournisseur" name="fournisseur" value="FPH-CI" readonly>
                     </div>
                 </div>
                 
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <label for="origine" class="form-label">Origine *</label>
-                        <input type="text" name="origine" id="origine" class="form-control @error('origine') is-invalid @enderror" value="{{ old('origine', $ticketPesee->origine) }}" required>
-                        @error('origine')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="origine" name="origine" value="{{ old('origine', $ticketPesee->origine) }}" readonly>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="destination" class="form-label">Destination *</label>
-                        <input type="text" name="destination" id="destination" class="form-control @error('destination') is-invalid @enderror" value="{{ old('destination', $ticketPesee->destination) }}" required>
-                        @error('destination')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="destination" name="destination" value="{{ old('destination', $ticketPesee->destination) }}" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="numero_camion" class="form-label">N° Camion *</label>
+                        <input type="text" class="form-control" id="numero_camion" name="numero_camion" value="{{ old('numero_camion', $ticketPesee->numero_camion) }}" readonly>
                     </div>
                 </div>
                 
@@ -128,13 +117,6 @@
                             <i class="ri-car-line me-2"></i>
                             Informations Transport
                         </h5>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="numero_camion" class="form-label">N° Camion *</label>
-                        <input type="text" name="numero_camion" id="numero_camion" class="form-control @error('numero_camion') is-invalid @enderror" value="{{ old('numero_camion', $ticketPesee->numero_camion) }}" required>
-                        @error('numero_camion')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="transporteur" class="form-label">Transporteur *</label>
@@ -150,17 +132,14 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
-                
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="equipe_chargement" class="form-label">Équipe Chargement</label>
                         <input type="text" name="equipe_chargement" id="equipe_chargement" class="form-control @error('equipe_chargement') is-invalid @enderror" value="{{ old('equipe_chargement', $ticketPesee->equipe_chargement) }}">
                         @error('equipe_chargement')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="equipe_dechargement" class="form-label">Équipe Déchargement</label>
                         <input type="text" name="equipe_dechargement" id="equipe_dechargement" class="form-control @error('equipe_dechargement') is-invalid @enderror" value="{{ old('equipe_dechargement', $ticketPesee->equipe_dechargement) }}">
                         @error('equipe_dechargement')
@@ -263,10 +242,7 @@
                     </div>
                     <div class="col-md-2 mb-3">
                         <label for="poids_100_graines" class="form-label">Poids 100 graines (g)</label>
-                        <input type="number" name="poids_100_graines" id="poids_100_graines" step="0.01" min="0" class="form-control @error('poids_100_graines') is-invalid @enderror" value="{{ old('poids_100_graines', $ticketPesee->poids_100_graines) }}">
-                        @error('poids_100_graines')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="number" name="poids_100_graines" id="poids_100_graines" step="0.01" min="0" class="form-control" value="100" readonly>
                     </div>
                     <div class="col-md-2 mb-3">
                         <label for="gp" class="form-label">GP (%)</label>

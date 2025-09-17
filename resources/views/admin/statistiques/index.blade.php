@@ -17,7 +17,7 @@
             <li>-</li>
             <li class="fw-medium">Statistiques</li>
         </ul>
-    </div>
+            </div>
 
             <!-- Filtres par Date -->
             <div class="row mb-4">
@@ -67,11 +67,11 @@
                             <span class="mb-1 fw-medium text-secondary-light text-md">Total Graines</span>
                             <h6 class="fw-semibold text-primary-light mb-1">{{ number_format($stats['total_graines'] ?? 0, 0, ',', ' ') }} Kg</h6>
                         </div>
-                    </div>
+                                </div>
                     <p class="text-sm mb-0">Production totale <span class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+12%</span> ce mois</p>
-                </div>
-            </div>
-        </div>
+                                    </div>
+                                </div>
+                            </div>
         
         <div class="col-xxl-3 col-sm-6">
             <div class="card radius-8 border-0">
@@ -86,10 +86,10 @@
                         </div>
                     </div>
                     <p class="text-sm mb-0">Documents générés <span class="bg-warning-focus px-1 rounded-2 fw-medium text-warning-main text-sm">+8%</span> ce mois</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
+
         <div class="col-xxl-3 col-sm-6">
             <div class="card radius-8 border-0">
                 <div class="card-body p-24">
@@ -101,11 +101,11 @@
                             <span class="mb-1 fw-medium text-secondary-light text-md">Coopératives</span>
                             <h6 class="fw-semibold text-primary-light mb-1">{{ number_format($stats['nombre_cooperatives'] ?? 0) }}</h6>
                         </div>
-                    </div>
+                                </div>
                     <p class="text-sm mb-0">Partenaires actifs <span class="bg-info-focus px-1 rounded-2 fw-medium text-info-main text-sm">Stable</span> cette semaine</p>
-                </div>
-            </div>
-        </div>
+                                    </div>
+                                </div>
+                            </div>
         
         <div class="col-xxl-3 col-sm-6">
             <div class="card radius-8 border-0">
@@ -121,9 +121,9 @@
                     </div>
                     <p class="text-sm mb-0">Points de collecte <span class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+2</span> ce mois</p>
                 </div>
-            </div>
-        </div>
-    </div>
+                                    </div>
+                                </div>
+                            </div>
 
     <!-- Section principale avec graphique d'évolution -->
     <div class="row gy-4 mb-32">
@@ -156,10 +156,10 @@
                     </div>
                     
                     <div id="evolutionChart" class="apexcharts-tooltip-style-1" style="height: 350px;"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
+
         <div class="col-xxl-4">
             <div class="card radius-8 border-0 h-100">
                 <div class="card-body p-24">
@@ -169,7 +169,7 @@
                             Voir Tout
                             <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                         </a>
-                    </div>
+                                </div>
                     
                     @if(isset($stats['top_cooperatives']) && $stats['top_cooperatives']->count() > 0)
                         <div class="mt-32">
@@ -178,7 +178,7 @@
                                 <div class="d-flex align-items-center">
                                     <span class="w-40-px h-40-px bg-primary-light text-primary-600 rounded-circle d-flex justify-content-center align-items-center flex-shrink-0 me-12 fw-bold">
                                         {{ $index + 1 }}
-                                    </span>
+                                        </span>
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">{{ $coop['nom'] }}</h6>
                                         <span class="text-sm text-secondary-light fw-medium">Production totale</span>
@@ -197,9 +197,9 @@
                             <p class="text-sm text-secondary-light mb-0">Les données des coopératives apparaîtront ici</p>
                         </div>
                     @endif
+                    </div>
                 </div>
             </div>
-        </div>
 
                 <div class="col-xl-6">
                     <div class="card">

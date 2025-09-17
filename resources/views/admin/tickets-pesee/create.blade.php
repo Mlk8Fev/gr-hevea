@@ -60,7 +60,9 @@
                             @foreach($connaissements as $connaissement)
                                 <option value="{{ $connaissement->id }}" 
                                     data-cooperative="{{ $connaissement->cooperative->nom }}"
+                                    data-cooperative-id="{{ $connaissement->cooperative_id }}"
                                     data-centre="{{ $connaissement->centreCollecte->nom }}"
+                                    data-centre-id="{{ $connaissement->centre_collecte_id }}"
                                     data-secteur="{{ $connaissement->secteur ? $connaissement->secteur->nom : 'N/A' }}"
                                     data-transporteur="{{ $connaissement->transporteur_nom }}"
                                     data-chauffeur="{{ $connaissement->chauffeur_nom }}"
@@ -149,45 +151,27 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="campagne" class="form-label">Campagne *</label>
-                        <input type="text" class="form-control @error('campagne') is-invalid @enderror" id="campagne" name="campagne" value="{{ old('campagne') }}" required>
-                        @error('campagne')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="campagne" name="campagne" value="2025" readonly>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="client" class="form-label">Client *</label>
-                        <input type="text" class="form-control @error('client') is-invalid @enderror" id="client" name="client" value="{{ old('client') }}" required>
-                        @error('client')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="client" name="client" value="COTRAF SA" readonly>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="fournisseur" class="form-label">Fournisseur *</label>
-                        <input type="text" class="form-control @error('fournisseur') is-invalid @enderror" id="fournisseur" name="fournisseur" value="{{ old('fournisseur') }}" required>
-                        @error('fournisseur')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="fournisseur" name="fournisseur" value="FPH-CI" readonly>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="origine" class="form-label">Origine *</label>
-                        <input type="text" class="form-control @error('origine') is-invalid @enderror" id="origine" name="origine" value="{{ old('origine') }}" required>
-                        @error('origine')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="origine" name="origine" value="{{ old('origine') }}" readonly>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="destination" class="form-label">Destination *</label>
-                        <input type="text" class="form-control @error('destination') is-invalid @enderror" id="destination" name="destination" value="{{ old('destination') }}" required>
-                        @error('destination')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="destination" name="destination" value="{{ old('destination') }}" readonly>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="numero_camion" class="form-label">N° Camion *</label>
-                        <input type="text" class="form-control @error('numero_camion') is-invalid @enderror" id="numero_camion" name="numero_camion" value="{{ old('numero_camion') }}" required>
-                        @error('numero_camion')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" class="form-control" id="numero_camion" name="numero_camion" value="{{ old('numero_camion') }}" readonly>
                     </div>
                 </div>
                 
@@ -239,10 +223,7 @@
                     </div>
                     <div class="col-md-2 mb-3">
                         <label for="poids_100_graines" class="form-label">Poids 100 graines (g)</label>
-                        <input type="number" name="poids_100_graines" id="poids_100_graines" step="0.01" min="0" class="form-control @error('poids_100_graines') is-invalid @enderror" value="{{ old('poids_100_graines') }}">
-                        @error('poids_100_graines')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="number" name="poids_100_graines" id="poids_100_graines" step="0.01" min="0" class="form-control" value="100" readonly>
                     </div>
                     <div class="col-md-2 mb-3">
                         <label for="gp" class="form-label">GP (%)</label>
@@ -362,6 +343,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Remplir les champs cachés
             document.getElementById('transporteur_hidden').value = selectedOption.dataset.transporteur;
             document.getElementById('chauffeur_hidden').value = selectedOption.dataset.chauffeur;
+
+            // Remplir les champs du ticket de pesée
+            document.getElementById('origine').value = selectedOption.dataset.lieuDepart || '';
+            document.getElementById('destination').value = selectedOption.dataset.centre || '';
+            document.getElementById('numero_camion').value = selectedOption.dataset.transporteurImmatriculation || '';
         } else {
             // Vider les champs
             document.getElementById('cooperative_display').value = '';

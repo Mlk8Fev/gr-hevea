@@ -87,13 +87,13 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:superadmin,admin,manager,user',
+            'role' => 'required|in:superadmin,admin,manager,user,qualite,agc',
             'secteur' => 'nullable|string|max:255',
             'fonction_id' => 'required|exists:fonctions,id',
             'cooperative_id' => 'nullable|exists:cooperatives,id',
             'centre_collecte_id' => 'nullable|exists:centres_collecte,id',
             'siege' => 'boolean',
-            'status' => 'required|in:active,inactive'
+            'status' => 'nullable|in:active,inactive'
         ]);
 
         // Vérifier si la fonction nécessite une coopérative
@@ -113,7 +113,7 @@ class UserController extends Controller
             'cooperative_id' => $request->cooperative_id,
             'centre_collecte_id' => $request->centre_collecte_id,
             'siege' => $request->siege ?? false,
-            'status' => $request->status,
+            'status' => $request->status ?? 'active',
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur créé avec succès !');
@@ -139,13 +139,13 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8', // Mot de passe optionnel mais validé s'il est fourni
-            'role' => 'required|in:superadmin,admin,manager,user',
+            'role' => 'required|in:superadmin,admin,manager,user,qualite,agc',
             'secteur' => 'nullable|string|max:255',
             'fonction_id' => 'required|exists:fonctions,id',
             'cooperative_id' => 'nullable|exists:cooperatives,id',
             'centre_collecte_id' => 'nullable|exists:centres_collecte,id',
             'siege' => 'boolean',
-            'status' => 'required|in:active,inactive'
+            'status' => 'nullable|in:active,inactive'
         ]);
 
         // Vérifier si la fonction nécessite une coopérative
@@ -165,7 +165,7 @@ class UserController extends Controller
             'cooperative_id' => $request->cooperative_id,
             'centre_collecte_id' => $request->centre_collecte_id,
             'siege' => $request->siege ?? false,
-            'status' => $request->status,
+            'status' => $request->status ?? 'active',
         ];
 
         // Ajouter le mot de passe seulement s'il est fourni

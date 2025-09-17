@@ -325,30 +325,43 @@
                                 @foreach($cooperative->distances as $distance)
                                     @php
                                         $distanceKm = $distance->distance_km;
+                                        $isCOTRAF = $distance->centreCollecte->code === 'COT1';
                                         $colorClass = '';
                                         $transportCost = 0;
                                         
-                                        if ($distanceKm <= 100) {
-                                            $colorClass = 'success';
-                                            $transportCost = 14;
-                                        } elseif ($distanceKm <= 200) {
-                                            $colorClass = 'info';
-                                            $transportCost = 15;
-                                        } elseif ($distanceKm <= 300) {
-                                            $colorClass = 'warning';
-                                            $transportCost = 16;
-                                        } elseif ($distanceKm <= 400) {
-                                            $colorClass = 'danger';
-                                            $transportCost = 22;
-                                        } elseif ($distanceKm <= 500) {
-                                            $colorClass = 'danger';
-                                            $transportCost = 22;
-                                        } elseif ($distanceKm <= 600) {
-                                            $colorClass = 'dark';
-                                            $transportCost = 23;
+                                        if ($isCOTRAF) {
+                                            // Prix progressifs pour l'usine COTRAF
+                                            if ($distanceKm <= 100) {
+                                                $colorClass = 'success';
+                                                $transportCost = 14;
+                                            } elseif ($distanceKm <= 200) {
+                                                $colorClass = 'info';
+                                                $transportCost = 15;
+                                            } elseif ($distanceKm <= 300) {
+                                                $colorClass = 'warning';
+                                                $transportCost = 16;
+                                            } elseif ($distanceKm <= 400) {
+                                                $colorClass = 'danger';
+                                                $transportCost = 22;
+                                            } elseif ($distanceKm <= 500) {
+                                                $colorClass = 'danger';
+                                                $transportCost = 22;
+                                            } elseif ($distanceKm <= 600) {
+                                                $colorClass = 'dark';
+                                                $transportCost = 23;
+                                            } else {
+                                                $colorClass = 'dark';
+                                                $transportCost = 25;
+                                            }
                                         } else {
-                                            $colorClass = 'dark';
-                                            $transportCost = 25;
+                                            // Prix simplifiés pour les centres externes
+                                            if ($distanceKm <= 100) {
+                                                $colorClass = 'success';
+                                                $transportCost = 8;
+                                            } else {
+                                                $colorClass = 'warning';
+                                                $transportCost = 9;
+                                            }
                                         }
                                     @endphp
                                     <div class="col-md-6 col-lg-4">
@@ -364,7 +377,7 @@
                                                             <small class="text-muted">{{ $distance->centreCollecte->code }}</small>
                                                         </div>
                                                     </div>
-                                                    <span class="badge bg-success text-white fs-6">
+                                                    <span class="badge {{ $isCOTRAF ? 'bg-success' : 'bg-warning' }} text-white fs-6">
                                                         {{ number_format($distanceKm, 0) }} km
                                                     </span>
                                                 </div>
@@ -381,40 +394,6 @@
                                         </div>
                                     </div>
                                 @endforeach
-                            </div>
-
-                            <!-- Légende des coûts -->
-                            <div class="alert alert-light border">
-                                <h6 class="fw-semibold mb-3">
-                                    <iconify-icon icon="solar:info-circle-bold" class="me-2"></iconify-icon>
-                                    Légende des coûts de transport
-                                </h6>
-                                <div class="row g-2">
-                                    <div class="col-md-2">
-                                        <span class="badge bg-success me-1">≤100km</span>
-                                        <small>14 FCFA/kg</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="badge bg-light text-dark border me-1">101-200km</span>
-                                        <small>15 FCFA/kg</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="badge bg-light text-dark border me-1">201-300km</span>
-                                        <small>16 FCFA/kg</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="badge bg-light text-dark border me-1">301-400km</span>
-                                        <small>22 FCFA/kg</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="badge bg-light text-dark border me-1">401-500km</span>
-                                        <small>22 FCFA/kg</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="badge bg-light text-dark border me-1">>500km</span>
-                                        <small>23-25 FCFA/kg</small>
-                                    </div>
-                                </div>
                             </div>
                         @else
                             <div class="text-center py-5">

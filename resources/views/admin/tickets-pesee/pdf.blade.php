@@ -194,8 +194,8 @@
                             <table class="text-sm text-secondary-light">
                                 <tbody>
                                     <tr>
-                                        <td>N° Connaissement</td>
-                                        <td class="ps-8">: {{ $ticketPesee->connaissement->numero }}</td>
+                                        <td>N° Livraison</td>
+                                        <td class="ps-8">: {{ $ticketPesee->connaissement->numero_livraison }}</td>
                                     </tr>
                                     <tr>
                                         <td>Client</td>

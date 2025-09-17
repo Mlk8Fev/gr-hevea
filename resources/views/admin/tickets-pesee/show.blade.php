@@ -178,10 +178,12 @@
         <div class="card">
             <div class="card-header no-print">
                 <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
+                    @if(auth()->check() && auth()->user()->role !== 'agc')
                     <button type="button" class="btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1" onclick="printTicket()">
                         <iconify-icon icon="basil:printer-outline" class="text-xl"></iconify-icon>
                         Imprimer
                     </button>
+                    @endif
                 </div>
             </div>
             <div class="card-body py-40">
@@ -232,8 +234,8 @@
                                         <table class="text-sm text-secondary-light">
                                             <tbody>
                                                 <tr>
-                                                    <td>N° Connaissement</td>
-                                                    <td class="ps-8">: {{ $ticketPesee->connaissement->numero }}</td>
+                                                    <td>N° Livraison</td>
+                                                    <td class="ps-8">: {{ $ticketPesee->connaissement->numero_livraison }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Client</td>

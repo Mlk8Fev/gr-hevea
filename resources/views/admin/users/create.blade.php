@@ -69,6 +69,7 @@
                                     <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>Super Administrateur</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrateur</option>
                                     <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Manager</option>
+                                    <option value="qualite" {{ old('role') == 'qualite' ? 'selected' : '' }}>Agent gestion de qualité</option>
                                     <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Utilisateur</option>
                                 </select>
                                 @error('role')

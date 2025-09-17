@@ -15,7 +15,16 @@ class ProducteurController extends Controller
      */
     public function index()
     {
-        $producteurs = Producteur::with('secteur', 'cooperatives')->orderBy('nom')->get();
+        $query = Producteur::with('secteur', 'cooperatives')->orderBy('nom');
+
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            $query->whereHas('secteur', function($q) use ($userSecteurCode) {
+                $q->where('code', $userSecteurCode);
+            });
+        }
+
+        $producteurs = $query->get();
         $navigation = app(\App\Services\NavigationService::class)->getNavigation();
         return view('admin.producteurs.index', compact('producteurs', 'navigation'));
     }
@@ -179,6 +188,65 @@ class ProducteurController extends Controller
     public function update(Request $request, $id)
     {
         $producteur = Producteur::findOrFail($id);
+
+        // Si AGC, restreindre les champs modifiables
+        if (auth()->check() && auth()->user()->role === 'agc') {
+            // Valider uniquement ce que l'AGC peut modifier
+            $request->validate([
+                'cooperatives' => 'required|array|max:5',
+                'cooperatives.*' => 'exists:cooperatives,id',
+                'parcelles' => 'nullable|array|max:10',
+                'parcelles.*.latitude' => 'required_with:parcelles|numeric|between:-90,90',
+                'parcelles.*.longitude' => 'required_with:parcelles|numeric|between:-180,180',
+                'parcelles.*.superficie' => 'required_with:parcelles|numeric|min:0.01|max:999999.99',
+            ]);
+
+            // Mettre à jour uniquement les coopératives
+            $producteur->cooperatives()->sync($request->cooperatives);
+
+            // Gérer les parcelles (remplacement complet puis recalcul)
+            if ($request->has('parcelles')) {
+                $producteur->parcelles()->delete();
+                foreach ($request->parcelles as $index => $parcelleData) {
+                    if (!empty($parcelleData['latitude']) && !empty($parcelleData['longitude']) && !empty($parcelleData['superficie'])) {
+                        \App\Models\Parcelle::create([
+                            'producteur_id' => $producteur->id,
+                            'nom_parcelle' => 'PARC' . ($index + 1) . $producteur->code_fphci,
+                            'latitude' => $parcelleData['latitude'],
+                            'longitude' => $parcelleData['longitude'],
+                            'superficie' => $parcelleData['superficie'],
+                            'ordre' => $index + 1,
+                        ]);
+                    }
+                }
+                $producteur->calculateSuperficieTotale();
+            }
+
+            // Gestion upload fichiers documents
+            $documentTypes = ['fiche_enquete','lettre_engagement','self_declaration'];
+            foreach ($documentTypes as $type) {
+                if ($request->hasFile($type.'_fichier')) {
+                    $file = $request->file($type.'_fichier');
+                    $filename = $type.'_'.time().'.'.$file->getClientOriginalExtension();
+                    $path = $file->storeAs('producteurs/'.$producteur->code_fphci, $filename, 'public');
+                    $doc = $producteur->documents()->where('type', $type)->first();
+                    if ($doc) {
+                        \Storage::delete($doc->fichier);
+                        $doc->update(['fichier' => $path]);
+                    } else {
+                        ProducteurDocument::create([
+                            'producteur_id' => $producteur->id,
+                            'type' => $type,
+                            'fichier' => $path,
+                        ]);
+                    }
+                }
+            }
+
+            return redirect()->route('admin.producteurs.show', $producteur)->with('success', 'Liaisons et parcelles mises à jour avec succès.');
+        }
+
+        // Comportement normal pour autres rôles
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
@@ -191,7 +259,6 @@ class ProducteurController extends Controller
             'superficie_totale' => 'nullable|numeric',
             'cooperatives' => 'required|array|max:5',
             'cooperatives.*' => 'exists:cooperatives,id',
-            // Validation des parcelles
             'parcelles' => 'nullable|array|max:10',
             'parcelles.*.id' => 'nullable|exists:parcelles,id',
             'parcelles.*.nom_parcelle' => 'nullable|string|max:255',
@@ -200,24 +267,6 @@ class ProducteurController extends Controller
             'parcelles.*.superficie' => 'required_with:parcelles|numeric|min:0.01|max:999999.99',
         ]);
 
-        // Validation des parcelles
-        if ($request->has('parcelles')) {
-            foreach ($request->parcelles as $index => $parcelleData) {
-                if (!empty($parcelleData['latitude']) && !empty($parcelleData['longitude']) && !empty($parcelleData['superficie'])) {
-                    // Validation des coordonnées
-                    if ($parcelleData['latitude'] < -90 || $parcelleData['latitude'] > 90) {
-                        return back()->withErrors(['parcelles.' . $index . '.latitude' => 'La latitude doit être entre -90 et 90.'])->withInput();
-                    }
-                    if ($parcelleData['longitude'] < -180 || $parcelleData['longitude'] > 180) {
-                        return back()->withErrors(['parcelles.' . $index . '.longitude' => 'La longitude doit être entre -180 et 180.'])->withInput();
-                    }
-                    if ($parcelleData['superficie'] <= 0) {
-                        return back()->withErrors(['parcelles.' . $index . '.superficie' => 'La superficie doit être supérieure à 0.'])->withInput();
-                    }
-                }
-            }
-        }
-
         $producteur->update($request->only([
             'nom', 'prenom', 'code_fphci', 'agronica_id', 'localite', 
             'secteur_id', 'genre', 'contact', 'superficie_totale'
@@ -225,12 +274,8 @@ class ProducteurController extends Controller
         
         $producteur->cooperatives()->sync($request->cooperatives);
 
-        // Gestion des parcelles
         if ($request->has('parcelles')) {
-            // Supprimer les parcelles existantes
             $producteur->parcelles()->delete();
-            
-            // Créer les nouvelles parcelles
             foreach ($request->parcelles as $index => $parcelleData) {
                 if (!empty($parcelleData['latitude']) && !empty($parcelleData['longitude']) && !empty($parcelleData['superficie'])) {
                     \App\Models\Parcelle::create([
@@ -243,11 +288,10 @@ class ProducteurController extends Controller
                     ]);
                 }
             }
-            // Recalculer la superficie totale
             $producteur->calculateSuperficieTotale();
         }
 
-        // Gestion upload fichiers documents (optionnel)
+        // Gestion upload fichiers documents (identique au dessus)
         $documentTypes = ['fiche_enquete','lettre_engagement','self_declaration'];
         foreach ($documentTypes as $type) {
             if ($request->hasFile($type.'_fichier')) {

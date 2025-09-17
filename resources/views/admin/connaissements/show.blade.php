@@ -58,6 +58,19 @@
             </div>
         </div>
 
+        <!-- Code Livraison (grand) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="p-24 radius-12 bg-primary-50 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted fw-semibold">Code Livraison</div>
+                        <div class="display-6 fw-bold text-primary mb-0">{{ $connaissement->numero_livraison }}</div>
+                    </div>
+                    <iconify-icon icon="mdi:barcode" class="icon" style="font-size: 48px; color: var(--primary);"></iconify-icon>
+                </div>
+            </div>
+        </div>
+
         <div class="card h-100 p-0 radius-12">
             <div class="card-header border-bottom bg-base py-16 px-24">
                 <h6 class="mb-0">Informations du Connaissement</h6>
@@ -89,7 +102,7 @@
                     
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Centre de Collecte</label>
+                            <label class="form-label fw-semibold">Lieu de livraison</label>
                             <p class="form-control-plaintext">{{ $connaissement->centreCollecte->nom }} ({{ $connaissement->centreCollecte->code }})</p>
                         </div>
                     </div>
@@ -238,21 +251,24 @@
                         <iconify-icon icon="lucide:arrow-left" class="icon me-1"></iconify-icon>
                         Retour à la liste
                     </a>
-                    <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="btn btn-warning">
-                        <iconify-icon icon="lucide:edit" class="icon me-1"></iconify-icon>
-                        Modifier
-                    </a>
-                    @if($connaissement->statut === 'programme' && !$connaissement->date_reception)
-                        <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="btn btn-primary">
-                            <iconify-icon icon="lucide:calendar" class="icon me-1"></iconify-icon>
-                            Programmer
+
+                    @if(auth()->check() && auth()->user()->role !== 'agc')
+                        <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="btn btn-warning">
+                            <iconify-icon icon="lucide:edit" class="icon me-1"></iconify-icon>
+                            Modifier
                         </a>
-                    @endif
-                    @if($connaissement->statut === 'programme' && $connaissement->date_reception)
-                        <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="btn btn-success">
-                            <iconify-icon icon="lucide:check" class="icon me-1"></iconify-icon>
-                            Valider
-                        </a>
+                        @if($connaissement->statut === 'programme' && !$connaissement->date_reception)
+                            <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="btn btn-primary">
+                                <iconify-icon icon="lucide:calendar" class="icon me-1"></iconify-icon>
+                                Programmer
+                            </a>
+                        @endif
+                        @if($connaissement->statut === 'programme' && $connaissement->date_reception)
+                            <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="btn btn-success">
+                                <iconify-icon icon="lucide:check" class="icon me-1"></iconify-icon>
+                                Valider
+                            </a>
+                        @endif
                     @endif
                 </div>
             </div>

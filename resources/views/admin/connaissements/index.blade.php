@@ -140,25 +140,30 @@
                                         <a href="{{ route('admin.connaissements.show', $connaissement) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
                                             <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                         </a>
-                                        <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                        </a>
-                                        @if($connaissement->statut === 'programme')
-                                            <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Programmer">
-                                                <iconify-icon icon="lucide:calendar" class="menu-icon"></iconify-icon>
+
+                                        @if(auth()->check() && auth()->user()->role !== 'agc')
+                                            <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
                                             </a>
-                                            <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
-                                                <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
-                                            </a>
-                                        @endif
-                                        @if($connaissement->statut === 'programme')
-                                            <form action="{{ route('admin.connaissements.destroy', $connaissement) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer ce connaissement ?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
-                                                    <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                                                </button>
-                                            </form>
+
+                                            @if($connaissement->statut === 'programme')
+                                                <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Programmer">
+                                                    <iconify-icon icon="lucide:calendar" class="menu-icon"></iconify-icon>
+                                                </a>
+                                                <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
+                                                    <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
+                                                </a>
+                                            @endif
+
+                                            @if($connaissement->statut === 'programme')
+                                                <form action="{{ route('admin.connaissements.destroy', $connaissement) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer ce connaissement ?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
+                                                        <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

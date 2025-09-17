@@ -73,6 +73,10 @@
             @csrf
             @method('PUT')
             <div class="card p-24 radius-12 mb-24">
+                @if(auth()->check() && auth()->user()->role === 'agc')
+                <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations principales</h5>
+                <div class="alert alert-warning mb-0">En tant qu'AT/AGQ, vous ne pouvez pas modifier les informations principales du producteur. Vous pouvez lier des coopératives, gérer les parcelles et les documents ci-dessous.</div>
+                @else
                 <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations principales</h5>
                 <div class="row gy-3">
                     <div class="col-md-6">
@@ -156,6 +160,7 @@
                         <small class="text-muted">Vous pouvez ajouter jusqu'à 5 coopératives</small>
                     </div>
                 </div>
+                @endif
             </div>
             <!-- Section Parcelles -->
             <div class="card p-24 radius-12 mb-24">

@@ -345,70 +345,95 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="username" class="form-label">Nom d'utilisateur *</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username') }}" required>
+                            @error('username')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label">Nom complet *</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Prénom + Nom" required>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="Prénom + Nom" value="{{ old('name') }}" required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email *</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="password" class="form-label">Mot de passe *</label>
-                            <input type="password" class="form-control" id="password" name="password" required minlength="8">
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required minlength="8">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="role" class="form-label">Rôle *</label>
-                            <select class="form-select" id="role" name="role" required>
+                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                                 <option value="">Sélectionner un rôle</option>
-                                <option value="superadmin">Super Admin</option>
-                                <option value="admin">Admin</option>
-                                <option value="manager">Manager</option>
-                                <option value="user">Utilisateur</option>
+                                <option value="superadmin" {{ old('role')=='superadmin' ? 'selected' : '' }}>Super Admin</option>
+                                <option value="admin" {{ old('role')=='admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="manager" {{ old('role')=='manager' ? 'selected' : '' }}>Manager</option>
+                                <option value="agc" {{ old('role')=='agc' ? 'selected' : '' }}>Agent gestion de qualité</option>
+                                <option value="user" {{ old('role')=='user' ? 'selected' : '' }}>Utilisateur</option>
                             </select>
+                            @error('role')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="fonction_id" class="form-label">Fonction *</label>
-                            <select class="form-select" id="fonction_id" name="fonction_id" required>
+                            <select class="form-select @error('fonction_id') is-invalid @enderror" id="fonction_id" name="fonction_id" required>
                                 <option value="">Sélectionner une fonction</option>
                                 @foreach($fonctions as $fonction)
-                                    <option value="{{ $fonction->id }}">{{ $fonction->nom }}</option>
+                                    <option value="{{ $fonction->id }}" {{ old('fonction_id')==$fonction->id ? 'selected' : '' }}>{{ $fonction->nom }}</option>
                                 @endforeach
                             </select>
+                            @error('fonction_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="cooperative_id" class="form-label">Coopérative</label>
-                            <select class="form-select" id="cooperative_id" name="cooperative_id">
+                            <select class="form-select @error('cooperative_id') is-invalid @enderror" id="cooperative_id" name="cooperative_id">
                                 <option value="">Sélectionner une coopérative</option>
                                 @foreach($cooperatives as $cooperative)
-                                    <option value="{{ $cooperative->id }}">{{ $cooperative->nom }} ({{ $cooperative->code }})</option>
+                                    <option value="{{ $cooperative->id }}" {{ old('cooperative_id')==$cooperative->id ? 'selected' : '' }}>{{ $cooperative->nom }} ({{ $cooperative->code }})</option>
                                 @endforeach
                             </select>
                             <small class="form-text text-muted">Obligatoire si la fonction nécessite une coopérative</small>
+                            @error('cooperative_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="secteur" class="form-label">Secteur</label>
-                            <select class="form-select" id="secteur" name="secteur">
+                            <select class="form-select @error('secteur') is-invalid @enderror" id="secteur" name="secteur">
                                 <option value="">Sélectionner un secteur</option>
                                 @foreach($secteurs as $secteur)
-                                    <option value="{{ $secteur->code }}">{{ $secteur->code }} - {{ $secteur->nom }}</option>
+                                    <option value="{{ $secteur->code }}" {{ old('secteur')==$secteur->code ? 'selected' : '' }}>{{ $secteur->code }} - {{ $secteur->nom }}</option>
                                 @endforeach
                             </select>
+                            @error('secteur')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="siege" name="siege" value="1">
+                                <input class="form-check-input" type="checkbox" id="siege" name="siege" value="1" {{ old('siege') ? 'checked' : '' }}>
                                 <label class="form-check-label" for="siege">
                                     Utilisateur du siège
                                 </label>
@@ -418,11 +443,14 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="status" class="form-label">Statut *</label>
-                            <select class="form-select" id="status" name="status" required>
+                            <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
                                 <option value="">Sélectionner un statut</option>
-                                <option value="active">Actif</option>
-                                <option value="inactive">Inactif</option>
+                                <option value="active" {{ old('status','active')=='active' ? 'selected' : '' }}>Actif</option>
+                                <option value="inactive" {{ old('status')=='inactive' ? 'selected' : '' }}>Inactif</option>
                             </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -481,6 +509,7 @@
                                 <option value="superadmin">Super Admin</option>
                                 <option value="admin">Admin</option>
                                 <option value="manager">Manager</option>
+                                <option value="agc">Agent gestion de qualité</option>
                                 <option value="user">Utilisateur</option>
                             </select>
                         </div>
@@ -822,6 +851,16 @@ $(document).ready(function() {
     $('#edit_fonction_id').trigger('change');
 });
 </script>
+
+{{-- Ouvrir automatiquement le modal si des erreurs de validation existent --}}
+@if ($errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+        modal.show();
+    });
+</script>
+@endif
 
 </body>
 </html> 

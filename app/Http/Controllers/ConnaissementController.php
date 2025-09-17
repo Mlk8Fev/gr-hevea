@@ -35,6 +35,14 @@ class ConnaissementController extends Controller
         // Construire la requête de base
         $query = Connaissement::with(['cooperative', 'centreCollecte', 'createdBy', 'secteur']);
         
+        // Scoping par secteur pour AGC
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            $query->whereHas('secteur', function($q) use ($userSecteurCode) {
+                $q->where('code', $userSecteurCode);
+            });
+        }
+        
         // Appliquer le filtre de statut
         if ($statut !== 'all') {
             $query->where('statut', $statut);
@@ -259,5 +267,19 @@ class ConnaissementController extends Controller
 
         return redirect()->route('admin.connaissements.show', $connaissement)
             ->with('success', 'Connaissement validé avec succès !');
+    }
+
+    /**
+     * Récupérer les données d'un connaissement pour AJAX
+     */
+    public function getData($id)
+    {
+        $connaissement = Connaissement::with('centreCollecte')->findOrFail($id);
+        
+        return response()->json([
+            'lieu_depart' => $connaissement->lieu_depart,
+            'centre_collecte_nom' => $connaissement->centreCollecte->nom ?? '',
+            'transporteur_immatriculation' => $connaissement->transporteur_immatriculation
+        ]);
     }
 }

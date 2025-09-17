@@ -70,12 +70,14 @@
                         </form>
                     </div>
                 </div>
+                @if(auth()->check() && auth()->user()->role !== 'agc')
                 <div class="d-flex flex-wrap align-items-center gap-2">
                     <a href="{{ route('admin.tickets-pesee.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
                         <iconify-icon icon="ri-add-line" class="icon text-xl line-height-1"></iconify-icon>
                         Créer depuis Connaissement
                     </a>
                 </div>
+                @endif
             </div>
             <div class="card-body p-24">
                 <div class="table-responsive scroll-sm">
@@ -115,35 +117,40 @@
                                         <a href="{{ route('admin.tickets-pesee.show', $ticket) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
                                             <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                         </a>
-                                        <a href="{{ route('admin.tickets-pesee.edit', $ticket) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                        </a>
-                                        @if($ticket->statut === 'en_attente')
-                                            <form action="{{ route('admin.tickets-pesee.validate', $ticket) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Valider">
-                                                <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        @if($ticket->statut === 'valide')
-                                            <form action="{{ route('admin.tickets-pesee.cancel-validation', $ticket) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Annuler validation">
-                                                <iconify-icon icon="lucide:x" class="menu-icon"></iconify-icon>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        @if($ticket->statut !== 'valide')
-                                            <form action="{{ route('admin.tickets-pesee.destroy', $ticket) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce ticket de pesée ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="bg-danger-focus text-danger-600 bg-hover-danger-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Supprimer">
-                                                    <iconify-icon icon="lucide:trash-2" class="menu-icon"></iconify-icon>
-                                                </button>
-                                            </form>
+
+                                        @if(auth()->check() && auth()->user()->role !== 'agc')
+                                            <a href="{{ route('admin.tickets-pesee.edit', $ticket) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                            </a>
+
+                                            @if($ticket->statut === 'en_attente')
+                                                <form action="{{ route('admin.tickets-pesee.validate', $ticket) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Valider">
+                                                        <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            @if($ticket->statut === 'valide')
+                                                <form action="{{ route('admin.tickets-pesee.cancel-validation', $ticket) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Annuler validation">
+                                                    <iconify-icon icon="lucide:x" class="menu-icon"></iconify-icon>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @if($ticket->statut !== 'valide')
+                                                <form action="{{ route('admin.tickets-pesee.destroy', $ticket) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce ticket de pesée ?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="bg-danger-focus text-danger-600 bg-hover-danger-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Supprimer">
+                                                        <iconify-icon icon="lucide:trash-2" class="menu-icon"></iconify-icon>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

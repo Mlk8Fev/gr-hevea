@@ -31,6 +31,14 @@ class TicketPeseeController extends Controller
         
         // Construire la requête de base
         $query = TicketPesee::with(['connaissement.cooperative', 'connaissement.centreCollecte', 'connaissement.secteur', 'createdBy']);
+
+        // Scoping par secteur pour AGC
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            $query->whereHas('connaissement.secteur', function($q) use ($userSecteurCode) {
+                $q->where('code', $userSecteurCode);
+            });
+        }
         
         // Appliquer le filtre de statut
         if ($statut !== 'all') {
@@ -66,6 +74,9 @@ class TicketPeseeController extends Controller
      */
     public function create()
     {
+        if (auth()->check() && auth()->user()->role === 'agc') {
+            abort(403);
+        }
         // Récupérer seulement les connaissements validés qui n'ont pas encore de ticket de pesée
         $connaissements = Connaissement::where('statut', 'valide')
             ->whereDoesntHave('ticketsPesee') // Exclure ceux qui ont déjà un ticket
@@ -85,12 +96,12 @@ class TicketPeseeController extends Controller
     {
         $request->validate([
             'connaissement_id' => 'required|exists:connaissements,id',
-            'campagne' => 'required|string|max:255',
-            'client' => 'required|string|max:255',
-            'fournisseur' => 'required|string|max:255',
-            'origine' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'numero_camion' => 'required|string|max:255',
+            'campagne' => 'nullable|string|max:255',
+            'client' => 'nullable|string|max:255',
+            'fournisseur' => 'nullable|string|max:255',
+            'origine' => 'nullable|string|max:255',
+            'destination' => 'nullable|string|max:255',
+            'numero_camion' => 'nullable|string|max:255',
             'transporteur' => 'required|string|max:255',
             'chauffeur' => 'required|string|max:255',
             'poids_entree' => 'required|numeric|min:0.01',
@@ -133,9 +144,9 @@ class TicketPeseeController extends Controller
             'numero_livraison' => $connaissement->numero_livraison,
             'numero_ticket' => $numeroTicket,
             'connaissement_id' => $request->connaissement_id,
-            'campagne' => $request->campagne,
-            'client' => $request->client,
-            'fournisseur' => $request->fournisseur,
+            'campagne' => '2025',
+            'client' => 'COTRAF SA',
+            'fournisseur' => 'FPH-CI',
             'origine' => $request->origine,
             'destination' => $request->destination,
             'numero_camion' => $request->numero_camion,
@@ -150,7 +161,7 @@ class TicketPeseeController extends Controller
             'date_sortie' => $request->date_sortie,
             'heure_sortie' => $request->heure_sortie,
             'nom_peseur' => $request->nom_peseur,
-            'poids_100_graines' => $request->poids_100_graines,
+            'poids_100_graines' => 100,
             'gp' => $request->gp,
             'ga' => $request->ga,
             'me' => $request->me,
@@ -180,6 +191,9 @@ class TicketPeseeController extends Controller
      */
     public function edit(TicketPesee $ticketPesee)
     {
+        if (auth()->check() && auth()->user()->role === 'agc') {
+            abort(403);
+        }
         $connaissements = Connaissement::where('statut', 'valide')
             ->orWhere('id', $ticketPesee->connaissement_id)
             ->with(['cooperative', 'centreCollecte', 'secteur'])
@@ -196,14 +210,17 @@ class TicketPeseeController extends Controller
      */
     public function update(Request $request, TicketPesee $ticketPesee)
     {
+        if (auth()->check() && auth()->user()->role === 'agc') {
+            abort(403);
+        }
         $request->validate([
             'connaissement_id' => 'required|exists:connaissements,id',
-            'campagne' => 'required|string|max:255',
-            'client' => 'required|string|max:255',
-            'fournisseur' => 'required|string|max:255',
-            'origine' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'numero_camion' => 'required|string|max:255',
+            'campagne' => 'nullable|string|max:255',
+            'client' => 'nullable|string|max:255',
+            'fournisseur' => 'nullable|string|max:255',
+            'origine' => 'nullable|string|max:255',
+            'destination' => 'nullable|string|max:255',
+            'numero_camion' => 'nullable|string|max:255',
             'transporteur' => 'required|string|max:255',
             'chauffeur' => 'required|string|max:255',
             'poids_entree' => 'required|numeric|min:0.01',
@@ -228,9 +245,9 @@ class TicketPeseeController extends Controller
         $ticketPesee->update([
             'numero_livraison' => $connaissement->numero_livraison,
             'connaissement_id' => $request->connaissement_id,
-            'campagne' => $request->campagne,
-            'client' => $request->client,
-            'fournisseur' => $request->fournisseur,
+            'campagne' => '2025',
+            'client' => 'COTRAF SA',
+            'fournisseur' => 'FPH-CI',
             'origine' => $request->origine,
             'destination' => $request->destination,
             'numero_camion' => $request->numero_camion,
@@ -244,7 +261,7 @@ class TicketPeseeController extends Controller
             'date_sortie' => $request->date_sortie,
             'heure_sortie' => $request->heure_sortie,
             'nom_peseur' => $request->nom_peseur,
-            'poids_100_graines' => $request->poids_100_graines,
+            'poids_100_graines' => 100,
             'gp' => $request->gp,
             'ga' => $request->ga,
             'me' => $request->me,

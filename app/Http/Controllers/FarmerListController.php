@@ -28,6 +28,14 @@ class FarmerListController extends Controller
                 $q->where('statut', 'valide');
             });
 
+        // Scoping par secteur pour AGC
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            $query->whereHas('secteur', function($q) use ($userSecteurCode) {
+                $q->where('code', $userSecteurCode);
+            });
+        }
+
         // Filtrage par coopérative
         if ($request->filled('cooperative_id')) {
             $query->where('cooperative_id', $request->cooperative_id);

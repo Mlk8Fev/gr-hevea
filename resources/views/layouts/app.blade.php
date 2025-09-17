@@ -21,17 +21,17 @@
 <main class="dashboard-main">
     @include('partials.navbar-header')
     
-    @yield('content')
-</main>
-
+        @yield('content')
+    </main>
+    
 <!-- jQuery library js -->
 <script src="{{ asset('wowdash/js/lib/jquery-3.7.1.min.js') }}"></script>
 <!-- Bootstrap js -->
-<script src="{{ asset('wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
 <!-- Iconify Font js -->
 <script src="{{ asset('wowdash/js/lib/iconify-icon.min.js') }}"></script>
 <!-- main js -->
-<script src="{{ asset('wowdash/js/app.js') }}"></script>
+    <script src="{{ asset('wowdash/js/app.js') }}"></script>
 
 @stack('scripts')
 </body>

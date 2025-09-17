@@ -113,16 +113,24 @@ class CalculPrixService
      */
     private function calculerCoutTransport(TicketPesee $ticketPesee)
     {
-        // Distance coopérative → COTRAF (à implémenter selon tes besoins)
         $distance = $this->calculerDistance($ticketPesee);
+        $centreCollecte = $ticketPesee->connaissement->centreCollecte;
         
-        if ($distance <= 100) return 14;
-        elseif ($distance <= 200) return 15;
-        elseif ($distance <= 300) return 16;
-        elseif ($distance <= 400) return 22;
-        elseif ($distance <= 500) return 22;
-        elseif ($distance <= 600) return 23;
-        else return 25;
+        // Vérifier si c'est l'usine COTRAF (COT1)
+        if ($centreCollecte && $centreCollecte->code === 'COT1') {
+            // Prix progressifs pour l'usine COTRAF
+            if ($distance <= 100) return 14;
+            elseif ($distance <= 200) return 15;
+            elseif ($distance <= 300) return 16;
+            elseif ($distance <= 400) return 22;
+            elseif ($distance <= 500) return 22;
+            elseif ($distance <= 600) return 23;
+            else return 25;
+        } else {
+            // Prix simplifiés pour les centres de collecte externes
+            if ($distance <= 100) return 8;
+            else return 9; // 100+ km = 9 FCFA/kg
+        }
     }
 
     /**

@@ -28,8 +28,16 @@ class DashboardController extends Controller
         // Statistiques pour le dashboard (utilise le NavigationService)
         $stats = $this->navigationService->getDashboardStats();
         
+        $extras = null;
+        if ($user->role === 'agc') {
+            // Récupération des extras spécifiques AGC
+            if (method_exists($this->navigationService, 'getAgcDashboardExtras')) {
+                $extras = $this->navigationService->getAgcDashboardExtras();
+            }
+        }
+        
         // Données pour le dashboard
-        $data = [
+        return view('dashboard', [
             'user' => [
                 'name' => $user->name,
                 'username' => $user->username,
@@ -44,9 +52,8 @@ class DashboardController extends Controller
                 ]
             ],
             'navigation' => $navigation,
-            'stats' => $stats
-        ];
-        
-        return view('dashboard', $data);
+            'stats' => $stats,
+            'extras' => $extras,
+        ]);
     }
 }

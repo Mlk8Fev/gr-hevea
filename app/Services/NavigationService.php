@@ -34,6 +34,9 @@ class NavigationService
             case 'user':
                 $navigation = array_merge($navigation, $this->getUserNavigation());
                 break;
+            case 'agc':
+                $navigation = array_merge($navigation, $this->getAgcNavigation());
+                break;
         }
 
         return $navigation;
@@ -312,6 +315,51 @@ class NavigationService
         ];
     }
 
+    private function getAgcNavigation()
+    {
+        return [
+            [
+                'title' => 'Mon Secteur',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
     public function getDashboardStats()
     {
         $user = Auth::user();
@@ -325,6 +373,8 @@ class NavigationService
                 return $this->getManagerStats();
             case 'user':
                 return $this->getUserStats();
+            case 'agc':
+                return $this->getAgcStats(); // <- AJOUT
             default:
                 return $this->getDefaultStats();
         }
@@ -456,6 +506,86 @@ class NavigationService
         ];
     }
 
+    private function getAgcStats()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $secteurCode = $user->secteur;
+
+        // Si l’AGC n’a pas de secteur assigné, retourner des compteurs vides
+        if (!$secteurCode) {
+            return [
+                'producteurs' => ['count' => 0, 'icon' => 'ri-user-3-line', 'color' => 'green', 'label' => 'Producteurs (secteur)'],
+                'parcelles' => ['count' => 0, 'icon' => 'ri-map-pin-line', 'color' => 'blue', 'label' => 'Parcelles (secteur)'],
+                'livraisons' => ['count' => 0, 'icon' => 'ri-truck-line', 'color' => 'orange', 'label' => 'Livraisons (secteur)'],
+                'farmerlists' => ['count' => 0, 'icon' => 'ri-file-list-line', 'color' => 'purple', 'label' => 'Farmer Lists (secteur)'],
+                'docs_manquants' => ['count' => 0, 'icon' => 'ri-file-warning-line', 'color' => 'red', 'label' => 'Docs traçabilité manquants'],
+            ];
+        }
+
+        // Comptes par secteur
+        $producteursCount = \App\Models\Producteur::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $parcellesCount = \App\Models\Parcelle::whereHas('producteur.secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $livraisonsCount = \App\Models\Connaissement::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $farmerListsCount = \App\Models\FarmerList::whereHas('connaissement.secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        // Producteurs avec documents manquants (fiche_enquete, lettre_engagement, self_declaration)
+        $docsManquantsCount = \App\Models\Producteur::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->where(function($q) {
+            $q->whereDoesntHave('documents', function($d) {
+                $d->where('type', 'fiche_enquete');
+            })->orWhereDoesntHave('documents', function($d) {
+                $d->where('type', 'lettre_engagement');
+            })->orWhereDoesntHave('documents', function($d) {
+                $d->where('type', 'self_declaration');
+            });
+        })->count();
+
+        return [
+            'producteurs' => [
+                'count' => $producteursCount,
+                'icon' => 'ri-user-3-line',
+                'color' => 'green',
+                'label' => 'Producteurs (secteur)'
+            ],
+            'parcelles' => [
+                'count' => $parcellesCount,
+                'icon' => 'ri-map-pin-line',
+                'color' => 'blue',
+                'label' => 'Parcelles (secteur)'
+            ],
+            'livraisons' => [
+                'count' => $livraisonsCount,
+                'icon' => 'ri-truck-line',
+                'color' => 'orange',
+                'label' => 'Livraisons (secteur)'
+            ],
+            'farmerlists' => [
+                'count' => $farmerListsCount,
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists (secteur)'
+            ],
+            'docs_manquants' => [
+                'count' => $docsManquantsCount,
+                'icon' => 'ri-file-warning-line',
+                'color' => 'red',
+                'label' => 'Docs traçabilité manquants'
+            ]
+        ];
+    }
+
     private function getDefaultStats()
     {
         return [
@@ -483,6 +613,129 @@ class NavigationService
                 'color' => 'red',
                 'label' => 'Performance'
             ]
+        ];
+    }
+
+    public function getAgcDashboardExtras(): array
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $secteurCode = $user->secteur;
+
+        if (!$secteurCode) {
+            return [
+                'charts' => [
+                    'livraisons30j' => [],
+                    'docsCompletion' => ['complete' => 0, 'missing' => 0],
+                    'parcellesByCoop' => ['categories' => [], 'data' => []],
+                ],
+                'tables' => [
+                    'topCoops' => [],
+                    'recentLivraisons' => [],
+                ],
+                'kpis' => [
+                    'completionRate' => 0,
+                ],
+            ];
+        }
+
+        // Livraisons dernières 30j (poids net par jour)
+        $from = now()->subDays(29)->startOfDay();
+        $to = now()->endOfDay();
+        $livraisons30j = \App\Models\Connaissement::whereHas('secteur', function($q) use ($secteurCode) {
+                $q->where('code', $secteurCode);
+            })
+            ->whereBetween('created_at', [$from, $to])
+            ->with(['ticketsPesee' => function($q) { $q->select('id','connaissement_id','poids_net'); }])
+            ->get()
+            ->groupBy(fn($c) => \Carbon\Carbon::parse($c->created_at)->format('Y-m-d'))
+            ->map(fn($group) => (float) ($group->flatMap->ticketsPesee->sum('poids_net') ?: 0))
+            ->all();
+
+        // Docs complétude (producteurs du secteur avec 3 docs requis)
+        $prodQuery = \App\Models\Producteur::whereHas('secteur', fn($q) => $q->where('code', $secteurCode));
+        $totalProd = (clone $prodQuery)->count();
+
+        $completeDocs = (clone $prodQuery)->whereDoesntHave('documents', function($d) {
+                $d->whereIn('type', ['fiche_enquete','lettre_engagement','self_declaration']);
+            })
+            ->whereHas('documents', fn($d) => $d->where('type','fiche_enquete'))
+            ->whereHas('documents', fn($d) => $d->where('type','lettre_engagement'))
+            ->whereHas('documents', fn($d) => $d->where('type','self_declaration'))
+            ->count();
+
+        $missingDocs = max($totalProd - $completeDocs, 0);
+
+        // Parcelles par coop (dans le secteur)
+        $parcellesAgg = \App\Models\Cooperative::select('cooperatives.nom')
+            ->join('cooperative_producteur', 'cooperatives.id', '=', 'cooperative_producteur.cooperative_id')
+            ->join('producteurs', 'cooperative_producteur.producteur_id', '=', 'producteurs.id')
+            ->leftJoin('parcelles', 'parcelles.producteur_id', '=', 'producteurs.id')
+            ->join('secteurs', 'producteurs.secteur_id', '=', 'secteurs.id')
+            ->where('secteurs.code', $secteurCode)
+            ->groupBy('cooperatives.id', 'cooperatives.nom')
+            ->selectRaw('COUNT(parcelles.id) as parcelles_count')
+            ->orderByDesc('parcelles_count')
+            ->limit(8)
+            ->get();
+
+        $parcellesCategories = $parcellesAgg->pluck('nom')->all();
+        $parcellesData = $parcellesAgg->pluck('parcelles_count')->map(fn($v)=>(int)$v)->all();
+
+        // Top 5 coops par poids net
+        $topCoops = \App\Models\Cooperative::select('cooperatives.nom')
+            ->join('connaissements', 'connaissements.cooperative_id', '=', 'cooperatives.id')
+            ->join('secteurs', 'connaissements.secteur_id', '=', 'secteurs.id')
+            ->leftJoin('tickets_pesee', 'tickets_pesee.connaissement_id', '=', 'connaissements.id')
+            ->where('secteurs.code', $secteurCode)
+            ->groupBy('cooperatives.id','cooperatives.nom')
+            ->selectRaw('COALESCE(SUM(tickets_pesee.poids_net),0) as poids_net_total, COUNT(DISTINCT connaissements.id) as livraisons')
+            ->orderByDesc('poids_net_total')
+            ->limit(5)
+            ->get()
+            ->map(fn($r)=>[
+                'cooperative' => $r->nom,
+                'livraisons' => (int)$r->livraisons,
+                'poids_net' => (float)$r->poids_net_total,
+            ])->all();
+
+        // 10 dernières livraisons (numéro + poids)
+        $recentLivraisons = \App\Models\Connaissement::whereHas('secteur', fn($q) => $q->where('code', $secteurCode))
+            ->latest('created_at')->with(['ticketsPesee','cooperative'])
+            ->take(10)->get()
+            ->map(fn($c)=>[
+                'numero' => $c->numero_livraison,
+                'coop' => optional($c->cooperative)->nom,
+                'poids_net' => (float)($c->ticketsPesee->first()->poids_net ?? 0),
+                'date' => \Carbon\Carbon::parse($c->created_at)->format('d/m/Y'),
+            ])->all();
+
+        // Completion rate Farmer Lists: poids total vs poids net
+        $poidsNetSecteur = \App\Models\Connaissement::whereHas('secteur', fn($q) => $q->where('code', $secteurCode))
+            ->with('ticketsPesee')->get()->sum(fn($c)=> (float) ($c->ticketsPesee->first()->poids_net ?? 0));
+        $poidsFarmerLists = \App\Models\FarmerList::whereHas('connaissement.secteur', fn($q)=>$q->where('code',$secteurCode))
+            ->sum('quantite_livree');
+        $completionRate = $poidsNetSecteur > 0 ? round(($poidsFarmerLists / $poidsNetSecteur) * 100, 1) : 0;
+
+        // Normaliser série 30j (toutes dates)
+        $series = [];
+        for ($i=0; $i<30; $i++) {
+            $d = now()->subDays(29 - $i)->format('Y-m-d');
+            $series[] = ['x' => $d, 'y' => (float)($livraisons30j[$d] ?? 0)];
+        }
+
+        return [
+            'charts' => [
+                'livraisons30j' => $series,
+                'docsCompletion' => ['complete' => $completeDocs, 'missing' => $missingDocs],
+                'parcellesByCoop' => ['categories' => $parcellesCategories, 'data' => $parcellesData],
+            ],
+            'tables' => [
+                'topCoops' => $topCoops,
+                'recentLivraisons' => $recentLivraisons,
+            ],
+            'kpis' => [
+                'completionRate' => $completionRate,
+            ],
         ];
     }
 } 
