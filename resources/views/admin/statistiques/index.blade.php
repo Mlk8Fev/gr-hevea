@@ -1,388 +1,474 @@
-@extends("layouts.app")
-
-@section("title", "Statistiques")
-
-@section("content")
-<div class="dashboard-main-body">
-    <!-- Breadcrumb -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-        <h6 class="fw-semibold mb-0">Statistiques Basiques</h6>
-        <ul class="d-flex align-items-center gap-2">
-            <li class="fw-medium">
-                <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                    Dashboard
-                </a>
-            </li>
-            <li>-</li>
-            <li class="fw-medium">Statistiques</li>
-        </ul>
-            </div>
-
-            <!-- Filtres par Date -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="ri-filter-2-line"></i> Filtres de Période
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <form method="GET" action="{{ route('admin.statistiques.index') }}" class="row g-3">
-                                <div class="col-md-4">
-                                    <label for="date_debut" class="form-label">Date de Début</label>
-                                    <input type="date" class="form-control" id="date_debut" name="date_debut" 
-                                           value="{{ $dateDebut->format('Y-m-d') }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="date_fin" class="form-label">Date de Fin</label>
-                                    <input type="date" class="form-control" id="date_fin" name="date_fin" 
-                                           value="{{ $dateFin->format('Y-m-d') }}">
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="ri-search-line"></i> Filtrer
-                                    </button>
-                                    <a href="{{ route('admin.statistiques.avancees') }}" class="btn btn-outline-info">
-                                        <i class="ri-bar-chart-line"></i> Statistiques Avancées
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques Basiques - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
+</head>
+<body>
+    @include('partials.sidebar')
+    <main class="dashboard-main">
+        @include('partials.navbar-header')
+        <div class="dashboard-main-body">
+            <!-- Header avec filtres -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+                <div>
+                    <h6 class="fw-semibold mb-0">📊 Statistiques Basiques</h6>
+                    <p class="text-muted mb-0">Vue d'ensemble de la production et des performances</p>
                 </div>
-            </div>
-
-    <!-- KPIs Principaux -->
-    <div class="row gy-4 mb-32">
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card radius-8 border-0">
-                <div class="card-body p-24">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                        <div>
-                            <span class="mb-12 w-44-px h-44-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                <iconify-icon icon="hugeicons:seed" class="icon"></iconify-icon>
-                            </span>
-                            <span class="mb-1 fw-medium text-secondary-light text-md">Total Graines</span>
-                            <h6 class="fw-semibold text-primary-light mb-1">{{ number_format($stats['total_graines'] ?? 0, 0, ',', ' ') }} Kg</h6>
-                        </div>
-                                </div>
-                    <p class="text-sm mb-0">Production totale <span class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+12%</span> ce mois</p>
-                                    </div>
-                                </div>
-                            </div>
-        
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card radius-8 border-0">
-                <div class="card-body p-24">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                        <div>
-                            <span class="mb-12 w-44-px h-44-px text-warning-main bg-warning-light border border-warning-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                <iconify-icon icon="hugeicons:invoice-03" class="icon"></iconify-icon>
-                            </span>
-                            <span class="mb-1 fw-medium text-secondary-light text-md">Tickets Pesée</span>
-                            <h6 class="fw-semibold text-primary-light mb-1">{{ number_format($stats['nombre_tickets'] ?? 0) }}</h6>
-                        </div>
-                    </div>
-                    <p class="text-sm mb-0">Documents générés <span class="bg-warning-focus px-1 rounded-2 fw-medium text-warning-main text-sm">+8%</span> ce mois</p>
-                        </div>
-                    </div>
-                </div>
-
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card radius-8 border-0">
-                <div class="card-body p-24">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                        <div>
-                            <span class="mb-12 w-44-px h-44-px text-lilac bg-lilac-light border border-lilac-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                <iconify-icon icon="solar:users-group-rounded-outline" class="icon"></iconify-icon>
-                            </span>
-                            <span class="mb-1 fw-medium text-secondary-light text-md">Coopératives</span>
-                            <h6 class="fw-semibold text-primary-light mb-1">{{ number_format($stats['nombre_cooperatives'] ?? 0) }}</h6>
-                        </div>
-                                </div>
-                    <p class="text-sm mb-0">Partenaires actifs <span class="bg-info-focus px-1 rounded-2 fw-medium text-info-main text-sm">Stable</span> cette semaine</p>
-                                    </div>
-                                </div>
-                            </div>
-        
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card radius-8 border-0">
-                <div class="card-body p-24">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                        <div>
-                            <span class="mb-12 w-44-px h-44-px text-pink bg-pink-light border border-pink-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                <iconify-icon icon="solar:buildings-outline" class="icon"></iconify-icon>
-                            </span>
-                            <span class="mb-1 fw-medium text-secondary-light text-md">Centres Collecte</span>
-                            <h6 class="fw-semibold text-primary-light mb-1">{{ number_format($stats['nombre_centres'] ?? 0) }}</h6>
-                        </div>
-                    </div>
-                    <p class="text-sm mb-0">Points de collecte <span class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+2</span> ce mois</p>
-                </div>
-                                    </div>
-                                </div>
-                            </div>
-
-    <!-- Section principale avec graphique d'évolution -->
-    <div class="row gy-4 mb-32">
-        <div class="col-xxl-8">
-            <div class="card radius-8 border-0">
-                <div class="card-body p-24">
-                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                        <h6 class="mb-2 fw-bold text-lg mb-0">Évolution de la Production</h6>
-                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light">
-                            <option>Cette Année</option>
-                            <option>6 Derniers Mois</option>
-                            <option>3 Derniers Mois</option>
-                            <option>Ce Mois</option>
-                        </select>
-                    </div>
-                    
-                    <div class="d-flex flex-wrap align-items-center mt-3 gap-3 mb-28">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
-                            <span class="text-secondary-light text-sm fw-semibold">Production: 
-                                <span class="text-primary-light fw-bold">{{ number_format($stats['total_graines'] ?? 0, 0, ',', ' ') }} Kg</span>
-                            </span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="w-12-px h-12-px radius-2 bg-warning-main"></span>
-                            <span class="text-secondary-light text-sm fw-semibold">Tickets: 
-                                <span class="text-primary-light fw-bold">{{ number_format($stats['nombre_tickets'] ?? 0) }}</span>
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div id="evolutionChart" class="apexcharts-tooltip-style-1" style="height: 350px;"></div>
-                        </div>
-                    </div>
-                </div>
-
-        <div class="col-xxl-4">
-            <div class="card radius-8 border-0 h-100">
-                <div class="card-body p-24">
-                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                        <h6 class="mb-2 fw-bold text-lg mb-0">Top Coopératives</h6>
-                        <a href="javascript:void(0)" class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                            Voir Tout
-                            <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
+                <ul class="d-flex align-items-center gap-2">
+                    <li class="fw-medium">
+                        <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
+                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            Dashboard
                         </a>
-                                </div>
-                    
-                    @if(isset($stats['top_cooperatives']) && $stats['top_cooperatives']->count() > 0)
-                        <div class="mt-32">
-                            @foreach($stats['top_cooperatives'] as $index => $coop)
-                            <div class="d-flex align-items-center justify-content-between gap-3 {{ $loop->last ? '' : 'mb-24' }}">
-                                <div class="d-flex align-items-center">
-                                    <span class="w-40-px h-40-px bg-primary-light text-primary-600 rounded-circle d-flex justify-content-center align-items-center flex-shrink-0 me-12 fw-bold">
-                                        {{ $index + 1 }}
-                                        </span>
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-medium">{{ $coop['nom'] }}</h6>
-                                        <span class="text-sm text-secondary-light fw-medium">Production totale</span>
+                    </li>
+                    <li>-</li>
+                    <li class="fw-medium">Statistiques</li>
+                </ul>
+            </div>
+
+            <!-- Filtres de période -->
+            <div class="row mb-24">
+                <div class="col-12">
+                    <div class="card p-24 radius-12 border-0 shadow-sm">
+                        <form method="GET" class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"> Date de début</label>
+                                <input type="date" name="date_debut" class="form-control" 
+                                       value="{{ $dateDebut->format('Y-m-d') }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">📅 Date de fin</label>
+                                <input type="date" name="date_fin" class="form-control" 
+                                       value="{{ $dateFin->format('Y-m-d') }}">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                                    Actualiser
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs Principaux -->
+            <div class="row mb-24">
+                <div class="col-xl-3 col-md-6 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-8">
+                                    <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-success-100">
+                                        <iconify-icon icon="ri:seedling-line" class="text-success text-lg"></iconify-icon>
                                     </div>
+                                    <span class="text-muted text-sm fw-medium">Production Totale</span>
                                 </div>
-                                <span class="text-primary-light text-md fw-medium">{{ number_format($coop['total_graines'], 0, ',', ' ') }} Kg</span>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-32">
-                            <span class="w-80-px h-80-px bg-neutral-100 rounded-circle d-flex justify-content-center align-items-center mx-auto mb-12">
-                                <iconify-icon icon="solar:buildings-outline" class="text-secondary-light text-xxl"></iconify-icon>
-                            </span>
-                            <h6 class="text-md mb-4">Aucune donnée disponible</h6>
-                            <p class="text-sm text-secondary-light mb-0">Les données des coopératives apparaîtront ici</p>
-                        </div>
-                    @endif
-                    </div>
-                </div>
-            </div>
-
-                <div class="col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Statut des Tickets</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <h4 class="text-success">{{ number_format($stats['tickets_valides'] ?? 0) }}</h4>
-                                    <p class="text-muted">Validés</p>
-                                </div>
-                                <div class="col-4">
-                                    <h4 class="text-warning">{{ number_format($stats['tickets_en_attente'] ?? 0) }}</h4>
-                                    <p class="text-muted">En Attente</p>
-                                </div>
-                                <div class="col-4">
-                                    <h4 class="text-info">{{ number_format($stats['moyenne_poids_net'] ?? 0, 2) }}</h4>
-                                    <p class="text-muted">Poids Moyen (Kg)</p>
+                                <h3 class="fw-bold text-dark mb-0">{{ number_format($stats['total_graines'], 0) }} kg</h3>
+                                <div class="d-flex align-items-center gap-2 mt-8">
+                                    @if($stats['evolution_production'] > 0)
+                                        <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
+                                            <iconify-icon icon="ri:arrow-up-line" class="me-1"></iconify-icon>
+                                            +{{ number_format($stats['evolution_production'], 1) }}%
+                                        </span>
+                                    @elseif($stats['evolution_production'] < 0)
+                                        <span class="badge bg-danger-100 text-danger-600 px-8 py-2 radius-6">
+                                            <iconify-icon icon="ri:arrow-down-line" class="me-1"></iconify-icon>
+                                            {{ number_format($stats['evolution_production'], 1) }}%
+                                        </span>
+                                    @else
+                                        <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
+                                            <iconify-icon icon="ri:equal-line" class="me-1"></iconify-icon>
+                                            Stable
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="col-xl-3 col-md-6 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-8">
+                                    <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
+                                        <iconify-icon icon="ri:file-list-3-line" class="text-primary text-lg"></iconify-icon>
+                                    </div>
+                                    <span class="text-muted text-sm fw-medium">Tickets Validés</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-0">{{ number_format($stats['tickets_valides']) }}</h3>
+                                <div class="d-flex align-items-center gap-2 mt-8">
+                                    <span class="badge bg-primary-100 text-primary-600 px-8 py-2 radius-6">
+                                        {{ number_format($stats['taux_validation'], 1) }}% de validation
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-8">
+                                    <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-info-100">
+                                        <iconify-icon icon="ri:community-line" class="text-info text-lg"></iconify-icon>
+                                    </div>
+                                    <span class="text-muted text-sm fw-medium">Coopératives</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-0">{{ number_format($stats['nombre_cooperatives']) }}</h3>
+                                <div class="d-flex align-items-center gap-2 mt-8">
+                                    <span class="text-muted text-sm">{{ $stats['nombre_secteurs'] }} secteurs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-8">
+                                    <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-warning-100">
+                                        <iconify-icon icon="ri:user-3-line" class="text-warning text-lg"></iconify-icon>
+                                    </div>
+                                    <span class="text-muted text-sm fw-medium">Producteurs</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-0">{{ number_format($stats['nombre_producteurs']) }}</h3>
+                                <div class="d-flex align-items-center gap-2 mt-8">
+                                    <span class="text-muted text-sm">{{ number_format($stats['poids_moyen_par_ticket'], 1) }} kg/ticket</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Graphique -->
+            <!-- Graphiques et Analyses -->
+            <div class="row mb-24">
+                <!-- Évolution Quotidienne -->
+                <div class="col-xl-8 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-20">
+                            <h5 class="mb-0 d-flex align-items-center gap-2">
+                                <iconify-icon icon="ri:line-chart-line" class="text-primary"></iconify-icon>
+                                Évolution Quotidienne de la Production
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleChart('production')">
+                                    <iconify-icon icon="ri:bar-chart-line"></iconify-icon>
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleChart('tickets')">
+                                    <iconify-icon icon="ri:file-list-3-line"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="evolutionChart" style="height: 300px;"></div>
+                    </div>
+                </div>
+
+                <!-- Répartition par Secteur -->
+                <div class="col-xl-4 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <h5 class="mb-20 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:pie-chart-line" class="text-primary"></iconify-icon>
+                            Répartition par Secteur
+                        </h5>
+                        <div id="secteurChart" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableaux de Performance -->
+            <div class="row mb-24">
+                <!-- Top Coopératives -->
+                <div class="col-xl-6 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <h5 class="mb-20 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:trophy-line" class="text-primary"></iconify-icon>
+                            Top 5 Coopératives
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-0">Rang</th>
+                                        <th class="border-0">Coopérative</th>
+                                        <th class="border-0">Production (kg)</th>
+                                        <th class="border-0">Tickets</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($stats['top_cooperatives'] as $index => $coop)
+                                    <tr>
+                                        <td>
+                                            @if($index === 0)
+                                                <span class="badge bg-warning-100 text-warning-600 px-8 py-2 radius-6"></span>
+                                            @elseif($index === 1)
+                                                <span class="badge bg-secondary-100 text-secondary-600 px-8 py-2 radius-6"></span>
+                                            @elseif($index === 2)
+                                                <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">🥉</span>
+                                            @else
+                                                <span class="text-muted fw-semibold">#{{ $index + 1 }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">{{ $coop['nom'] }}</div>
+                                            <div class="text-muted text-sm">{{ $coop['secteur'] }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-success">{{ number_format($coop['total'], 0) }} kg</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary-100 text-primary-600 px-6 py-1 radius-4">
+                                                {{ $coop['tickets'] }} tickets
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance par Centre -->
+                <div class="col-xl-6 mb-24">
+                    <div class="card p-24 radius-12 border-0 shadow-sm h-100">
+                        <h5 class="mb-20 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:building-2-line" class="text-primary"></iconify-icon>
+                            Performance par Centre
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-0">Centre</th>
+                                        <th class="border-0">Production (kg)</th>
+                                        <th class="border-0">Tickets</th>
+                                        <th class="border-0">Moyenne</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($stats['repartition_par_centre'] as $centre)
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark">{{ $centre['centre'] }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-success">{{ number_format($centre['total'], 0) }} kg</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4">
+                                                {{ $centre['tickets'] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ number_format($centre['total'] / $centre['tickets'], 1) }} kg</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métriques de Qualité -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Évolution Mensuelle</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="evolutionChart" height="100"></canvas>
+                    <div class="card p-24 radius-12 border-0 shadow-sm">
+                        <h5 class="mb-20 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:star-line" class="text-primary"></iconify-icon>
+                            Métriques de Qualité
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <div class="p-16 radius-8 bg-success-100">
+                                    <h4 class="text-success fw-bold mb-0">{{ number_format($stats['moyenne_poids_net'], 1) }} kg</h4>
+                                    <p class="text-muted mb-0">Poids moyen par ticket</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="p-16 radius-8 bg-info-100">
+                                    <h4 class="text-info fw-bold mb-0">{{ number_format($stats['poids_max_ticket'], 1) }} kg</h4>
+                                    <p class="text-muted mb-0">Poids maximum</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="p-16 radius-8 bg-warning-100">
+                                    <h4 class="text-warning fw-bold mb-0">{{ number_format($stats['poids_min_ticket'], 1) }} kg</h4>
+                                    <p class="text-muted mb-0">Poids minimum</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="p-16 radius-8 bg-primary-100">
+                                    <h4 class="text-primary fw-bold mb-0">{{ number_format($stats['total_sacs']) }}</h4>
+                                    <p class="text-muted mb-0">Total sacs</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-@endsection
+    </main>
 
-@push('scripts')
-<!-- Apex Chart js -->
-<script src="{{ asset('wowdash/js/lib/apexcharts.min.js') }}"></script>
-<script>
-// Configuration des graphiques ApexCharts style WowDash
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initialisation des graphiques WowDash...');
+    @include('partials.wowdash-scripts')
     
-    // Données par défaut si aucune donnée n'est disponible
-    const defaultData = [
-        { mois: '2024-01', total: 1200 },
-        { mois: '2024-02', total: 1850 },
-        { mois: '2024-03', total: 2100 },
-        { mois: '2024-04', total: 1950 },
-        { mois: '2024-05', total: 2400 },
-        { mois: '2024-06', total: 2800 }
-    ];
+    <!-- ApexCharts -->
+    <script src="{{ asset('wowdash/js/lib/apexcharts.min.js') }}"></script>
     
-    const evolutionData = @json($stats['evolution_mensuelle'] ?? []);
-    const chartData = evolutionData.length > 0 ? evolutionData : defaultData;
-    
-    // Graphique d'évolution style WowDash
-    if (document.getElementById('evolutionChart')) {
-        var options = {
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Données pour les graphiques
+        const evolutionData = @json($stats['evolution_quotidienne']);
+        const secteurData = @json($stats['repartition_secteurs']);
+        
+        let currentChartType = 'production';
+        
+        // Configuration du graphique d'évolution
+        const evolutionOptions = {
             series: [{
-                name: 'Production (Kg)',
-                data: chartData.map(item => Math.round(item.total || 0))
+                name: 'Production (kg)',
+                data: evolutionData.map(item => item.total)
             }],
             chart: {
                 type: 'area',
-                height: 350,
+                height: 300,
                 toolbar: {
-                    show: false
-                },
-                zoom: {
-                    enabled: false
-                },
-                fontFamily: 'Inter, sans-serif'
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 3,
-                colors: ['#487FFF']
-            },
-            xaxis: {
-                categories: chartData.map(item => {
-                    const [year, month] = item.mois.split('-');
-                    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 
-                                      'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-                    return monthNames[parseInt(month) - 1] + ' ' + year;
-                }),
-                labels: {
-                    style: {
-                        colors: '#64748B',
-                        fontSize: '12px'
-                    }
-                },
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false
-                }
-            },
-            yaxis: {
-                labels: {
-                    style: {
-                        colors: '#64748B',
-                        fontSize: '12px'
-                    },
-                    formatter: function (value) {
-                        return Math.round(value).toLocaleString() + ' Kg';
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
                     }
                 }
             },
+            colors: ['#20c997'],
             fill: {
                 type: 'gradient',
                 gradient: {
-                    shade: 'light',
-                    type: 'vertical',
-                    shadeIntensity: 0.4,
-                    gradientToColors: ['#487FFF'],
-                    inverseColors: false,
-                    opacityFrom: 0.8,
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
                     opacityTo: 0.1,
                     stops: [0, 100]
                 }
             },
-            colors: ['#487FFF'],
-            grid: {
-                show: true,
-                borderColor: '#E2E8F0',
-                strokeDashArray: 3,
-                xaxis: {
-                    lines: {
-                        show: false
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                padding: {
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                categories: evolutionData.map(item => {
+                    const date = new Date(item.date);
+                    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+                })
+            },
+            yaxis: {
+                title: {
+                    text: 'Production (kg)'
                 }
             },
             tooltip: {
-                enabled: true,
-                theme: 'light',
-                style: {
-                    fontSize: '12px',
-                    fontFamily: 'Inter, sans-serif'
-                },
                 y: {
-                    formatter: function (value) {
-                        return Math.round(value).toLocaleString() + ' Kg';
+                    formatter: function (val) {
+                        return val.toLocaleString() + " kg"
                     }
-                }
-            },
-            markers: {
-                size: 0,
-                strokeWidth: 0,
-                hover: {
-                    size: 6
                 }
             }
         };
-
-        var chart = new ApexCharts(document.querySelector("#evolutionChart"), options);
-        chart.render();
-        console.log('✅ Graphique d\'évolution créé');
-    }
-});
-</script>
-@endpush
+        
+        // Configuration du graphique de répartition par secteur
+        const secteurOptions = {
+            series: secteurData.map(item => item.total),
+            chart: {
+                type: 'donut',
+                height: 300
+            },
+            labels: secteurData.map(item => item.secteur),
+            colors: ['#20c997', '#007bff', '#6f42c1', '#fd7e14', '#dc3545', '#28a745'],
+            legend: {
+                position: 'bottom'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val.toLocaleString() + " kg"
+                    }
+                }
+            }
+        };
+        
+        // Initialisation des graphiques
+        const evolutionChart = new ApexCharts(document.querySelector("#evolutionChart"), evolutionOptions);
+        const secteurChart = new ApexCharts(document.querySelector("#secteurChart"), secteurOptions);
+        
+        evolutionChart.render();
+        secteurChart.render();
+        
+        // Fonction pour basculer entre production et tickets
+        window.toggleChart = function(type) {
+            if (type === currentChartType) return;
+            
+            currentChartType = type;
+            
+            if (type === 'production') {
+                evolutionChart.updateOptions({
+                    series: [{
+                        name: 'Production (kg)',
+                        data: evolutionData.map(item => item.total)
+                    }],
+                    yaxis: {
+                        title: {
+                            text: 'Production (kg)'
+                        }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val.toLocaleString() + " kg"
+                            }
+                        }
+                    }
+                });
+            } else {
+                evolutionChart.updateOptions({
+                    series: [{
+                        name: 'Nombre de tickets',
+                        data: evolutionData.map(item => item.tickets)
+                    }],
+                    yaxis: {
+                        title: {
+                            text: 'Nombre de tickets'
+                        }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val + " tickets"
+                            }
+                        }
+                    }
+                });
+            }
+        };
+    });
+    </script>
+</body>
+</html>

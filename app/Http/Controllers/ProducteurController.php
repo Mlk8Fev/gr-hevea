@@ -13,10 +13,35 @@ class ProducteurController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $query = Producteur::with('secteur', 'cooperatives')->orderBy('nom');
 
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->where('secteur_id', $request->secteur);
+        }
+
+        // Filtre de recherche simplifié
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nom', 'LIKE', "%{$request->search}%")
+                  ->orWhere('prenom', 'LIKE', "%{$request->search}%")
+                  ->orWhere('code_fphci', 'LIKE', "%{$request->search}%")
+                  ->orWhere('agronica_id', 'LIKE', "%{$request->search}%")
+                  ->orWhere('localite', 'LIKE', "%{$request->search}%")
+                  ->orWhereHas('secteur', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
+                  })
+                  ->orWhereHas('cooperatives', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
+                  });
+            });
+        }
+
+        // Filtre AGC par secteur
         if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             $query->whereHas('secteur', function($q) use ($userSecteurCode) {
@@ -24,9 +49,11 @@ class ProducteurController extends Controller
             });
         }
 
-        $producteurs = $query->get();
+        $producteurs = $query->paginate($request->get('per_page', 10));
+        $secteurs = Secteur::orderBy('code')->get();
         $navigation = app(\App\Services\NavigationService::class)->getNavigation();
-        return view('admin.producteurs.index', compact('producteurs', 'navigation'));
+        
+        return view('admin.producteurs.index', compact('producteurs', 'secteurs', 'navigation'));
     }
 
     /**

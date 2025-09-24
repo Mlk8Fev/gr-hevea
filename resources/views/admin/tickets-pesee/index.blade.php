@@ -28,6 +28,7 @@
             </ul>
         </div>
         
+        <!-- Messages de succès/erreur -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="ri-check-line me-2"></i>{{ session('success') }}
@@ -42,74 +43,163 @@
             </div>
         @endif
 
-        <div class="card h-100 p-0 radius-12">
-            <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
-                <h6 class="mb-0">Liste des Tickets de Pesée</h6>
-                <div class="d-flex align-items-center flex-wrap gap-3">
-                    <div class="d-flex align-items-center flex-wrap gap-3">
-                        <span class="text-md fw-medium text-secondary-light mb-0">Show</span>
-                        <select class="form-select form-select-sm w-auto" id="show-select">
-                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        </select>
-                        <span class="text-md fw-medium text-secondary-light mb-0">entries</span>
-                    </div>
-                    <div class="d-flex align-items-center flex-wrap gap-3">
-                        <form method="GET" class="d-flex align-items-center gap-2">
-                            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..." name="search" value="{{ $search }}">
-                            <select name="statut" class="form-select form-select-sm">
-                                <option value="all" {{ $statut == 'all' ? 'selected' : '' }}>Tous les statuts</option>
-                                <option value="en_attente" {{ $statut == 'en_attente' ? 'selected' : '' }}>En attente</option>
-                                <option value="valide" {{ $statut == 'valide' ? 'selected' : '' }}>Validé</option>
+        <!-- Filtres de recherche -->
+        <div class="row mb-24">
+            <div class="col-12">
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <!-- Recherche manuelle -->
+                        <div class="flex-grow-1">
+                            <div class="position-relative">
+                                <input type="text" 
+                                       id="searchInput" 
+                                       class="form-control" 
+                                       placeholder="Rechercher par numéro de livraison, ticket, origine, transporteur..." 
+                                       value="{{ request('search') }}"
+                                       autocomplete="off">
+                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                            </div>
+                        </div>
+                        
+                        <!-- Bouton Rechercher -->
+                        <button type="button" id="searchButton" class="btn btn-primary">
+                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            Rechercher
+                        </button>
+                        
+                        <!-- Filtre par secteur -->
+                        <div style="min-width: 200px;">
+                            <select id="secteurFilter" class="form-select">
+                                <option value="">Tous les secteurs</option>
+                                @foreach($secteurs as $secteur)
+                                    <option value="{{ $secteur->id }}" {{ request('secteur') == $secteur->id ? 'selected' : '' }}>
+                                        {{ $secteur->code }} - {{ $secteur->nom }}
+                                    </option>
+                                @endforeach
                             </select>
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                <iconify-icon icon="ri-search-line"></iconify-icon>
+                        </div>
+                        
+                        <!-- Filtre par coopérative -->
+                        <div style="min-width: 200px;">
+                            <select id="cooperativeFilter" class="form-select">
+                                <option value="">Toutes les coopératives</option>
+                                @foreach($cooperatives as $cooperative)
+                                    <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
+                                        {{ $cooperative->code }} - {{ $cooperative->nom }}
+                                    </option>
+                                @endforeach
+                        </select>
+                    </div>
+                        
+                        <!-- Filtre par statut -->
+                        <div style="min-width: 150px;">
+                            <select id="statutFilter" class="form-select">
+                                <option value="all" {{ request('statut') == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                                @foreach($statuts as $key => $label)
+                                    <option value="{{ $key }}" {{ request('statut') == $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par date -->
+                        <div style="min-width: 150px;">
+                            <input type="date" 
+                                   id="dateFilter" 
+                                   class="form-control" 
+                                   value="{{ request('date') }}"
+                                   placeholder="Date de création">
+                        </div>
+                        
+                        <!-- Bouton reset -->
+                        <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
+                            Reset
                             </button>
-                        </form>
                     </div>
                 </div>
-                @if(auth()->check() && auth()->user()->role !== 'agc')
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <a href="{{ route('admin.tickets-pesee.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                        <iconify-icon icon="ri-add-line" class="icon text-xl line-height-1"></iconify-icon>
-                        Créer depuis Connaissement
-                    </a>
-                </div>
-                @endif
             </div>
-            <div class="card-body p-24">
-                <div class="table-responsive scroll-sm">
-                    <table class="table bordered-table sm-table mb-0" id="tickets-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">N° Livraison</th>
-                                <th scope="col">Secteur</th>
-                                <th scope="col">Coopérative</th>
-                                <th scope="col">Poids Net (kg)</th>
-                                <th scope="col">Date Entrée</th>
-                                <th scope="col">Statut</th>
-                                <th scope="col" class="text-center">Action</th>
+        </div>
+
+        <!-- Tableau simplifié -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-between mb-20">
+                        <h5 class="mb-0 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:file-text-line" class="text-primary"></iconify-icon>
+                            Liste des Tickets de Pesée
+                        </h5>
+                        @if(auth()->check() && auth()->user()->role !== 'agc')
+                            <a href="{{ route('admin.tickets-pesee.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
+                                <iconify-icon icon="ri:add-line" class="icon text-xl line-height-1"></iconify-icon>
+                                Nouveau Ticket
+                            </a>
+                        @endif
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0">#</th>
+                                    <th class="border-0">Numéro Ticket</th>
+                                    <th class="border-0">Coopérative / Secteur</th>
+                                    <th class="border-0">Poids Net (kg)</th>
+                                    <th class="border-0">Date Création</th>
+                                    <th class="border-0">Statut</th>
+                                    <th class="border-0 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($tickets as $index => $ticket)
                             <tr>
                                 <td>{{ $tickets->firstItem() + $index }}</td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $ticket->numero_livraison ?: 'N/A' }}</span></td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $ticket->connaissement->secteur ? $ticket->connaissement->secteur->nom : 'N/A' }}</span></td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $ticket->connaissement->cooperative->nom }}</span></td>
-                                <td><span class="text-md mb-0 fw-normal text-success fw-bold">{{ number_format($ticket->poids_net, 2) }}</span></td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $ticket->date_entree->format('d/m/Y') }}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
+                                                <iconify-icon icon="ri:file-text-line" class="text-primary text-lg"></iconify-icon>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-primary">{{ $ticket->numero_ticket }}</div>
+                                                <div class="text-muted text-sm">{{ $ticket->numero_livraison }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ $ticket->connaissement->cooperative->nom }}</div>
+                                            <div class="text-muted text-sm">
+                                                <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
+                                                    {{ $ticket->connaissement->secteur->code }} - {{ $ticket->connaissement->secteur->nom }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold text-success">{{ number_format($ticket->poids_net, 2) }} kg</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">{{ $ticket->created_at->format('d/m/Y') }}</div>
+                                        <div class="text-muted text-sm">{{ $ticket->created_at->format('H:i') }}</div>
+                                    </td>
                                 <td>
                                     @if($ticket->statut === 'en_attente')
-                                        <span class="badge bg-warning">En attente</span>
+                                            <span class="badge bg-warning-100 text-warning-600 px-8 py-2 radius-6">
+                                                <iconify-icon icon="ri:time-line" class="me-1"></iconify-icon>
+                                                En attente
+                                            </span>
                                     @elseif($ticket->statut === 'valide')
-                                        <span class="badge bg-success">Validé pour paiement</span>
+                                            <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
+                                                <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                Validé
+                                            </span>
                                     @else
-                                        <span class="badge bg-secondary">Archivé</span>
+                                            <span class="badge bg-danger-100 text-danger-600 px-8 py-2 radius-6">
+                                                <iconify-icon icon="ri:close-line" class="me-1"></iconify-icon>
+                                                Annulé
+                                            </span>
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -118,39 +208,39 @@
                                             <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                         </a>
 
-                                        @if(auth()->check() && auth()->user()->role !== 'agc')
-                                            <a href="{{ route('admin.tickets-pesee.edit', $ticket) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                            </a>
+                                            @if(auth()->check() && auth()->user()->role !== 'agc')
+                                        <a href="{{ route('admin.tickets-pesee.edit', $ticket) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                        </a>
 
-                                            @if($ticket->statut === 'en_attente')
-                                                <form action="{{ route('admin.tickets-pesee.validate', $ticket) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Valider">
-                                                        <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            @endif
+                                        @if($ticket->statut === 'en_attente')
+                                                    <form action="{{ route('admin.tickets-pesee.validate', $ticket) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir valider ce ticket ?')">
+                                                @csrf
+                                                        <button type="submit" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
+                                                <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
+                                                </button>
+                                            </form>
+                                        @endif
 
-                                            @if($ticket->statut === 'valide')
-                                                <form action="{{ route('admin.tickets-pesee.cancel-validation', $ticket) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Annuler validation">
-                                                    <iconify-icon icon="lucide:x" class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            @if($ticket->statut !== 'valide')
-                                                <form action="{{ route('admin.tickets-pesee.destroy', $ticket) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce ticket de pesée ?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="bg-danger-focus text-danger-600 bg-hover-danger-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Supprimer">
-                                                        <iconify-icon icon="lucide:trash-2" class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            @endif
+                                        @if($ticket->statut === 'valide')
+                                                    <form action="{{ route('admin.tickets-pesee.cancel-validation', $ticket) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce ticket ?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                        <button type="submit" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Annuler validation">
+                                                <iconify-icon icon="lucide:x" class="menu-icon"></iconify-icon>
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                                @if($ticket->statut === 'en_attente')
+                                                    <form action="{{ route('admin.tickets-pesee.destroy', $ticket) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                        <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
+                                                            <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                                </button>
+                                            </form>
+                                                @endif
                                         @endif
                                     </div>
                                 </td>
@@ -160,21 +250,192 @@
                     </table>
                 </div>
                 
+                    <!-- Pagination avec filtres préservés -->
                 @if($tickets->hasPages())
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted">
-                        Affichage de {{ $tickets->firstItem() }} à {{ $tickets->lastItem() }} sur {{ $tickets->total() }} résultats
+                    <div class="row mt-24">
+                        <div class="col-12">
+                            <div class="card p-24 radius-12 border-0 shadow-sm">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <!-- Informations de pagination -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted text-sm">
+                                            Affichage de 
+                                            <span class="fw-semibold text-primary">{{ $tickets->firstItem() }}</span>
+                                            à 
+                                            <span class="fw-semibold text-primary">{{ $tickets->lastItem() }}</span>
+                                            sur 
+                                            <span class="fw-semibold text-primary">{{ $tickets->total() }}</span>
+                                            tickets
+                                        </span>
+                                    </div>
+
+                                    <!-- Navigation pagination -->
+                                    <nav aria-label="Navigation des pages">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <!-- Page précédente -->
+                                            @if($tickets->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">
+                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                    </span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a href="{{ $tickets->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                    </a>
+                                                </li>
+                                            @endif
+
+                                            <!-- Pages numérotées -->
+                                            @foreach($tickets->getUrlRange(1, $tickets->lastPage()) as $page => $url)
+                                                @if($page == $tickets->currentPage())
+                                                    <li class="page-item active">
+                                                        <span class="page-link bg-primary border-0 text-white fw-semibold">
+                                                            {{ $page }}
+                                                        </span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a href="{{ $tickets->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                            {{ $page }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+
+                                            <!-- Page suivante -->
+                                            @if($tickets->hasMorePages())
+                                                <li class="page-item">
+                                                    <a href="{{ $tickets->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                    </a>
+                                                </li>
+                                            @else
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">
+                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                    </span>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </nav>
+
+                                    <!-- Sélecteur de nombre d'éléments par page -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted text-sm">Afficher :</span>
+                                        <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
-                    <div>
-                        {{ $tickets->links() }}
                     </div>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
     </div>
 </main>
 
 @include('partials.wowdash-scripts')
+
+<script>
+// Recherche manuelle avec bouton
+const searchInput = document.getElementById('searchInput');
+const searchButton = document.getElementById('searchButton');
+const secteurFilter = document.getElementById('secteurFilter');
+const cooperativeFilter = document.getElementById('cooperativeFilter');
+const statutFilter = document.getElementById('statutFilter');
+const dateFilter = document.getElementById('dateFilter');
+const resetFilters = document.getElementById('resetFilters');
+
+function performSearch() {
+    const url = new URL(window.location);
+    const searchValue = searchInput.value.trim();
+    const secteurValue = secteurFilter.value;
+    const cooperativeValue = cooperativeFilter.value;
+    const statutValue = statutFilter.value;
+    const dateValue = dateFilter.value;
+    
+    if (searchValue) {
+        url.searchParams.set('search', searchValue);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    if (secteurValue) {
+        url.searchParams.set('secteur', secteurValue);
+    } else {
+        url.searchParams.delete('secteur');
+    }
+    
+    if (cooperativeValue) {
+        url.searchParams.set('cooperative', cooperativeValue);
+    } else {
+        url.searchParams.delete('cooperative');
+    }
+    
+    if (statutValue && statutValue !== 'all') {
+        url.searchParams.set('statut', statutValue);
+    } else {
+        url.searchParams.delete('statut');
+    }
+    
+    if (dateValue) {
+        url.searchParams.set('date', dateValue);
+    } else {
+        url.searchParams.delete('date');
+    }
+    
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+
+// Recherche au clic du bouton
+searchButton.addEventListener('click', performSearch);
+
+// Recherche avec Entrée
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Filtres immédiats
+secteurFilter.addEventListener('change', performSearch);
+cooperativeFilter.addEventListener('change', performSearch);
+statutFilter.addEventListener('change', performSearch);
+dateFilter.addEventListener('change', performSearch);
+
+// Reset des filtres
+resetFilters.addEventListener('click', function() {
+    searchInput.value = '';
+    secteurFilter.value = '';
+    cooperativeFilter.value = '';
+    statutFilter.value = 'all';
+    dateFilter.value = '';
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('secteur');
+    url.searchParams.delete('cooperative');
+    url.searchParams.delete('statut');
+    url.searchParams.delete('date');
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+});
+
+function changePerPage(value) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', value);
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+</script>
+
 </body>
 </html>

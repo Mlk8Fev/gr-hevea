@@ -70,8 +70,8 @@
 </div>
 
 <!-- KPIs améliorés -->
-<div class="row gy-4 mb-24">
-    @foreach($stats as $statKey => $stat)
+        <div class="row gy-4 mb-24">
+            @foreach($stats as $statKey => $stat)
     <div class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-6">
         <div class="card h-100 radius-12 border-0 shadow-sm">
             <div class="card-body p-24">
@@ -312,7 +312,7 @@
                                 </span>
                             </td>
                         </tr>
-                        @endforeach
+            @endforeach
                         @if(empty($extras['tables']['recentLivraisons']))
                         <tr>
                             <td colspan="5" class="text-center text-muted py-20">
@@ -449,64 +449,64 @@
 @endif
 
         @if(auth()->check() && auth()->user()->role !== 'agc')
-<!-- Actions rapides -->
-<div class="row gy-4">
-    <div class="col-xxl-6">
-        <div class="card h-100">
-            <div class="card-header border-bottom bg-base py-16 px-24">
-                <h6 class="fw-semibold mb-0">Actions rapides</h6>
-            </div>
-            <div class="card-body p-24">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.users.create') }}" class="btn btn-primary w-100 d-flex align-items-center gap-2">
-                            <i class="ri-user-add-line"></i>
-                            Nouvel utilisateur
-                        </a>
+        <!-- Actions rapides -->
+        <div class="row gy-4">
+            <div class="col-xxl-6">
+                <div class="card h-100">
+                    <div class="card-header border-bottom bg-base py-16 px-24">
+                        <h6 class="fw-semibold mb-0">Actions rapides</h6>
                     </div>
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.cooperatives.create') }}" class="btn btn-success w-100 d-flex align-items-center gap-2">
-                            <i class="ri-building-line"></i>
-                            Nouvelle coopérative
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.producteurs.create') }}" class="btn btn-warning w-100 d-flex align-items-center gap-2">
-                            <i class="ri-user-3-line"></i>
-                            Nouveau producteur
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.tickets-pesee.create') }}" class="btn btn-info w-100 d-flex align-items-center gap-2">
-                            <i class="ri-file-add-line"></i>
-                            Nouveau ticket
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xxl-6">
-        <div class="card h-100">
-            <div class="card-header border-bottom bg-base py-16 px-24">
-                <h6 class="fw-semibold mb-0">Activité récente</h6>
-            </div>
-            <div class="card-body p-24">
-                <div class="list-group list-group-flush">
-                    @foreach($notifications as $notification)
-                    <div class="list-group-item d-flex justify-content-between align-items-start border-0 px-0">
-                        <div class="ms-2 me-auto">
-                            <div class="fw-semibold">{{ $notification['title'] }}</div>
-                            <small class="text-secondary-light">{{ $notification['message'] }}</small>
+                    <div class="card-body p-24">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="{{ route('admin.users.create') }}" class="btn btn-primary w-100 d-flex align-items-center gap-2">
+                                    <i class="ri-user-add-line"></i>
+                                    Nouvel utilisateur
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('admin.cooperatives.create') }}" class="btn btn-success w-100 d-flex align-items-center gap-2">
+                                    <i class="ri-building-line"></i>
+                                    Nouvelle coopérative
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('admin.producteurs.create') }}" class="btn btn-warning w-100 d-flex align-items-center gap-2">
+                                    <i class="ri-user-3-line"></i>
+                                    Nouveau producteur
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('admin.tickets-pesee.create') }}" class="btn btn-info w-100 d-flex align-items-center gap-2">
+                                    <i class="ri-file-add-line"></i>
+                                    Nouveau ticket
+                                </a>
+                            </div>
                         </div>
-                        <small class="text-muted">{{ $notification['time'] }}</small>
                     </div>
-                    @endforeach
+                </div>
+            </div>
+            <div class="col-xxl-6">
+                <div class="card h-100">
+                    <div class="card-header border-bottom bg-base py-16 px-24">
+                        <h6 class="fw-semibold mb-0">Activité récente</h6>
+                    </div>
+                    <div class="card-body p-24">
+                        <div class="list-group list-group-flush">
+                            @foreach($notifications as $notification)
+                            <div class="list-group-item d-flex justify-content-between align-items-start border-0 px-0">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-semibold">{{ $notification['title'] }}</div>
+                                    <small class="text-secondary-light">{{ $notification['message'] }}</small>
+                                </div>
+                                <small class="text-muted">{{ $notification['time'] }}</small>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 @endif
     </div>
 </main>

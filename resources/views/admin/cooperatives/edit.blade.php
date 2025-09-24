@@ -135,8 +135,17 @@
                         <input type="text" class="form-control" id="compte_bancaire" name="compte_bancaire" value="{{ old('compte_bancaire', $cooperative->compte_bancaire) }}" required maxlength="12">
                     </div>
                     <div class="col-md-2 mb-3">
-                        <label for="code_banque" class="form-label">Code banque (5 chiffres) *</label>
-                        <input type="text" class="form-control" id="code_banque" name="code_banque" value="{{ old('code_banque', $cooperative->code_banque) }}" required maxlength="5">
+                        <label for="code_banque" class="form-label">Code banque (5 caractères) *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="code_banque" 
+                               name="code_banque" 
+                               value="{{ old('code_banque', $cooperative->code_banque) }}" 
+                               required 
+                               maxlength="5"
+                               pattern="[A-Z0-9]{5}"
+                               title="Le code banque doit contenir exactement 5 caractères (lettres majuscules et chiffres)"
+                               style="text-transform: uppercase;">
                     </div>
                     <div class="col-md-2 mb-3">
                         <label for="code_guichet" class="form-label">Code guichet (5 chiffres) *</label>
@@ -189,5 +198,10 @@
     </div>
 </main>
 @include('partials.wowdash-scripts')
+<script>
+document.getElementById('code_banque').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+</script>
 </body>
 </html> 

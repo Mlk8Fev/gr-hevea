@@ -180,24 +180,9 @@
                             @endforeach
                         </select>
                     </form>
-                    <form method="GET" action="{{ route('admin.users.index') }}" class="d-inline">
-                        @if(request('search'))
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                        @endif
-                        @if(request('status') && request('status') !== 'all')
-                            <input type="hidden" name="status" value="{{ request('status') }}">
-                        @endif
-                        @if(request('fonction_id') && request('fonction_id') !== 'all')
-                            <input type="hidden" name="fonction_id" value="{{ request('fonction_id') }}">
-                        @endif
-                        <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" name="cooperative_id" onchange="this.form.submit()">
-                            <option value="all" {{ request('cooperative_id') == 'all' || !request('cooperative_id') ? 'selected' : '' }}>Toutes les coopératives</option>
-                            @foreach($cooperatives as $cooperative)
-                                <option value="{{ $cooperative->id }}" {{ request('cooperative_id') == $cooperative->id ? 'selected' : '' }}>{{ $cooperative->nom }}</option>
-                            @endforeach
-                        </select>
-                    </form>
-                    @if(request('search') || (request('status') && request('status') !== 'all') || (request('fonction_id') && request('fonction_id') !== 'all') || (request('cooperative_id') && request('cooperative_id') !== 'all'))
+                    <!-- Le filtre par coopérative est supprimé -->
+
+                    @if(request('search') || (request('status') && request('status') !== 'all') || (request('fonction_id') && request('fonction_id') !== 'all'))
                         <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
                             <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
                             Effacer les filtres
@@ -306,24 +291,92 @@
                     </table>
                 </div>
 
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
-                    <span>Showing 1 to {{ count($users) }} of {{ count($users) }} entries</span>
-                    <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-                        <li class="page-item">
-                            <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white" href="javascript:void(0)">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                            </a>
-                        </li>
-                    </ul>
+                <!-- Pagination avec filtres préservés -->
+@if($users->hasPages())
+<div class="row mt-24">
+    <div class="col-12">
+        <div class="card p-24 radius-12 border-0 shadow-sm">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <!-- Informations de pagination -->
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted text-sm">
+                        Affichage de 
+                        <span class="fw-semibold text-primary">{{ $users->firstItem() }}</span>
+                        à 
+                        <span class="fw-semibold text-primary">{{ $users->lastItem() }}</span>
+                        sur 
+                        <span class="fw-semibold text-primary">{{ $users->total() }}</span>
+                        utilisateurs
+                    </span>
                 </div>
+
+                <!-- Navigation pagination -->
+                <nav aria-label="Navigation des pages">
+                    <ul class="pagination pagination-sm mb-0">
+                        <!-- Page précédente -->
+                        @if($users->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link bg-light border-0 text-muted">
+                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                </span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a href="{{ $users->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                </a>
+                            </li>
+                        @endif
+
+                        <!-- Pages numérotées -->
+                        @foreach($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                            @if($page == $users->currentPage())
+                                <li class="page-item active">
+                                    <span class="page-link bg-primary border-0 text-white fw-semibold">
+                                        {{ $page }}
+                                    </span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a href="{{ $users->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                        {{ $page }}
+                                    </a>
+                                </li>
+                            @endif
+                        @endforeach
+
+                        <!-- Page suivante -->
+                        @if($users->hasMorePages())
+                            <li class="page-item">
+                                <a href="{{ $users->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                </a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link bg-light border-0 text-muted">
+                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                </span>
+                            </li>
+                        @endif
+                    </ul>
+                </nav>
+
+                <!-- Sélecteur de nombre d'éléments par page -->
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted text-sm">Afficher :</span>
+                    <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
             </div>
         </div>
     </div>
@@ -861,6 +914,15 @@ $(document).ready(function() {
     });
 </script>
 @endif
+
+<script>
+function changePerPage(value) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', value);
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+</script>
 
 </body>
 </html> 

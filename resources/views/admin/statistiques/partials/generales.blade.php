@@ -166,7 +166,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                @if(isset($stats['top_cooperatives']) && $stats['top_cooperatives']->count() > 0)
+                @if(isset($stats['top_cooperatives']) && count($stats['top_cooperatives']) > 0)
                     <div class="table-responsive">
                         <table class="table table-nowrap table-hover">
                             <thead class="table-light">
@@ -179,11 +179,11 @@
                             </thead>
                             <tbody>
                                 @php
-                                    $maxProduction = $stats['top_cooperatives']->first()['total_graines'] ?? 1;
+                                    $maxProduction = !empty($stats['top_cooperatives']) ? $stats['top_cooperatives'][0]['total'] ?? 1 : 1;
                                 @endphp
                                 @foreach($stats['top_cooperatives'] as $index => $coop)
                                     @php
-                                        $pourcentage = $maxProduction > 0 ? ($coop['total_graines'] / $maxProduction) * 100 : 0;
+                                        $pourcentage = $maxProduction > 0 ? ($coop['total'] / $maxProduction) * 100 : 0;
                                     @endphp
                                     <tr>
                                         <td>
@@ -196,7 +196,7 @@
                                             @endif
                                         </td>
                                         <td class="fw-medium">{{ $coop['nom'] }}</td>
-                                        <td class="text-end fw-bold">{{ number_format($coop['total_graines'], 0, ',', ' ') }}</td>
+                                        <td class="text-end fw-bold">{{ number_format($coop['total'], 0, ',', ' ') }}</td>
                                         <td>
                                             <div class="progress" style="height: 6px;">
                                                 <div class="progress-bar bg-primary" role="progressbar" 
@@ -227,7 +227,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                @if(isset($stats['repartition_secteurs']) && $stats['repartition_secteurs']->count() > 0)
+                @if(isset($stats['repartition_secteurs']) && count($stats['repartition_secteurs']) > 0)
                     <div class="table-responsive">
                         <table class="table table-nowrap">
                             <thead class="table-light">
@@ -239,18 +239,18 @@
                             </thead>
                             <tbody>
                                 @php
-                                    $totalSecteurs = $stats['repartition_secteurs']->sum('total');
+                                    $totalSecteurs = array_sum(array_column($stats['repartition_secteurs'], 'total'));
                                 @endphp
                                 @foreach($stats['repartition_secteurs'] as $secteur)
                                     @php
-                                        $pourcentage = $totalSecteurs > 0 ? ($secteur->total / $totalSecteurs) * 100 : 0;
+                                        $pourcentage = $totalSecteurs > 0 ? ($secteur['total'] / $totalSecteurs) * 100 : 0;
                                     @endphp
                                     <tr>
                                         <td class="fw-medium">
                                             <i class="ri-building-line text-muted me-2"></i>
-                                            {{ $secteur->nom }}
+                                            {{ $secteur['nom'] }}
                                         </td>
-                                        <td class="text-end fw-bold">{{ number_format($secteur->total, 0, ',', ' ') }}</td>
+                                        <td class="text-end fw-bold">{{ number_format($secteur['total'], 0, ',', ' ') }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="progress flex-grow-1 me-2" style="height: 8px;">

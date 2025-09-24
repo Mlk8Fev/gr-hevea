@@ -28,12 +28,8 @@ class ConnaissementController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer les filtres
-        $statut = $request->get('statut', 'all');
-        $search = $request->get('search', '');
-        
-        // Construire la requête de base
-        $query = Connaissement::with(['cooperative', 'centreCollecte', 'createdBy', 'secteur']);
+        // Construire la requête de base avec les relations nécessaires
+        $query = Connaissement::with(['cooperative.secteur', 'centreCollecte', 'createdBy', 'secteur']);
         
         // Scoping par secteur pour AGC
         if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
@@ -43,30 +39,61 @@ class ConnaissementController extends Controller
             });
         }
         
-        // Appliquer le filtre de statut
-        if ($statut !== 'all') {
-            $query->where('statut', $statut);
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->where('secteur_id', $request->secteur);
         }
         
-        // Appliquer la recherche
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('numero_livraison', 'like', "%{$search}%")
-                  ->orWhereHas('cooperative', function($q2) use ($search) {
-                      $q2->where('nom', 'like', "%{$search}%");
+        // Filtre par coopérative
+        if ($request->filled('cooperative')) {
+            $query->where('cooperative_id', $request->cooperative);
+        }
+        
+        // Filtre par statut
+        if ($request->filled('statut') && $request->statut !== 'all') {
+            $query->where('statut', $request->statut);
+        }
+        
+        // Filtre par date d'arrivée
+        if ($request->filled('date_arrivee')) {
+            $query->whereDate('date_reception', $request->date_arrivee);
+        }
+        
+        // Filtre par heure d'arrivée
+        if ($request->filled('heure_arrivee')) {
+            $query->whereTime('heure_arrivee', $request->heure_arrivee);
+        }
+        
+        // Recherche par numéro de livraison et autres champs
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('numero_livraison', 'LIKE', "%{$request->search}%")
+                  ->orWhere('lieu_depart', 'LIKE', "%{$request->search}%")
+                  ->orWhere('transporteur_nom', 'LIKE', "%{$request->search}%")
+                  ->orWhere('transporteur_immatriculation', 'LIKE', "%{$request->search}%")
+                  ->orWhere('chauffeur_nom', 'LIKE', "%{$request->search}%")
+                  ->orWhereHas('cooperative', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
                   })
-                  ->orWhereHas('secteur', function($q2) use ($search) {
-                      $q2->where('nom', 'like', "%{$search}%");
+                  ->orWhereHas('secteur', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
                   });
             });
         }
         
         // Paginer les résultats
-        $connaissements = $query->orderBy('created_at', 'desc')->paginate(10);
+        $connaissements = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
+        
+        // Récupérer les données pour les filtres
+        $secteurs = Secteur::orderBy('code')->get();
+        $cooperatives = Cooperative::with('secteur')->orderBy('nom')->get();
+        $statuts = ['programme' => 'Programmé', 'valide' => 'Validé'];
         
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.connaissements.index', compact('connaissements', 'navigation', 'statut', 'search'));
+        return view('admin.connaissements.index', compact('connaissements', 'secteurs', 'cooperatives', 'statuts', 'navigation'));
     }
 
     /**

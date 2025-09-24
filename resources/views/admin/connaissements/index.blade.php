@@ -28,6 +28,7 @@
             </ul>
         </div>
         
+        <!-- Messages de succès/erreur -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="ri-check-line me-2"></i>{{ session('success') }}
@@ -42,84 +43,156 @@
             </div>
         @endif
 
-        <div class="card h-100 p-0 radius-12">
-            <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
-                <h6 class="mb-0">Liste des Connaissements</h6>
-                <div class="d-flex align-items-center flex-wrap gap-3">
-                    <div class="d-flex align-items-center flex-wrap gap-3">
-                        <span class="text-md fw-medium text-secondary-light mb-0">Show</span>
-                        <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px">
-                            <option>10</option>
-                            <option>25</option>
-                            <option>50</option>
-                            <option>100</option>
-                        </select>
+        <!-- Filtres de recherche -->
+        <div class="row mb-24">
+            <div class="col-12">
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <!-- Recherche manuelle -->
+                        <div class="flex-grow-1">
+                            <div class="position-relative">
+                                <input type="text" 
+                                       id="searchInput" 
+                                       class="form-control" 
+                                       placeholder="Rechercher par numéro de livraison, lieu, transporteur..." 
+                                       value="{{ request('search') }}"
+                                       autocomplete="off">
+                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                            </div>
+                        </div>
                         
-                        <!-- Filtre par Statut -->
-                        <form class="d-flex align-items-center gap-2" method="GET" action="{{ route('admin.connaissements.index') }}">
-                            @if(request('search'))
-                                <input type="hidden" name="search" value="{{ request('search') }}">
-                            @endif
-                            <select name="statut" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
-                                <option value="all" {{ $statut === 'all' ? 'selected' : '' }}>Tous les statuts</option>
-                                <option value="programme" {{ $statut === 'programme' ? 'selected' : '' }}>Programmé</option>
-                                <option value="valide" {{ $statut === 'valide' ? 'selected' : '' }}>Validé pour ticket de pesée</option>
+                        <!-- Bouton Rechercher -->
+                        <button type="button" id="searchButton" class="btn btn-primary">
+                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            Rechercher
+                        </button>
+                        
+                        <!-- Filtre par secteur -->
+                        <div style="min-width: 200px;">
+                            <select id="secteurFilter" class="form-select">
+                                <option value="">Tous les secteurs</option>
+                                @foreach($secteurs as $secteur)
+                                    <option value="{{ $secteur->id }}" {{ request('secteur') == $secteur->id ? 'selected' : '' }}>
+                                        {{ $secteur->code }} - {{ $secteur->nom }}
+                                    </option>
+                                @endforeach
                             </select>
-                        </form>
+                        </div>
                         
-                        <form class="navbar-search" method="GET" action="{{ route('admin.connaissements.index') }}">
-                            @if(request('statut') && request('statut') !== 'all')
-                                <input type="hidden" name="statut" value="{{ request('statut') }}">
-                            @endif
-                            <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ request('search') }}">
-                            <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                        </form>
+                        <!-- Filtre par coopérative -->
+                        <div style="min-width: 200px;">
+                            <select id="cooperativeFilter" class="form-select">
+                                <option value="">Toutes les coopératives</option>
+                                @foreach($cooperatives as $cooperative)
+                                    <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
+                                        {{ $cooperative->code }} - {{ $cooperative->nom }}
+                                    </option>
+                                @endforeach
+                        </select>
+                        </div>
                         
-                        @if(request('search') || (request('statut') && request('statut') !== 'all'))
-                            <a href="{{ route('admin.connaissements.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
-                                <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
-                                Effacer les filtres
-                            </a>
-                        @endif
+                        <!-- Filtre par statut -->
+                        <div style="min-width: 150px;">
+                            <select id="statutFilter" class="form-select">
+                                <option value="all" {{ request('statut') == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                                @foreach($statuts as $key => $label)
+                                    <option value="{{ $key }}" {{ request('statut') == $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par date d'arrivée -->
+                        <div style="min-width: 150px;">
+                            <input type="date" 
+                                   id="dateArriveeFilter" 
+                                   class="form-control" 
+                                   value="{{ request('date_arrivee') }}"
+                                   placeholder="Date d'arrivée">
+                        </div>
+                        
+                        <!-- Filtre par heure d'arrivée -->
+                        <div style="min-width: 120px;">
+                            <input type="time" 
+                                   id="heureArriveeFilter" 
+                                   class="form-control" 
+                                   value="{{ request('heure_arrivee') }}"
+                                   placeholder="Heure">
+                        </div>
+                        
+                        <!-- Bouton reset -->
+                        <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
+                            Reset
+                        </button>
                     </div>
-                    <a href="{{ route('admin.connaissements.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                        <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
-                        Nouveau Connaissement
-                    </a>
                 </div>
             </div>
-            <div class="card-body p-24">
-                <div class="table-responsive scroll-sm">
-                    <table class="table bordered-table sm-table mb-0" id="connaissements-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Numéro</th>
-                                <th scope="col">Secteur</th>                                <th scope="col">Coopérative</th>
-                                <th scope="col">Poids (kg)</th>
-                                <th scope="col">Date Réception</th>
-                                <th scope="col">Heure Arrivée</th>
-                                <th scope="col">Statut</th>
-                                <th scope="col" class="text-center">Action</th>
+        </div>
+
+        <!-- Tableau simplifié -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-between mb-20">
+                        <h5 class="mb-0 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:file-list-line" class="text-primary"></iconify-icon>
+                            Liste des Connaissements
+                        </h5>
+                        <a href="{{ route('admin.connaissements.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:add-line" class="icon text-xl line-height-1"></iconify-icon>
+                            Nouveau Connaissement
+                        </a>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0">#</th>
+                                    <th class="border-0">Numéro Livraison</th>
+                                    <th class="border-0">Coopérative / Secteur</th>
+                                    <th class="border-0">Poids (kg)</th>
+                                    <th class="border-0">Date / Heure Arrivée</th>
+                                    <th class="border-0">Statut</th>
+                                    <th class="border-0 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($connaissements as $index => $connaissement)
                             <tr>
                                 <td>{{ $connaissements->firstItem() + $index }}</td>
-                                <td>{{ $connaissement->numero_livraison ?: "N/A" }}</td>
-                                <td>{{ $connaissement->secteur ? $connaissement->secteur->nom : "N/A" }}</td>                                <td>{{ $connaissement->cooperative->nom }}</td>
-                                <td>{{ number_format($connaissement->poids_brut_estime, 2) }}</td>
-                                <td>
-                                    @if($connaissement->date_reception)
-                                        <span class="text-success fw-medium">{{ $connaissement->date_reception->format('d/m/Y') }}</span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
+                                                <iconify-icon icon="ri:file-list-line" class="text-primary text-lg"></iconify-icon>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-primary">{{ $connaissement->numero_livraison ?: "N/A" }}</div>
+                                                <div class="text-muted text-sm">{{ $connaissement->lieu_depart }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ $connaissement->cooperative->nom }}</div>
+                                            <div class="text-muted text-sm">
+                                                <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
+                                                    {{ $connaissement->secteur->code }} - {{ $connaissement->secteur->nom }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold text-success">{{ number_format($connaissement->poids_brut_estime, 2) }} kg</span>
                                 </td>
                                 <td>
+                                        @if($connaissement->date_reception)
+                                            <div class="fw-semibold text-dark">{{ $connaissement->date_reception->format('d/m/Y') }}</div>
                                     @if($connaissement->heure_arrivee)
-                                        <span class="text-success fw-medium">{{ $connaissement->heure_arrivee }}</span>
+                                                <div class="text-muted text-sm">{{ $connaissement->heure_arrivee }}</div>
+                                            @endif
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
@@ -127,12 +200,21 @@
                                 <td>
                                     @if($connaissement->statut === 'programme')
                                         @if($connaissement->date_reception)
-                                            <span class="badge bg-info">Programmé</span>
+                                                <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
+                                                    <iconify-icon icon="ri:calendar-line" class="me-1"></iconify-icon>
+                                                    Programmé
+                                                </span>
+                                            @else
+                                                <span class="badge bg-warning-100 text-warning-600 px-8 py-2 radius-6">
+                                                    <iconify-icon icon="ri:time-line" class="me-1"></iconify-icon>
+                                                    En attente
+                                                </span>
+                                            @endif
                                         @else
-                                            <span class="badge bg-warning">En attente</span>
-                                        @endif
-                                    @else
-                                        <span class="badge bg-success">Validé pour ticket de pesée</span>
+                                            <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
+                                                <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                Validé
+                                            </span>
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -141,29 +223,29 @@
                                             <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                         </a>
 
-                                        @if(auth()->check() && auth()->user()->role !== 'agc')
-                                            <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                            @if(auth()->check() && auth()->user()->role !== 'agc')
+                                        <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                        </a>
+
+                                        @if($connaissement->statut === 'programme')
+                                            <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Programmer">
+                                                <iconify-icon icon="lucide:calendar" class="menu-icon"></iconify-icon>
                                             </a>
+                                            <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
+                                                <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
+                                            </a>
+                                        @endif
 
-                                            @if($connaissement->statut === 'programme')
-                                                <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Programmer">
-                                                    <iconify-icon icon="lucide:calendar" class="menu-icon"></iconify-icon>
-                                                </a>
-                                                <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
-                                                    <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
-                                                </a>
-                                            @endif
-
-                                            @if($connaissement->statut === 'programme')
-                                                <form action="{{ route('admin.connaissements.destroy', $connaissement) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer ce connaissement ?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
-                                                        <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            @endif
+                                        @if($connaissement->statut === 'programme')
+                                                    <form action="{{ route('admin.connaissements.destroy', $connaissement) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce connaissement ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
+                                                    <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                                </button>
+                                            </form>
+                                                @endif
                                         @endif
                                     </div>
                                 </td>
@@ -173,57 +255,91 @@
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
-                    <span>Affichage de {{ $connaissements->firstItem() ?? 0 }} à {{ $connaissements->lastItem() ?? 0 }} sur {{ $connaissements->total() }} entrées</span>
-                    
+                    <!-- Pagination avec filtres préservés -->
                     @if($connaissements->hasPages())
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center mb-0">
-                                <!-- Bouton Précédent -->
-                                @if($connaissements->onFirstPage())
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
-                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                    <div class="row mt-24">
+                        <div class="col-12">
+                            <div class="card p-24 radius-12 border-0 shadow-sm">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <!-- Informations de pagination -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted text-sm">
+                                            Affichage de 
+                                            <span class="fw-semibold text-primary">{{ $connaissements->firstItem() }}</span>
+                                            à 
+                                            <span class="fw-semibold text-primary">{{ $connaissements->lastItem() }}</span>
+                                            sur 
+                                            <span class="fw-semibold text-primary">{{ $connaissements->total() }}</span>
+                                            connaissements
+                                        </span>
+                                    </div>
+
+                                    <!-- Navigation pagination -->
+                                    <nav aria-label="Navigation des pages">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <!-- Page précédente -->
+                                            @if($connaissements->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">
+                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
                                         </span>
                                     </li>
                                 @else
                                     <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $connaissements->previousPageUrl() }}">
-                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                                                    <a href="{{ $connaissements->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
                                         </a>
                                     </li>
                                 @endif
 
-                                <!-- Pages -->
+                                            <!-- Pages numérotées -->
                                 @foreach($connaissements->getUrlRange(1, $connaissements->lastPage()) as $page => $url)
                                     @if($page == $connaissements->currentPage())
                                         <li class="page-item active">
-                                            <span class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white">{{ $page }}</span>
+                                                        <span class="page-link bg-primary border-0 text-white fw-semibold">
+                                                            {{ $page }}
+                                                        </span>
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $url }}">{{ $page }}</a>
+                                                        <a href="{{ $connaissements->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                            {{ $page }}
+                                                        </a>
                                         </li>
                                     @endif
                                 @endforeach
 
-                                <!-- Bouton Suivant -->
+                                            <!-- Page suivante -->
                                 @if($connaissements->hasMorePages())
                                     <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $connaissements->nextPageUrl() }}">
-                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                                    <a href="{{ $connaissements->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
                                         </a>
                                     </li>
                                 @else
                                     <li class="page-item disabled">
-                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
-                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                                    <span class="page-link bg-light border-0 text-muted">
+                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
                                         </span>
                                     </li>
                                 @endif
                             </ul>
                         </nav>
+
+                                    <!-- Sélecteur de nombre d'éléments par page -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted text-sm">Afficher :</span>
+                                        <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -232,5 +348,110 @@
 </main>
 
 @include('partials.wowdash-scripts')
+
+<script>
+// Recherche manuelle avec bouton
+const searchInput = document.getElementById('searchInput');
+const searchButton = document.getElementById('searchButton');
+const secteurFilter = document.getElementById('secteurFilter');
+const cooperativeFilter = document.getElementById('cooperativeFilter');
+const statutFilter = document.getElementById('statutFilter');
+const dateArriveeFilter = document.getElementById('dateArriveeFilter');
+const heureArriveeFilter = document.getElementById('heureArriveeFilter');
+const resetFilters = document.getElementById('resetFilters');
+
+function performSearch() {
+    const url = new URL(window.location);
+    const searchValue = searchInput.value.trim();
+    const secteurValue = secteurFilter.value;
+    const cooperativeValue = cooperativeFilter.value;
+    const statutValue = statutFilter.value;
+    const dateArriveeValue = dateArriveeFilter.value;
+    const heureArriveeValue = heureArriveeFilter.value;
+    
+    if (searchValue) {
+        url.searchParams.set('search', searchValue);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    if (secteurValue) {
+        url.searchParams.set('secteur', secteurValue);
+    } else {
+        url.searchParams.delete('secteur');
+    }
+    
+    if (cooperativeValue) {
+        url.searchParams.set('cooperative', cooperativeValue);
+    } else {
+        url.searchParams.delete('cooperative');
+    }
+    
+    if (statutValue && statutValue !== 'all') {
+        url.searchParams.set('statut', statutValue);
+    } else {
+        url.searchParams.delete('statut');
+    }
+    
+    if (dateArriveeValue) {
+        url.searchParams.set('date_arrivee', dateArriveeValue);
+    } else {
+        url.searchParams.delete('date_arrivee');
+    }
+    
+    if (heureArriveeValue) {
+        url.searchParams.set('heure_arrivee', heureArriveeValue);
+    } else {
+        url.searchParams.delete('heure_arrivee');
+    }
+    
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+
+// Recherche au clic du bouton
+searchButton.addEventListener('click', performSearch);
+
+// Recherche avec Entrée
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Filtres immédiats
+secteurFilter.addEventListener('change', performSearch);
+cooperativeFilter.addEventListener('change', performSearch);
+statutFilter.addEventListener('change', performSearch);
+dateArriveeFilter.addEventListener('change', performSearch);
+heureArriveeFilter.addEventListener('change', performSearch);
+
+// Reset des filtres
+resetFilters.addEventListener('click', function() {
+    searchInput.value = '';
+    secteurFilter.value = '';
+    cooperativeFilter.value = '';
+    statutFilter.value = 'all';
+    dateArriveeFilter.value = '';
+    heureArriveeFilter.value = '';
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('secteur');
+    url.searchParams.delete('cooperative');
+    url.searchParams.delete('statut');
+    url.searchParams.delete('date_arrivee');
+    url.searchParams.delete('heure_arrivee');
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+});
+
+function changePerPage(value) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', value);
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+</script>
+
 </body>
 </html> 

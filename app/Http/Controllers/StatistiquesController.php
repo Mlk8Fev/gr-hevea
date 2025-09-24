@@ -71,49 +71,82 @@ class StatistiquesController extends Controller
     private function getStatsGenerales($dateDebut, $dateFin)
     {
         $tickets = TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin]);
+        $ticketsValides = $tickets->where('statut', 'valide');
+        
+        // Statistiques de base
+        $totalGraines = $ticketsValides->sum('poids_net');
+        $nombreTickets = $tickets->count();
+        $ticketsValidesCount = $ticketsValides->count();
+        $ticketsEnAttente = $tickets->where('statut', 'en_attente')->count();
+        $moyennePoidsNet = $ticketsValides->avg('poids_net') ?? 0;
+        $totalSacs = $ticketsValides->sum('nombre_sacs_bidons_cartons');
+        
+        // Statistiques avancées
+        $nombreCooperatives = Cooperative::count();
+        $nombreCentres = CentreCollecte::count();
+        $nombreConnaissements = Connaissement::whereBetween('created_at', [$dateDebut, $dateFin])->count();
+        $nombreProducteurs = Producteur::count();
+        $nombreSecteurs = Secteur::count();
+        
+        // Calculs de performance
+        $tauxValidation = $nombreTickets > 0 ? ($ticketsValidesCount / $nombreTickets) * 100 : 0;
+        $poidsMoyenParTicket = $ticketsValidesCount > 0 ? $totalGraines / $ticketsValidesCount : 0;
+        
+        // Évolution par rapport au mois précédent
+        $moisPrecedent = $dateDebut->copy()->subMonth();
+        $ticketsPrecedent = TicketPesee::whereBetween('date_entree', [
+            $moisPrecedent->startOfMonth(), 
+            $moisPrecedent->endOfMonth()
+        ])->where('statut', 'valide');
+        
+        $totalGrainesPrecedent = $ticketsPrecedent->sum('poids_net');
+        $evolutionProduction = $totalGrainesPrecedent > 0 
+            ? (($totalGraines - $totalGrainesPrecedent) / $totalGrainesPrecedent) * 100 
+            : 0;
         
         return [
-            'total_graines' => $tickets->sum('poids_net'),
-            'nombre_tickets' => $tickets->count(),
-            'tickets_valides' => $tickets->where('statut', 'valide')->count(),
-            'tickets_en_attente' => $tickets->where('statut', 'en_attente')->count(),
-            'moyenne_poids_net' => $tickets->avg('poids_net'),
-            'total_sacs' => $tickets->sum('nombre_sacs_bidons_cartons'),
-            'nombre_cooperatives' => Cooperative::count(),
-            'nombre_centres' => CentreCollecte::count(),
-            'nombre_connaissements' => Connaissement::whereBetween('created_at', [$dateDebut, $dateFin])->count(),
+            // KPIs principaux
+            'total_graines' => $totalGraines,
+            'nombre_tickets' => $nombreTickets,
+            'tickets_valides' => $ticketsValidesCount,
+            'tickets_en_attente' => $ticketsEnAttente,
+            'moyenne_poids_net' => $moyennePoidsNet,
+            'total_sacs' => $totalSacs,
+            'taux_validation' => $tauxValidation,
+            'poids_moyen_par_ticket' => $poidsMoyenParTicket,
+            'evolution_production' => $evolutionProduction,
+            
+            // Entités
+            'nombre_cooperatives' => $nombreCooperatives,
+            'nombre_centres' => $nombreCentres,
+            'nombre_connaissements' => $nombreConnaissements,
+            'nombre_producteurs' => $nombreProducteurs,
+            'nombre_secteurs' => $nombreSecteurs,
+            
+            // Données pour graphiques
             'evolution_mensuelle' => $this->getEvolutionMensuelle($dateDebut, $dateFin),
             'top_cooperatives' => $this->getTopCooperatives($dateDebut, $dateFin, 5),
-            'repartition_secteurs' => $this->getRepartitionSecteurs($dateDebut, $dateFin)
+            'repartition_secteurs' => $this->getRepartitionSecteurs($dateDebut, $dateFin),
+            'evolution_quotidienne' => $this->getEvolutionQuotidienne($dateDebut, $dateFin),
+            'repartition_par_centre' => $this->getRepartitionParCentre($dateDebut, $dateFin),
+            'performance_par_secteur' => $this->getPerformanceParSecteur($dateDebut, $dateFin),
+            
+            // Métriques de qualité
+            'tickets_annules' => $tickets->where('statut', 'annule')->count(),
+            'poids_max_ticket' => $ticketsValides->max('poids_net') ?? 0,
+            'poids_min_ticket' => $ticketsValides->min('poids_net') ?? 0,
         ];
     }
 
     private function getStatsCooperatives($dateDebut, $dateFin)
     {
-        $cooperatives = Cooperative::with(['ticketsPesee' => function($query) use ($dateDebut, $dateFin) {
-            $query->whereBetween('date_entree', [$dateDebut, $dateFin]);
-        }])->get();
-
-        $stats = [];
-        foreach ($cooperatives as $coop) {
-            $tickets = $coop->ticketsPesee;
-            $stats[] = [
-                'nom' => $coop->nom,
-                'secteur' => $coop->secteur->nom ?? 'N/A',
-                'total_graines' => $tickets->sum('poids_net'),
-                'nombre_tickets' => $tickets->count(),
-                'moyenne_poids' => $tickets->avg('poids_net'),
-                'a_sechoir' => $coop->a_sechoir ? 'Oui' : 'Non',
-                'performance' => $this->calculerPerformance($tickets)
-            ];
-        }
-
         return [
-            'cooperatives' => collect($stats)->sortByDesc('total_graines')->values(),
-            'total_cooperatives' => $cooperatives->count(),
-            'cooperatives_avec_sechoir' => $cooperatives->where('a_sechoir', true)->count(),
-            'performance_moyenne' => collect($stats)->avg('performance'),
-            'repartition_geographique' => $this->getRepartitionGeographique($cooperatives)
+            'total_cooperatives' => Cooperative::count(),
+            'cooperatives_actives' => Cooperative::whereHas('connaissements.ticketsPesee', function($query) use ($dateDebut, $dateFin) {
+                $query->whereBetween('date_entree', [$dateDebut, $dateFin]);
+            })->count(),
+            'top_cooperatives' => $this->getTopCooperatives($dateDebut, $dateFin, 10),
+            'repartition_par_secteur' => $this->getPerformanceParSecteur($dateDebut, $dateFin)
         ];
     }
 
@@ -167,39 +200,59 @@ class StatistiquesController extends Controller
     // Méthodes utilitaires
     private function getEvolutionMensuelle($dateDebut, $dateFin)
     {
-        return TicketPesee::selectRaw('DATE_FORMAT(date_entree, "%Y-%m") as mois, SUM(poids_net) as total')
-            ->whereBetween('date_entree', [$dateDebut, $dateFin])
+        return TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin])
+            ->where('statut', 'valide')
+            ->selectRaw('DATE_FORMAT(date_entree, "%Y-%m") as mois, SUM(poids_net) as total')
             ->groupBy('mois')
             ->orderBy('mois')
-            ->get();
+            ->get()
+            ->map(function($item) {
+                return [
+                    'mois' => $item->mois,
+                    'total' => (float) $item->total
+                ];
+            });
     }
 
     private function getTopCooperatives($dateDebut, $dateFin, $limit = 5)
     {
-        return Cooperative::with(['ticketsPesee' => function($query) use ($dateDebut, $dateFin) {
-            $query->whereBetween('date_entree', [$dateDebut, $dateFin]);
-        }])
-        ->get()
-        ->map(function($coop) {
-            return [
-                'nom' => $coop->nom,
-                'total_graines' => $coop->ticketsPesee->sum('poids_net')
-            ];
-        })
-        ->sortByDesc('total_graines')
-        ->take($limit)
-        ->values();
+        return TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin])
+            ->where('statut', 'valide')
+            ->with(['connaissement.cooperative.secteur'])
+            ->get()
+            ->groupBy('connaissement.cooperative.nom')
+            ->map(function($tickets, $nomCoop) {
+                $coop = $tickets->first()->connaissement->cooperative;
+                return [
+                    'nom' => $nomCoop,
+                    'secteur' => $coop->secteur->nom ?? 'Non défini',
+                    'total' => $tickets->sum('poids_net'),
+                    'tickets' => $tickets->count()
+                ];
+            })
+            ->values()
+            ->sortByDesc('total')
+            ->take($limit)
+            ->toArray();
     }
-
+    
     private function getRepartitionSecteurs($dateDebut, $dateFin)
     {
-        return DB::table('tickets_pesee')
-            ->join('connaissements', 'tickets_pesee.connaissement_id', '=', 'connaissements.id')
-            ->join('secteurs', 'connaissements.secteur_id', '=', 'secteurs.id')
-            ->whereBetween('tickets_pesee.date_entree', [$dateDebut, $dateFin])
-            ->select('secteurs.nom', DB::raw('SUM(tickets_pesee.poids_net) as total'))
-            ->groupBy('secteurs.nom')
-            ->get();
+        return TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin])
+            ->where('statut', 'valide')
+            ->with('connaissement.cooperative.secteur')
+            ->get()
+            ->groupBy('connaissement.cooperative.secteur.nom')
+            ->map(function($tickets, $secteur) {
+                return [
+                    'secteur' => $secteur ?? 'Non défini',
+                    'nom' => $secteur ?? 'Non défini', // Ajout de la clé 'nom'
+                    'total' => $tickets->sum('poids_net')
+                ];
+            })
+            ->values()
+            ->sortByDesc('total')
+            ->toArray();
     }
 
     private function calculerPerformance($tickets)
@@ -312,5 +365,60 @@ class StatistiquesController extends Controller
         })
         ->sortByDesc('gp_moyen')
         ->values();
+    }
+
+    private function getEvolutionQuotidienne($dateDebut, $dateFin)
+    {
+        return TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin])
+            ->where('statut', 'valide')
+            ->selectRaw('DATE(date_entree) as date, SUM(poids_net) as total, COUNT(*) as tickets')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'date' => $item->date,
+                    'total' => (float) $item->total,
+                    'tickets' => (int) $item->tickets
+                ];
+            });
+    }
+    
+    private function getRepartitionParCentre($dateDebut, $dateFin)
+    {
+        return TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin])
+            ->where('statut', 'valide')
+            ->with('connaissement.centreCollecte')
+            ->get()
+            ->groupBy('connaissement.centreCollecte.nom')
+            ->map(function($tickets, $centre) {
+                return [
+                    'centre' => $centre,
+                    'total' => $tickets->sum('poids_net'),
+                    'tickets' => $tickets->count()
+                ];
+            })
+            ->values()
+            ->sortByDesc('total')
+            ->take(10);
+    }
+    
+    private function getPerformanceParSecteur($dateDebut, $dateFin)
+    {
+        return TicketPesee::whereBetween('date_entree', [$dateDebut, $dateFin])
+            ->where('statut', 'valide')
+            ->with('connaissement.cooperative.secteur')
+            ->get()
+            ->groupBy('connaissement.cooperative.secteur.nom')
+            ->map(function($tickets, $secteur) {
+                return [
+                    'secteur' => $secteur,
+                    'total' => $tickets->sum('poids_net'),
+                    'tickets' => $tickets->count(),
+                    'moyenne' => $tickets->avg('poids_net')
+                ];
+            })
+            ->values()
+            ->sortByDesc('total');
     }
 }

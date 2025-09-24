@@ -7,15 +7,12 @@
     <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
 </head>
 <body>
 @include('partials.sidebar', ['navigation' => $navigation])
-
 <main class="dashboard-main">
     @include('partials.navbar-header')
-    
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
             <h6 class="fw-semibold mb-0">Gestion des Factures</h6>
@@ -27,17 +24,18 @@
                     </a>
                 </li>
                 <li>-</li>
-                <li class="fw-medium">Gestion des Factures</li>
+                <li class="fw-medium">Factures</li>
             </ul>
         </div>
-
+        
+        <!-- Messages de succès/erreur -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="ri-check-line me-2"></i>{{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-
+        
         @if(session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="ri-error-warning-line me-2"></i>{{ session('error') }}
@@ -45,270 +43,286 @@
             </div>
         @endif
 
-        <div class="card h-100 p-0 radius-12">
-            <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
-                <div class="d-flex align-items-center flex-wrap gap-3">
-                    <span class="text-md fw-medium text-secondary-light mb-0">Show</span>
-                    <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                        <option>100</option>
-                    </select>
-                    
-                    <!-- Filtre par Type -->
-                    <form class="d-flex align-items-center gap-2" method="GET" action="{{ route('admin.factures.index') }}">
-                        @if(request('statut'))
-                            <input type="hidden" name="statut" value="{{ request('statut') }}">
-                        @endif
-                        @if(request('cooperative'))
-                            <input type="hidden" name="cooperative" value="{{ request('cooperative') }}">
-                        @endif
-                        @if(request('search'))
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                        @endif
-                        <select name="type" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
-                            <option value="all" {{ $type === 'all' ? 'selected' : '' }}>Tous les types</option>
-                            <option value="individuelle" {{ $type === 'individuelle' ? 'selected' : '' }}>Individuelles</option>
-                            <option value="globale" {{ $type === 'globale' ? 'selected' : '' }}>Globales</option>
-                        </select>
-                    </form>
-                    
-                    <!-- Filtre par Statut -->
-                    <form class="d-flex align-items-center gap-2" method="GET" action="{{ route('admin.factures.index') }}">
-                        @if(request('type'))
-                            <input type="hidden" name="type" value="{{ request('type') }}">
-                        @endif
-                        @if(request('cooperative'))
-                            <input type="hidden" name="cooperative" value="{{ request('cooperative') }}">
-                        @endif
-                        @if(request('search'))
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                        @endif
-                        <select name="statut" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
-                            <option value="all" {{ $statut === 'all' ? 'selected' : '' }}>Tous les statuts</option>
-                            <option value="brouillon" {{ $statut === 'brouillon' ? 'selected' : '' }}>Brouillon</option>
-                            <option value="validee" {{ $statut === 'validee' ? 'selected' : '' }}>Validée</option>
-                            <option value="payee" {{ $statut === 'payee' ? 'selected' : '' }}>Payée</option>
-                            <option value="annulee" {{ $statut === 'annulee' ? 'selected' : '' }}>Annulée</option>
-                        </select>
-                    </form>
-                    
-                    <!-- Filtre par Coopérative -->
-                    <form class="d-flex align-items-center gap-2" method="GET" action="{{ route('admin.factures.index') }}">
-                        @if(request('type'))
-                            <input type="hidden" name="type" value="{{ request('type') }}">
-                        @endif
-                        @if(request('statut'))
-                            <input type="hidden" name="statut" value="{{ request('statut') }}">
-                        @endif
-                        @if(request('search'))
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                        @endif
-                        <select name="cooperative" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
-                            <option value="all" {{ $cooperative === 'all' ? 'selected' : '' }}>Toutes les coopératives</option>
-                            @foreach($cooperatives as $coop)
-                                <option value="{{ $coop->id }}" {{ $cooperative == $coop->id ? 'selected' : '' }}>{{ $coop->nom }}</option>
-                            @endforeach
-                        </select>
-                    </form>
-                    
-                    <form class="navbar-search" method="GET" action="{{ route('admin.factures.index') }}">
-                        @if(request('type') && request('type') !== 'all')
-                            <input type="hidden" name="type" value="{{ request('type') }}">
-                        @endif
-                        @if(request('statut') && request('statut') !== 'all')
-                            <input type="hidden" name="statut" value="{{ request('statut') }}">
-                        @endif
-                        @if(request('cooperative') && request('cooperative') !== 'all')
-                            <input type="hidden" name="cooperative" value="{{ request('cooperative') }}">
-                        @endif
-                        <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ $search }}">
-                        <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                    </form>
-                    
-                    @if(request('search') || (request('type') && request('type') !== 'all') || (request('statut') && request('statut') !== 'all') || (request('cooperative') && request('cooperative') !== 'all'))
-                        <a href="{{ route('admin.factures.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
-                            <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
-                            Effacer les filtres
-                        </a>
-                    @endif
-                </div>
-                
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <a href="{{ route('admin.factures.create', ['type' => 'individuelle']) }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                        <iconify-icon icon="ri-add-line" class="icon text-xl line-height-1"></iconify-icon>
-                        Facture Individuelle
-                    </a>
-                    <a href="{{ route('admin.factures.create', ['type' => 'globale']) }}" class="btn btn-success text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                        <iconify-icon icon="ri-add-line" class="icon text-xl line-height-1"></iconify-icon>
-                        Facture Globale
-                    </a>
+        <!-- Filtres de recherche -->
+        <div class="row mb-24">
+            <div class="col-12">
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <!-- Recherche manuelle -->
+                        <div class="flex-grow-1">
+                            <div class="position-relative">
+                                <input type="text" 
+                                       id="searchInput" 
+                                       class="form-control" 
+                                       placeholder="Rechercher par numéro de facture, livraison, coopérative..." 
+                                       value="{{ request('search') }}"
+                                       autocomplete="off">
+                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                            </div>
+                        </div>
+                        
+                        <!-- Bouton Rechercher -->
+                        <button type="button" id="searchButton" class="btn btn-primary">
+                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            Rechercher
+                        </button>
+                        
+                        <!-- Filtre par secteur -->
+                        <div style="min-width: 200px;">
+                            <select id="secteurFilter" class="form-select">
+                                <option value="">Tous les secteurs</option>
+                                @foreach($secteurs as $secteur)
+                                    <option value="{{ $secteur->id }}" {{ request('secteur') == $secteur->id ? 'selected' : '' }}>
+                                        {{ $secteur->code }} - {{ $secteur->nom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par coopérative -->
+                        <div style="min-width: 200px;">
+                            <select id="cooperativeFilter" class="form-select">
+                                <option value="">Toutes les coopératives</option>
+                                @foreach($cooperatives as $cooperative)
+                                    <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
+                                        {{ $cooperative->code }} - {{ $cooperative->nom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par type -->
+                        <div style="min-width: 150px;">
+                            <select id="typeFilter" class="form-select">
+                                <option value="all" {{ request('type') == 'all' ? 'selected' : '' }}>Tous les types</option>
+                                @foreach($types as $key => $label)
+                                    <option value="{{ $key }}" {{ request('type') == $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par statut -->
+                        <div style="min-width: 150px;">
+                            <select id="statutFilter" class="form-select">
+                                <option value="all" {{ request('statut') == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                                @foreach($statuts as $key => $label)
+                                    <option value="{{ $key }}" {{ request('statut') == $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par date d'émission -->
+                        <div style="min-width: 150px;">
+                            <input type="date" 
+                                   id="dateEmissionFilter" 
+                                   class="form-control" 
+                                   value="{{ request('date_emission') }}"
+                                   placeholder="Date d'émission">
+                        </div>
+                        
+                        <!-- Bouton reset -->
+                        <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
+                            Reset
+                        </button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="card-body p-24">
-                <div class="table-responsive scroll-sm">
-                    <table class="table bordered-table sm-table mb-0" id="factures-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">N° Facture</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Coopérative</th>
-                                <th scope="col">Montant TTC</th>
-                                <th scope="col">Date Émission</th>
-                                <th scope="col">Échéance</th>
-                                <th scope="col">Statut</th>
-                                <th scope="col" class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($factures as $index => $facture)
+        </div>
+
+        <!-- Tableau simplifié -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-between mb-20">
+                        <h5 class="mb-0 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:file-list-3-line" class="text-primary"></iconify-icon>
+                            Liste des Factures
+                        </h5>
+                        <a href="{{ route('admin.factures.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
+                            <iconify-icon icon="ri:add-line" class="icon text-xl line-height-1"></iconify-icon>
+                            Nouvelle Facture
+                        </a>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0">#</th>
+                                    <th class="border-0">Numéro / Type</th>
+                                    <th class="border-0">Coopérative / Secteur</th>
+                                    <th class="border-0">Montant (FCFA)</th>
+                                    <th class="border-0">Date / Statut</th>
+                                    <th class="border-0 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($factures as $index => $facture)
                                 <tr>
                                     <td>{{ $factures->firstItem() + $index }}</td>
                                     <td>
-                                        <span class="text-md mb-0 fw-normal text-primary fw-bold">{{ $facture->numero_facture }}</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
+                                                <iconify-icon icon="ri:file-list-3-line" class="text-primary text-lg"></iconify-icon>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-primary">{{ $facture->numero_facture }}</div>
+                                                <div class="text-muted text-sm">
+                                                    <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
+                                                        {{ ucfirst($facture->type) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
-                                        @if($facture->type === 'individuelle')
-                                            <span class="badge bg-info">Individuelle</span>
-                                        @else
-                                            <span class="badge bg-success">Globale</span>
-                                        @endif
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ $facture->cooperative->nom }}</div>
+                                            <div class="text-muted text-sm">
+                                                <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
+                                                    {{ $facture->cooperative->secteur->code }} - {{ $facture->cooperative->secteur->nom }}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
-                                        <span class="text-md mb-0 fw-normal text-secondary-light">{{ $facture->cooperative->nom }}</span>
+                                        <span class="fw-semibold text-success">{{ number_format($facture->montant_total, 0) }} FCFA</span>
                                     </td>
                                     <td>
-                                        <span class="text-md mb-0 fw-normal text-success fw-bold">{{ number_format($facture->montant_ttc, 0) }} FCFA</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-md mb-0 fw-normal text-secondary-light">{{ $facture->date_emission->format('d/m/Y') }}</span>
-                                    </td>
-                                    <td>
-                                        @if($facture->isEnRetard())
-                                            <span class="text-danger fw-medium">{{ $facture->date_echeance->format('d/m/Y') }}</span>
-                                        @else
-                                            <span class="text-md mb-0 fw-normal text-secondary-light">{{ $facture->date_echeance->format('d/m/Y') }}</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($facture->statut === 'brouillon')
-                                            <span class="badge bg-warning">Brouillon</span>
-                                        @elseif($facture->statut === 'validee')
-                                            <span class="badge bg-info">Validée</span>
-                                        @elseif($facture->statut === 'payee')
-                                            <span class="badge bg-success">Payée</span>
-                                        @elseif($facture->statut === 'annulee')
-                                            <span class="badge bg-secondary">Annulée</span>
-                                        @endif
+                                        <div class="fw-semibold text-dark">{{ $facture->date_emission ? $facture->date_emission->format('d/m/Y') : '-' }}</div>
+                                        <div class="text-muted text-sm">
+                                            @if($facture->statut === 'brouillon')
+                                                <span class="badge bg-warning-100 text-warning-600 px-6 py-1 radius-4 text-xs">
+                                                    <iconify-icon icon="ri:edit-line" class="me-1"></iconify-icon>
+                                                    Brouillon
+                                                </span>
+                                            @elseif($facture->statut === 'validee')
+                                                <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
+                                                    <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                    Validée
+                                                </span>
+                                            @elseif($facture->statut === 'payee')
+                                                <span class="badge bg-success-100 text-success-600 px-6 py-1 radius-4 text-xs">
+                                                    <iconify-icon icon="ri:money-dollar-circle-line" class="me-1"></iconify-icon>
+                                                    Payée
+                                                </span>
+                                            @else
+                                                <span class="badge bg-danger-100 text-danger-600 px-6 py-1 radius-4 text-xs">
+                                                    <iconify-icon icon="ri:close-line" class="me-1"></iconify-icon>
+                                                    Annulée
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
-                                            <a href="{{ route('admin.factures.show', $facture) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Voir">
+                                            <a href="{{ route('admin.factures.show', $facture) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
                                                 <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                             </a>
-                                            
-                                            @if($facture->canBeValidated())
-                                                <form action="{{ route('admin.factures.validate', $facture) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Valider" onclick="return confirm('Valider cette facture ?')">
-                                                        <iconify-icon icon="lucide:check" class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            
-                                            @if($facture->canBePaid())
-                                                <button type="button" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Marquer comme payée" onclick="markAsPaid({{ $facture->id }}, {{ $facture->montant_ttc }})">
-                                                    <iconify-icon icon="lucide:credit-card" class="menu-icon"></iconify-icon>
-                                                </button>
-                                            @endif
-                                            
-                                            @if($facture->statut === 'validee')
-                                                <a href="{{ route('admin.factures.preview', $facture) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Preview">
-                                                    <iconify-icon icon="lucide:file-text" class="menu-icon"></iconify-icon>
-                                                </a>
-                                            @endif
-                                            
-                                            @if($facture->statut === 'brouillon')
-                                                <form action="{{ route('admin.factures.destroy', $facture) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette facture ?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Supprimer">
-                                                        <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            @endif
+                                            <a href="{{ route('admin.factures.edit', $facture) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                            </a>
+                                            <a href="{{ route('admin.factures.pdf', $facture) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="PDF">
+                                                <iconify-icon icon="ri:file-pdf-line" class="menu-icon"></iconify-icon>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center py-24">
-                                        <div class="text-center">
-                                            <iconify-icon icon="majesticons:inbox-line" class="text-6xl text-muted"></iconify-icon>
-                                            <h6 class="mt-3 text-muted">Aucune facture trouvée</h6>
-                                            <p class="text-muted mb-0">Aucune facture ne correspond aux critères de recherche.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Pagination -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
-                    <span>Affichage de {{ $factures->firstItem() ?? 0 }} à {{ $factures->lastItem() ?? 0 }} sur {{ $factures->total() }} entrées</span>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                     
+                    <!-- Pagination avec filtres préservés -->
                     @if($factures->hasPages())
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center mb-0">
-                                <!-- Bouton Précédent -->
-                                @if($factures->onFirstPage())
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
-                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                    <div class="row mt-24">
+                        <div class="col-12">
+                            <div class="card p-24 radius-12 border-0 shadow-sm">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <!-- Informations de pagination -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted text-sm">
+                                            Affichage de 
+                                            <span class="fw-semibold text-primary">{{ $factures->firstItem() }}</span>
+                                            à 
+                                            <span class="fw-semibold text-primary">{{ $factures->lastItem() }}</span>
+                                            sur 
+                                            <span class="fw-semibold text-primary">{{ $factures->total() }}</span>
+                                            factures
                                         </span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $factures->previousPageUrl() }}">
-                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                                        </a>
-                                    </li>
-                                @endif
+                                    </div>
 
-                                <!-- Pages -->
-                                @for($page = 1; $page <= $factures->lastPage(); $page++)
-                                    @if($page == $factures->currentPage())
-                                        <li class="page-item active">
-                                            <span class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white">{{ $page }}</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $factures->url($page) }}">{{ $page }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
+                                    <!-- Navigation pagination -->
+                                    <nav aria-label="Navigation des pages">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <!-- Page précédente -->
+                                            @if($factures->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">
+                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                    </span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a href="{{ $factures->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                    </a>
+                                                </li>
+                                            @endif
 
-                                <!-- Bouton Suivant -->
-                                @if($factures->hasMorePages())
-                                    <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $factures->nextPageUrl() }}">
-                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                                        </a>
-                                    </li>
-                                @else
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
-                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                                        </span>
-                                    </li>
-                                @endif
-                            </ul>
-                        </nav>
+                                            <!-- Pages numérotées -->
+                                            @foreach($factures->getUrlRange(1, $factures->lastPage()) as $page => $url)
+                                                @if($page == $factures->currentPage())
+                                                    <li class="page-item active">
+                                                        <span class="page-link bg-primary border-0 text-white fw-semibold">
+                                                            {{ $page }}
+                                                        </span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a href="{{ $factures->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                            {{ $page }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+
+                                            <!-- Page suivante -->
+                                            @if($factures->hasMorePages())
+                                                <li class="page-item">
+                                                    <a href="{{ $factures->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                    </a>
+                                                </li>
+                                            @else
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">
+                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                    </span>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </nav>
+
+                                    <!-- Sélecteur de nombre d'éléments par page -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted text-sm">Afficher :</span>
+                                        <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -318,40 +332,107 @@
 
 @include('partials.wowdash-scripts')
 
-<!-- Modal pour marquer comme payée -->
-<div class="modal fade" id="markAsPaidModal" tabindex="-1" aria-labelledby="markAsPaidModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="markAsPaidModalLabel">Marquer comme payée</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="markAsPaidForm" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="montant_paye" class="form-label">Montant payé (FCFA)</label>
-                        <input type="number" class="form-control" id="montant_paye" name="montant_paye" step="0.01" required>
-                        <div class="form-text">Montant total de la facture : <span id="montantTotal"></span> FCFA</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-success">Enregistrer le paiement</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script>
-function markAsPaid(factureId, montantTotal) {
-    document.getElementById('montantTotal').textContent = montantTotal.toLocaleString();
-    document.getElementById('montant_paye').value = montantTotal;
-    document.getElementById('montant_paye').max = montantTotal;
-    document.getElementById('markAsPaidForm').action = `/admin/factures/${factureId}/mark-as-paid`;
+// Recherche manuelle avec bouton
+const searchInput = document.getElementById('searchInput');
+const searchButton = document.getElementById('searchButton');
+const secteurFilter = document.getElementById('secteurFilter');
+const cooperativeFilter = document.getElementById('cooperativeFilter');
+const typeFilter = document.getElementById('typeFilter');
+const statutFilter = document.getElementById('statutFilter');
+const dateEmissionFilter = document.getElementById('dateEmissionFilter');
+const resetFilters = document.getElementById('resetFilters');
+
+function performSearch() {
+    const url = new URL(window.location);
+    const searchValue = searchInput.value.trim();
+    const secteurValue = secteurFilter.value;
+    const cooperativeValue = cooperativeFilter.value;
+    const typeValue = typeFilter.value;
+    const statutValue = statutFilter.value;
+    const dateEmissionValue = dateEmissionFilter.value;
     
-    new bootstrap.Modal(document.getElementById('markAsPaidModal')).show();
+    if (searchValue) {
+        url.searchParams.set('search', searchValue);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    if (secteurValue) {
+        url.searchParams.set('secteur', secteurValue);
+    } else {
+        url.searchParams.delete('secteur');
+    }
+    
+    if (cooperativeValue) {
+        url.searchParams.set('cooperative', cooperativeValue);
+    } else {
+        url.searchParams.delete('cooperative');
+    }
+    
+    if (typeValue && typeValue !== 'all') {
+        url.searchParams.set('type', typeValue);
+    } else {
+        url.searchParams.delete('type');
+    }
+    
+    if (statutValue && statutValue !== 'all') {
+        url.searchParams.set('statut', statutValue);
+    } else {
+        url.searchParams.delete('statut');
+    }
+    
+    if (dateEmissionValue) {
+        url.searchParams.set('date_emission', dateEmissionValue);
+    } else {
+        url.searchParams.delete('date_emission');
+    }
+    
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+
+// Recherche au clic du bouton
+searchButton.addEventListener('click', performSearch);
+
+// Recherche avec Entrée
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Filtres immédiats
+secteurFilter.addEventListener('change', performSearch);
+cooperativeFilter.addEventListener('change', performSearch);
+typeFilter.addEventListener('change', performSearch);
+statutFilter.addEventListener('change', performSearch);
+dateEmissionFilter.addEventListener('change', performSearch);
+
+// Reset des filtres
+resetFilters.addEventListener('click', function() {
+    searchInput.value = '';
+    secteurFilter.value = '';
+    cooperativeFilter.value = '';
+    typeFilter.value = 'all';
+    statutFilter.value = 'all';
+    dateEmissionFilter.value = '';
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('secteur');
+    url.searchParams.delete('cooperative');
+    url.searchParams.delete('type');
+    url.searchParams.delete('statut');
+    url.searchParams.delete('date_emission');
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+});
+
+function changePerPage(value) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', value);
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
 }
 </script>
 

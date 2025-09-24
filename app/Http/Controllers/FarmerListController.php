@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\FarmerList;
-use App\Models\Connaissement;
-use App\Models\Producteur;
-use App\Services\NavigationService;
+use App\Models\Secteur;
+use App\Models\Cooperative;
 use Illuminate\Http\Request;
+use App\Services\NavigationService;
 use Illuminate\Support\Facades\DB;
+use App\Models\Connaissement;
+use App\Models\CentreCollecte;
+use App\Models\Producteur;
 
 class FarmerListController extends Controller
 {
@@ -23,27 +26,33 @@ class FarmerListController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Connaissement::with(['cooperative', 'centreCollecte', 'ticketsPesee'])
+        $query = Connaissement::with(['cooperative.secteur', 'centreCollecte', 'ticketsPesee'])
             ->whereHas('ticketsPesee', function($q) {
                 $q->where('statut', 'valide');
             });
 
         // Scoping par secteur pour AGC
-        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
-            $userSecteurCode = auth()->user()->secteur;
-            $query->whereHas('secteur', function($q) use ($userSecteurCode) {
-                $q->where('code', $userSecteurCode);
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur_id) {
+            $query->whereHas('secteur', function($q) {
+                $q->where('id', auth()->user()->secteur_id);
+            });
+        }
+
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->whereHas('secteur', function($q) use ($request) {
+                $q->where('id', $request->secteur);
             });
         }
 
         // Filtrage par coopérative
-        if ($request->filled('cooperative_id')) {
-            $query->where('cooperative_id', $request->cooperative_id);
+        if ($request->filled('cooperative')) {
+            $query->where('cooperative_id', $request->cooperative);
         }
 
         // Filtrage par centre de collecte
-        if ($request->filled('centre_collecte_id')) {
-            $query->where('centre_collecte_id', $request->centre_collecte_id);
+        if ($request->filled('centre_collecte')) {
+            $query->where('centre_collecte_id', $request->centre_collecte);
         }
 
         // Recherche par numéro de livraison
@@ -51,7 +60,7 @@ class FarmerListController extends Controller
             $query->where('numero_livraison', 'like', '%' . $request->search . '%');
         }
 
-        $livraisons = $query->orderBy('created_at', 'desc')->paginate(15);
+        $livraisons = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
 
         // Ajouter les informations de farmer list pour chaque livraison
         foreach ($livraisons as $livraison) {
@@ -62,15 +71,15 @@ class FarmerListController extends Controller
             $livraison->farmer_list_complete = abs($livraison->poids_total_farmer_list - $livraison->poids_net) < 0.01;
         }
 
-        $cooperatives = \App\Models\Cooperative::orderBy('nom')->get();
-        $centresCollecte = \App\Models\CentreCollecte::orderBy('nom')->get();
-        $navigation = $this->navigationService->getNavigation();
+        $secteurs = Secteur::orderBy('nom')->get();
+        $cooperatives = Cooperative::with('secteur')->orderBy('nom')->get();
+        $centresCollecte = CentreCollecte::orderBy('nom')->get();
 
         return view('admin.farmer-lists.index', compact(
             'livraisons', 
+            'secteurs',
             'cooperatives', 
-            'centresCollecte', 
-            'navigation'
+            'centresCollecte'
         ));
     }
 

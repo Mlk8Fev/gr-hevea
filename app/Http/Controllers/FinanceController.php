@@ -24,31 +24,52 @@ class FinanceController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer le filtre de statut ENE CI
-        $statutEne = $request->get('statut_ene', 'all');
-        $search = $request->get('search', '');
-        
         // Construire la requête de base
         $query = TicketPesee::where('statut', 'valide')
-            ->with(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy', 'valideParEne']);
+            ->with(['connaissement.cooperative.secteur', 'connaissement.secteur', 'connaissement.centreCollecte', 'createdBy', 'valideParEne']);
         
-        // Appliquer le filtre de statut ENE CI
-        if ($statutEne !== 'all') {
-            $query->where('statut_ene', $statutEne);
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->whereHas('connaissement', function($q) use ($request) {
+                $q->where('secteur_id', $request->secteur);
+            });
         }
         
-        // Appliquer la recherche
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('numero_ticket', 'like', "%{$search}%")
-                  ->orWhereHas('connaissement.cooperative', function($q2) use ($search) {
-                      $q2->where('nom', 'like', "%{$search}%");
+        // Filtre par coopérative
+        if ($request->filled('cooperative')) {
+            $query->whereHas('connaissement', function($q) use ($request) {
+                $q->where('cooperative_id', $request->cooperative);
+            });
+        }
+        
+        // Filtre par statut ENE CI
+        if ($request->filled('statut_ene') && $request->statut_ene !== 'all') {
+            $query->where('statut_ene', $request->statut_ene);
+        }
+        
+        // Filtre par date
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        
+        // Recherche par numéro de ticket et autres champs
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('numero_ticket', 'LIKE', "%{$request->search}%")
+                  ->orWhere('numero_livraison', 'LIKE', "%{$request->search}%")
+                  ->orWhereHas('connaissement.cooperative', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
+                  })
+                  ->orWhereHas('connaissement.secteur', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
                   });
             });
         }
         
         // Paginer les résultats
-        $ticketsValides = $query->orderBy('created_at', 'desc')->paginate(10);
+        $ticketsValides = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
         
         // Calculer les prix pour chaque ticket
         $ticketsAvecPrix = [];
@@ -69,12 +90,17 @@ class FinanceController extends Controller
             }
         }
 
+        // Récupérer les données pour les filtres
+        $secteurs = \App\Models\Secteur::orderBy('code')->get();
+        $cooperatives = \App\Models\Cooperative::with('secteur')->orderBy('nom')->get();
+        $statutsEne = ['en_attente' => 'En attente', 'valide_par_ene' => 'Validé par ENE', 'rejete_par_ene' => 'Rejeté par ENE'];
+        
         // Récupérer la matrice de prix active
         $matriceActive = MatricePrix::getActiveForYear();
 
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.finance.index', compact('ticketsAvecPrix', 'matriceActive', 'navigation', 'ticketsValides', 'statutEne', 'search'));
+        return view('admin.finance.index', compact('ticketsAvecPrix', 'matriceActive', 'navigation', 'ticketsValides', 'secteurs', 'cooperatives', 'statutsEne'));
     }
 
     /**

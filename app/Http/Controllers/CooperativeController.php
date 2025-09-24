@@ -27,11 +27,30 @@ class CooperativeController extends Controller
         'liste_formation' => 'Liste de présence de formation',
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        $cooperatives = Cooperative::with('secteur')->orderBy('code')->get();
+        $query = Cooperative::with('secteur')->orderBy('code');
+        
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->where('secteur_id', $request->secteur);
+        }
+        
+        // Filtre par nom (recherche dynamique)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nom', 'LIKE', "%{$search}%")
+                  ->orWhere('code', 'LIKE', "%{$search}%")
+                  ->orWhere('sigle', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $cooperatives = $query->paginate($request->get('per_page', 10));
+        $secteurs = Secteur::orderBy('code')->get();
         $navigation = app(\App\Services\NavigationService::class)->getNavigation();
-        return view('admin.cooperatives.index', compact('cooperatives', 'navigation'));
+        
+        return view('admin.cooperatives.index', compact('cooperatives', 'secteurs', 'navigation'));
     }
 
     public function create()
@@ -54,7 +73,7 @@ class CooperativeController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'compte_bancaire' => 'required|digits:12',
-            'code_banque' => 'required|digits:5',
+            'code_banque' => 'required|string|size:5|regex:/^[A-Z0-9]{5}$/',
             'code_guichet' => 'required|digits:5',
             'nom_cooperative_banque' => 'required|string|max:255',
             'distances.cotraf' => 'required|numeric|min:0',
@@ -157,7 +176,7 @@ class CooperativeController extends Controller
             'longitude' => 'nullable|numeric',
             'kilometrage' => 'nullable|numeric',
             'compte_bancaire' => 'required|digits:12',
-            'code_banque' => 'required|digits:5',
+            'code_banque' => 'required|string|size:5|regex:/^[A-Z0-9]{5}$/',
             'code_guichet' => 'required|digits:5',
             'nom_cooperative_banque' => 'required|string|max:255',
         ]);

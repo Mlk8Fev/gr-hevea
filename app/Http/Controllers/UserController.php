@@ -27,19 +27,14 @@ class UserController extends Controller
         $query = User::with(['fonction', 'cooperative', 'secteurRelation', 'centreCollecte'])
                     ->orderBy('created_at', 'desc');
 
-        // Filtre de recherche
+        // Filtre de recherche simplifié
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'LIKE', "%{$request->search}%")
                   ->orWhere('username', 'LIKE', "%{$request->search}%")
                   ->orWhere('email', 'LIKE', "%{$request->search}%")
-                  ->orWhere('secteur', 'LIKE', "%{$request->search}%")
-                  ->orWhereHas('fonction', function($q2) use ($request) {
-                      $q2->where('nom', 'LIKE', "%{$request->search}%");
-                  })
-                  ->orWhereHas('cooperative', function($q2) use ($request) {
-                      $q2->where('nom', 'LIKE', "%{$request->search}%");
-                  });
+                  ->orWhere('role', 'LIKE', "%{$request->search}%")
+                  ->orWhere('secteur', 'LIKE', "%{$request->search}%");
             });
         }
 
@@ -58,7 +53,7 @@ class UserController extends Controller
             $query->where('cooperative_id', $request->cooperative_id);
         }
 
-        $users = $query->get();
+        $users = $query->paginate($request->get('per_page', 10));
         $secteurs = Secteur::orderBy('code')->get();
         $fonctions = Fonction::orderBy('nom')->get();
         $cooperatives = Cooperative::orderBy('nom')->get();
@@ -98,6 +93,7 @@ class UserController extends Controller
 
         // Vérifier si la fonction nécessite une coopérative
         $fonction = Fonction::find($request->fonction_id);
+        
         if ($fonction && $fonction->peut_gerer_cooperative && !$request->cooperative_id) {
             return back()->withErrors(['cooperative_id' => 'Cette fonction nécessite de spécifier une coopérative.']);
         }
@@ -138,7 +134,7 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8', // Mot de passe optionnel mais validé s'il est fourni
+            'password' => 'nullable|string|min:8',
             'role' => 'required|in:superadmin,admin,manager,user,qualite,agc',
             'secteur' => 'nullable|string|max:255',
             'fonction_id' => 'required|exists:fonctions,id',
@@ -150,6 +146,7 @@ class UserController extends Controller
 
         // Vérifier si la fonction nécessite une coopérative
         $fonction = Fonction::find($request->fonction_id);
+        
         if ($fonction && $fonction->peut_gerer_cooperative && !$request->cooperative_id) {
             return back()->withErrors(['cooperative_id' => 'Cette fonction nécessite de spécifier une coopérative.']);
         }
@@ -204,7 +201,7 @@ class UserController extends Controller
         try {
             $newStatus = $user->status === 'active' ? 'inactive' : 'active';
             $user->update(['status' => $newStatus]);
-            
+
             $statusText = $newStatus === 'active' ? 'activé' : 'désactivé';
             return redirect()->route('admin.users.index')->with('success', "Utilisateur $statusText avec succès !");
         } catch (\Exception $e) {

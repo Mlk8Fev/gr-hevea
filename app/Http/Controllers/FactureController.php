@@ -27,48 +27,64 @@ class FactureController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer les filtres
-        $type = $request->get('type', 'all');
-        $statut = $request->get('statut', 'all');
-        $cooperative = $request->get('cooperative', 'all');
-        $search = $request->get('search', '');
+        // Construire la requête de base avec les relations nécessaires
+        $query = Facture::with(['cooperative.secteur', 'createdBy', 'valideePar', 'ticketsPesee']);
         
-        // Construire la requête de base
-        $query = Facture::with(['cooperative', 'createdBy', 'valideePar', 'ticketsPesee']);
-        
-        // Appliquer les filtres
-        if ($type !== 'all') {
-            $query->where('type', $type);
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->whereHas('cooperative', function($q) use ($request) {
+                $q->where('secteur_id', $request->secteur);
+            });
         }
         
-        if ($statut !== 'all') {
-            $query->where('statut', $statut);
+        // Filtre par coopérative
+        if ($request->filled('cooperative')) {
+            $query->where('cooperative_id', $request->cooperative);
         }
         
-        if ($cooperative !== 'all') {
-            $query->where('cooperative_id', $cooperative);
+        // Filtre par type de facture
+        if ($request->filled('type') && $request->type !== 'all') {
+            $query->where('type', $request->type);
         }
         
-        // Appliquer la recherche
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('numero_facture', 'like', "%{$search}%")
-                  ->orWhere('numero_livraison', 'like', "%{$search}%")
-                  ->orWhereHas('cooperative', function($q2) use ($search) {
-                      $q2->where('nom', 'like', "%{$search}%");
+        // Filtre par statut
+        if ($request->filled('statut') && $request->statut !== 'all') {
+            $query->where('statut', $request->statut);
+        }
+        
+        // Filtre par date d'émission
+        if ($request->filled('date_emission')) {
+            $query->whereDate('date_emission', $request->date_emission);
+        }
+        
+        // Recherche par numéro de facture et autres champs
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('numero_facture', 'LIKE', "%{$request->search}%")
+                  ->orWhere('numero_livraison', 'LIKE', "%{$request->search}%")
+                  ->orWhereHas('cooperative', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
+                  })
+                  ->orWhereHas('cooperative.secteur', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
                   });
             });
         }
         
         // Paginer les résultats
-        $factures = $query->orderBy('created_at', 'desc')->paginate(10);
+        $factures = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
         
-        // Récupérer les coopératives pour le filtre
-        $cooperatives = Cooperative::orderBy('nom')->get();
+        // Récupérer les données pour les filtres
+        $secteurs = \App\Models\Secteur::orderBy('code')->get();
+        $cooperatives = \App\Models\Cooperative::with('secteur')->orderBy('nom')->get();
+        $types = ['individuelle' => 'Individuelle', 'globale' => 'Globale'];
+        $statuts = ['brouillon' => 'Brouillon', 'validee' => 'Validée', 'payee' => 'Payée', 'annulee' => 'Annulée'];
         
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.factures.index', compact('factures', 'cooperatives', 'navigation', 'type', 'statut', 'cooperative', 'search'));
+        return view('admin.factures.index', compact('factures', 'secteurs', 'cooperatives', 'types', 'statuts', 'navigation'));
     }
 
     /**

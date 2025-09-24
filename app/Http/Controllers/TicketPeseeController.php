@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\TicketPesee;
 use App\Models\Connaissement;
+use App\Models\Secteur;
+use App\Models\Cooperative;
 use App\Services\NavigationService;
 use App\Services\TicketNumberService;
 use Illuminate\Http\Request;
@@ -25,13 +27,9 @@ class TicketPeseeController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer les filtres
-        $statut = $request->get('statut', 'all');
-        $search = $request->get('search', '');
+        // Construire la requête de base avec les relations nécessaires
+        $query = TicketPesee::with(['connaissement.cooperative.secteur', 'connaissement.secteur', 'connaissement.centreCollecte']);
         
-        // Construire la requête de base
-        $query = TicketPesee::with(['connaissement.cooperative', 'connaissement.centreCollecte', 'connaissement.secteur', 'createdBy']);
-
         // Scoping par secteur pour AGC
         if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
@@ -40,33 +38,62 @@ class TicketPeseeController extends Controller
             });
         }
         
-        // Appliquer le filtre de statut
-        if ($statut !== 'all') {
-            $query->where('statut', $statut);
+        // Filtre par secteur
+        if ($request->filled('secteur')) {
+            $query->whereHas('connaissement', function($q) use ($request) {
+                $q->where('secteur_id', $request->secteur);
+            });
         }
         
-        // Appliquer la recherche
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('numero_livraison', 'like', "%{$search}%")
-                  ->orWhereHas('connaissement.cooperative', function($q2) use ($search) {
-                      $q2->where('nom', 'like', "%{$search}%");
+        // Filtre par coopérative
+        if ($request->filled('cooperative')) {
+            $query->whereHas('connaissement', function($q) use ($request) {
+                $q->where('cooperative_id', $request->cooperative);
+            });
+        }
+        
+        // Filtre par statut
+        if ($request->filled('statut') && $request->statut !== 'all') {
+            $query->where('statut', $request->statut);
+        }
+        
+        // Filtre par date
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        
+        // Recherche par numéro de livraison et autres champs
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('numero_livraison', 'LIKE', "%{$request->search}%")
+                  ->orWhere('numero_ticket', 'LIKE', "%{$request->search}%")
+                  ->orWhere('origine', 'LIKE', "%{$request->search}%")
+                  ->orWhere('destination', 'LIKE', "%{$request->search}%")
+                  ->orWhere('numero_camion', 'LIKE', "%{$request->search}%")
+                  ->orWhere('transporteur', 'LIKE', "%{$request->search}%")
+                  ->orWhere('chauffeur', 'LIKE', "%{$request->search}%")
+                  ->orWhereHas('connaissement.cooperative', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
                   })
-                  ->orWhereHas('connaissement.secteur', function($q2) use ($search) {
-                      $q2->where('nom', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('connaissement', function($q2) use ($search) {
-                      $q2->where('numero_livraison', 'like', "%{$search}%");
+                  ->orWhereHas('connaissement.secteur', function($q2) use ($request) {
+                      $q2->where('nom', 'LIKE', "%{$request->search}%")
+                         ->orWhere('code', 'LIKE', "%{$request->search}%");
                   });
             });
         }
         
         // Paginer les résultats
-        $tickets = $query->orderBy('created_at', 'desc')->paginate(10);
+        $tickets = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
+        
+        // Récupérer les données pour les filtres
+        $secteurs = Secteur::orderBy('code')->get();
+        $cooperatives = Cooperative::with('secteur')->orderBy('nom')->get();
+        $statuts = ['en_attente' => 'En attente', 'valide' => 'Validé', 'annule' => 'Annulé'];
         
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.tickets-pesee.index', compact('tickets', 'navigation', 'statut', 'search'));
+        return view('admin.tickets-pesee.index', compact('tickets', 'secteurs', 'cooperatives', 'statuts', 'navigation'));
     }
 
     /**
