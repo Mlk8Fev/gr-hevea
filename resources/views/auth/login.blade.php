@@ -35,6 +35,30 @@
   <link rel="stylesheet" href="{{ asset('wowdash/css/lib/audioplayer.css') }}">
   <!-- main css -->
   <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
+  <style>
+#rate-limit-alert {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+#countdown-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2em;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #f59e0b;
+}
+
+.form-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+</style>
 </head>
   <body>
 
@@ -60,6 +84,67 @@
                         @endforeach
                     </ul>
                 </div>
+            @endif
+            
+            {{-- Alerte de limitation des tentatives --}}
+            @if(session('error') && session('retry_after'))
+                <div class="alert alert-warning mb-16" id="rate-limit-alert">
+                    <div class="d-flex align-items-center">
+                        <iconify-icon icon="solar:shield-warning-outline" class="me-2 text-warning"></iconify-icon>
+                        <div>
+                            <strong>{{ session('error') }}</strong>
+                            <div class="mt-2">
+                                <span class="text-sm">Temps restant : </span>
+                                <span id="countdown-timer" class="fw-bold text-warning"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const retryAfter = {{ session('retry_after') }};
+                    const countdownElement = document.getElementById('countdown-timer');
+                    const alertElement = document.getElementById('rate-limit-alert');
+                    const form = document.querySelector('form');
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    
+                    // Désactiver le formulaire
+                    form.style.pointerEvents = 'none';
+                    form.style.opacity = '0.5';
+                    submitButton.disabled = true;
+                    
+                    let remainingTime = retryAfter; // Variable locale pour le décompte
+                    
+                    function updateCountdown() {
+                        const minutes = Math.floor(remainingTime / 60);
+                        const seconds = remainingTime % 60;
+                        
+                        countdownElement.textContent = 
+                            (minutes < 10 ? '0' + minutes : minutes) + ':' + 
+                            (seconds < 10 ? '0' + seconds : seconds);
+                        
+                        if (remainingTime <= 0) {
+                            // Réactiver le formulaire
+                            form.style.pointerEvents = 'auto';
+                            form.style.opacity = '1';
+                            submitButton.disabled = false;
+                            alertElement.style.display = 'none';
+                            
+                            // Recharger la page pour nettoyer la session
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                            return;
+                        }
+                        
+                        remainingTime--; // Décrémenter le temps restant
+                        setTimeout(updateCountdown, 1000);
+                    }
+                    
+                    updateCountdown();
+                });
+                </script>
             @endif
             
             <form action="{{ route('login') }}" method="POST">

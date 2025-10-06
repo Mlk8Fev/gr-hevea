@@ -174,8 +174,9 @@ class NavigationService
             [
                 'title' => 'Logs Système',
                 'icon' => 'ri-file-list-3-line',
-                'url' => '#',
-                'active' => false,
+                'url' => route('admin.audit-logs.index'),
+                'active' => request()->routeIs('admin.audit-logs.*'),
+                'badge' => \App\Models\AuditLog::where('created_at', '>=', now()->subDays(7))->count(),
                 'type' => 'item'
             ],
             [

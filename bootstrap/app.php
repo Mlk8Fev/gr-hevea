@@ -11,9 +11,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\CustomVerifyCsrfToken::class,
+        ]);
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'superadmin' => \App\Http\Middleware\CheckSuperAdmin::class,
+            'audit' => \App\Http\Middleware\AuditMiddleware::class,
+            'security' => \App\Http\Middleware\CheckSessionSecurity::class,
+            'throttle-login' => \App\Http\Middleware\ThrottleLoginAttempts::class,
+            'admin-or-superadmin' => \App\Http\Middleware\CheckAdminOrSuperAdmin::class,
+            'email-2fa' => \App\Http\Middleware\CheckEmail2FA::class,
+            'session-integrity' => \App\Http\Middleware\ValidateSessionIntegrity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -67,6 +67,18 @@
                             </button>
                             
                             <!-- Filtre par secteur -->
+                            @if(auth()->check() && auth()->user()->role === 'agc')
+                                <!-- AGC : Secteur fixe, pas de filtre -->
+                                <div style="min-width: 200px;">
+                                    <select class="form-select" disabled>
+                                        <option value="{{ auth()->user()->secteur_id }}" selected>
+                                            {{ auth()->user()->secteur_code }} - {{ \App\Models\Secteur::where('code', auth()->user()->secteur)->first()->nom ?? 'Secteur' }}
+                                        </option>
+                                    </select>
+                                    <small class="text-muted">Votre secteur</small>
+                                </div>
+                            @else
+                                <!-- Admin/Super-admin : Filtre complet -->
                             <div style="min-width: 200px;">
                                 <select id="secteurFilter" class="form-select">
                                     <option value="">Tous les secteurs</option>
@@ -77,15 +89,24 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @endif
                             
                             <!-- Filtre par coopérative -->
                             <div style="min-width: 200px;">
                                 <select id="cooperativeFilter" class="form-select">
                                     <option value="">Toutes les coopératives</option>
                                     @foreach($cooperatives as $cooperative)
+                                        @if(auth()->check() && auth()->user()->role === 'agc')
+                                            @if($cooperative->secteur_id == auth()->user()->secteur_id)
+                                                <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
+                                                    {{ $cooperative->code }} - {{ $cooperative->nom }}
+                                                </option>
+                                            @endif
+                                        @else
                                         <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
                                             {{ $cooperative->code }} - {{ $cooperative->nom }}
                                         </option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>
@@ -95,9 +116,17 @@
                                 <select id="centreCollecteFilter" class="form-select">
                                     <option value="">Tous les centres</option>
                                     @foreach($centresCollecte as $centre)
+                                        @if(auth()->check() && auth()->user()->role === 'agc')
+                                            @if($centre->secteur_id == auth()->user()->secteur_id)
+                                                <option value="{{ $centre->id }}" {{ request('centre_collecte') == $centre->id ? 'selected' : '' }}>
+                                                    {{ $centre->nom }}
+                                                </option>
+                                            @endif
+                                        @else
                                         <option value="{{ $centre->id }}" {{ request('centre_collecte') == $centre->id ? 'selected' : '' }}>
                                             {{ $centre->nom }}
                                         </option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>
@@ -239,8 +268,28 @@
                                                     @endif
 
                                                     <!-- Pages numérotées -->
-                                                    @foreach($livraisons->getUrlRange(1, $livraisons->lastPage()) as $page => $url)
-                                                        @if($page == $livraisons->currentPage())
+                                                    @php
+                                                        $currentPage = $livraisons->currentPage();
+                                                        $lastPage = $livraisons->lastPage();
+                                                        $startPage = max(1, $currentPage - 2);
+                                                        $endPage = min($lastPage, $currentPage + 2);
+                                                    @endphp
+
+                                                    <!-- Première page -->
+                                                    @if($startPage > 1)
+                                                        <li class="page-item">
+                                                            <a href="{{ $livraisons->appends(request()->query())->url(1) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">1</a>
+                                                        </li>
+                                                        @if($startPage > 2)
+                                                            <li class="page-item disabled">
+                                                                <span class="page-link bg-light border-0 text-muted">...</span>
+                                                            </li>
+                                                        @endif
+                                                    @endif
+
+                                                    <!-- Pages autour de la page courante -->
+                                                    @for($page = $startPage; $page <= $endPage; $page++)
+                                                        @if($page == $currentPage)
                                                             <li class="page-item active">
                                                                 <span class="page-link bg-primary border-0 text-white fw-semibold">
                                                                     {{ $page }}
@@ -253,7 +302,21 @@
                                                                 </a>
                                                             </li>
                                                         @endif
-                                                    @endforeach
+                                                    @endfor
+
+                                                    <!-- Dernière page -->
+                                                    @if($endPage < $lastPage)
+                                                        @if($endPage < $lastPage - 1)
+                                                            <li class="page-item disabled">
+                                                                <span class="page-link bg-light border-0 text-muted">...</span>
+                                                            </li>
+                                                        @endif
+                                                        <li class="page-item">
+                                                            <a href="{{ $livraisons->appends(request()->query())->url($lastPage) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                                {{ $lastPage }}
+                                                            </a>
+                                                        </li>
+                                                    @endif
 
                                                     <!-- Page suivante -->
                                                     @if($livraisons->hasMorePages())

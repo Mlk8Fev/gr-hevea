@@ -1,0 +1,226 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\User;
+use App\Mail\TwoFactorCodeMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
+class Email2FAService
+{
+    /**
+     * Générer un code 2FA à 6 chiffres
+     */
+    public function generateCode(): string
+    {
+        return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Envoyer un code 2FA par email - VERSION SIMPLIFIÉE
+     */
+    public function sendCode(User $user, string $type = 'login'): bool
+    {
+        try {
+            $code = $this->generateCode();
+            
+            Log::info("=== DÉBUT ENVOI CODE 2FA ===");
+            Log::info("Utilisateur: {$user->email} (ID: {$user->id})");
+            Log::info("Code généré: {$code}");
+
+            // ÉTAPE 1: Sauvegarder DIRECTEMENT en base avec DB::table()
+            $updateResult = DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'email_2fa_code' => $code,
+                    'email_2fa_code_expires_at' => null,
+                    'email_2fa_attempts' => 0,
+                    'email_2fa_locked_until' => null,
+                    'updated_at' => now()
+                ]);
+
+            Log::info("Résultat DB::table update: " . ($updateResult ? 'SUCCÈS' : 'ÉCHEC'));
+
+            // Vérifier que le code est bien stocké
+            $storedCode = DB::table('users')
+                ->where('id', $user->id)
+                ->value('email_2fa_code');
+            
+            Log::info("Code stocké en base: " . ($storedCode ?: 'NULL'));
+
+            if ($storedCode === $code) {
+                // ÉTAPE 2: Envoyer l'email seulement si le code est stocké
+                try {
+                    Mail::to($user->email)->send(new TwoFactorCodeMail($code, $type));
+                    Log::info("Email envoyé avec succès à {$user->email}");
+                } catch (\Exception $emailError) {
+                    Log::error("Erreur envoi email: " . $emailError->getMessage());
+                    // Le code est stocké, donc on retourne true même si l'email échoue
+                }
+                
+                Log::info("=== FIN ENVOI CODE 2FA - SUCCÈS ===");
+                return true;
+            } else {
+                Log::error("ERREUR: Code généré ({$code}) != Code stocké ({$storedCode})");
+                Log::error("=== FIN ENVOI CODE 2FA - ÉCHEC ===");
+                return false;
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Erreur générale sendCode: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+            return false;
+        }
+    }
+
+    /**
+     * Vérifier un code 2FA
+     */
+    public function verifyCode(User $user, string $code): array
+    {
+        Log::info("=== VÉRIFICATION CODE 2FA ===");
+        Log::info("Utilisateur: {$user->email} (ID: {$user->id})");
+        Log::info("Code saisi: {$code}");
+        // Récupérer le code directement depuis la base
+        $storedCode = DB::table('users')
+            ->where('id', $user->id)
+            ->value('email_2fa_code');
+        Log::info("Code en base: " . ($storedCode ?: 'NULL'));
+
+        // Vérifier si l'utilisateur est bloqué
+        if ($user->email_2fa_locked_until && now()->isBefore($user->email_2fa_locked_until)) {
+            return [
+                'success' => false,
+                'message' => 'Trop de tentatives. Réessayez dans ' . now()->diffInMinutes($user->email_2fa_locked_until) . ' minutes.'
+            ];
+        }
+
+        // Vérifier si le code existe
+        if (!$storedCode) {
+            Log::error("Aucun code trouvé en base pour {$user->email}");
+            return [
+                'success' => false,
+                'message' => 'Aucun code valide trouvé.'
+            ];
+        }
+
+        // Vérifier si le code est expiré
+        $expiresAt = DB::table('users')
+            ->where('id', $user->id)
+            ->value('email_2fa_code_expires_at');
+        
+        if ($expiresAt && now()->isAfter($expiresAt)) {
+            Log::error("Code expiré pour {$user->email}");
+            return [
+                'success' => false,
+                'message' => 'Code expiré. Demandez un nouveau code.'
+            ];
+        }
+
+        // Vérifier le code (comparaison directe)
+        if ($code === $storedCode) {
+            Log::info("Code correct pour {$user->email}");
+            
+            // Code correct - nettoyer les données
+            $user->update([
+                'email_2fa_code' => null,
+                'email_2fa_code_expires_at' => null,
+                'email_2fa_attempts' => 0,
+                'email_2fa_locked_until' => null
+            ]);
+
+            Log::info("=== VÉRIFICATION CODE 2FA - SUCCÈS ===");
+            return [
+                'success' => true,
+                'message' => 'Code vérifié avec succès.'
+            ];
+        }
+
+        // Code incorrect - incrémenter les tentatives
+        Log::error("Code incorrect pour {$user->email}: saisi '{$code}' != stocké '{$storedCode}'");
+        
+        $attempts = $user->email_2fa_attempts + 1;
+        $lockedUntil = null;
+
+        if ($attempts >= 3) {
+            $lockedUntil = now()->addMinutes(15);
+        }
+
+        $user->update([
+            'email_2fa_attempts' => $attempts,
+            'email_2fa_locked_until' => $lockedUntil
+        ]);
+
+        $remainingAttempts = 3 - $attempts;
+        
+        Log::info("=== VÉRIFICATION CODE 2FA - ÉCHEC ===");
+        return [
+            'success' => false,
+            'message' => 'Code incorrect. Il vous reste ' . $remainingAttempts . ' tentatives.'
+        ];
+    }
+
+    /**
+     * Activer le 2FA pour un utilisateur
+     */
+    public function enable2FA(User $user): bool
+    {
+        try {
+            $user->update([
+                'email_2fa_enabled' => true,
+                'email_2fa_enabled_at' => now()
+            ]);
+
+            Log::info("2FA activé pour {$user->email}");
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error("Erreur activation 2FA: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Désactiver le 2FA pour un utilisateur (Super-Admin uniquement)
+     */
+    public function disable2FA(User $user): bool
+    {
+        try {
+            $user->update([
+                'email_2fa_enabled' => false,
+                'email_2fa_enabled_at' => null,
+                'email_2fa_code' => null,
+                'email_2fa_code_expires_at' => null,
+                'email_2fa_attempts' => 0,
+                'email_2fa_locked_until' => null
+            ]);
+
+            Log::info("2FA désactivé pour {$user->email}");
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error("Erreur désactivation 2FA: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Vérifier si un utilisateur doit activer le 2FA
+     */
+    public function requires2FA(User $user): bool
+    {
+        return !$user->email_2fa_enabled;
+    }
+
+    /**
+     * Vérifier si un utilisateur a le 2FA activé
+     */
+    public function has2FAEnabled(User $user): bool
+    {
+        return $user->email_2fa_enabled;
+    }
+}

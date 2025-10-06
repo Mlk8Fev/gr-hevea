@@ -184,59 +184,109 @@
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
-                    <span>Affichage de {{ $tickets->firstItem() ?? 0 }} à {{ $tickets->lastItem() ?? 0 }} sur {{ $tickets->total() }} entrées</span>
-                    
-                    @if($tickets->hasPages())
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center mb-0">
-                                <!-- Bouton Précédent -->
-                                @if($tickets->onFirstPage())
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
-                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                                        </span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $tickets->previousPageUrl() }}">
-                                            <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
-                                        </a>
-                                    </li>
-                                @endif
+                <!-- Pagination avec filtres préservés -->
+                @if($tickets->hasPages())
+                <div class="row mt-24">
+                    <div class="col-12">
+                        <div class="card p-24 radius-12 border-0 shadow-sm">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <!-- Informations de pagination -->
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted text-sm">
+                                        Affichage de 
+                                        <span class="fw-semibold text-primary">{{ $tickets->firstItem() }}</span>
+                                        à 
+                                        <span class="fw-semibold text-primary">{{ $tickets->lastItem() }}</span>
+                                        sur 
+                                        <span class="fw-semibold text-primary">{{ $tickets->total() }}</span>
+                                        tickets
+                                    </span>
+                                </div>
 
-                                <!-- Pages -->
-                                @foreach($tickets->getUrlRange(1, $tickets->lastPage()) as $page => $url)
-                                    @if($page == $tickets->currentPage())
-                                        <li class="page-item active">
-                                            <span class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md bg-primary-600 text-white">{{ $page }}</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $url }}">{{ $page }}</a>
-                                        </li>
-                                    @endif
-                                @endforeach
+                                <!-- Navigation pagination intelligente -->
+                                <nav aria-label="Navigation des pages">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        {{-- Page précédente --}}
+                                        @if($tickets->onFirstPage())
+                                            <li class="page-item disabled">
+                                                <span class="page-link bg-light border-0 text-muted">
+                                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                </span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a href="{{ $tickets->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                </a>
+                                            </li>
+                                        @endif
 
-                                <!-- Bouton Suivant -->
-                                @if($tickets->hasMorePages())
-                                    <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md hover-bg-neutral-300" href="{{ $tickets->nextPageUrl() }}">
-                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                                        </a>
-                                    </li>
-                                @else
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md">
-                                            <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
-                                        </span>
-                                    </li>
-                                @endif
-                            </ul>
-                        </nav>
-                    @endif
+                                        {{-- Pages intelligentes --}}
+                                        @php
+                                            $currentPage = $tickets->currentPage();
+                                            $lastPage = $tickets->lastPage();
+                                            $startPage = max(1, $currentPage - 2);
+                                            $endPage = min($lastPage, $currentPage + 2);
+                                        @endphp
+
+                                        {{-- Première page --}}
+                                        @if($startPage > 1)
+                                            <li class="page-item">
+                                                <a href="{{ $tickets->appends(request()->query())->url(1) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">1</a>
+                                            </li>
+                                            @if($startPage > 2)
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">...</span>
+                                                </li>
+                                            @endif
+                                        @endif
+
+                                        {{-- Pages autour de la page courante --}}
+                                        @for($page = $startPage; $page <= $endPage; $page++)
+                                            @if($page == $currentPage)
+                                                <li class="page-item active">
+                                                    <span class="page-link bg-primary border-0 text-white fw-semibold">{{ $page }}</span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a href="{{ $tickets->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">{{ $page }}</a>
+                                                </li>
+                                            @endif
+                                        @endfor
+
+                                        {{-- Dernière page --}}
+                                        @if($endPage < $lastPage)
+                                            @if($endPage < $lastPage - 1)
+                                                <li class="page-item disabled">
+                                                    <span class="page-link bg-light border-0 text-muted">...</span>
+                                                </li>
+                                            @endif
+                                            <li class="page-item">
+                                                <a href="{{ $tickets->appends(request()->query())->url($lastPage) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">{{ $lastPage }}</a>
+                                            </li>
+                                        @endif
+
+                                        {{-- Page suivante --}}
+                                        @if($tickets->hasMorePages())
+                                            <li class="page-item">
+                                                <a href="{{ $tickets->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
+                                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                </a>
+                                            </li>
+                                        @else
+                                            <li class="page-item disabled">
+                                                <span class="page-link bg-light border-0 text-muted">
+                                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                </span>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Auditable;
 
 class Parcelle extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'producteur_id',
         'nom_parcelle',

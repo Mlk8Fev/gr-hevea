@@ -73,10 +73,6 @@
             @csrf
             @method('PUT')
             <div class="card p-24 radius-12 mb-24">
-                @if(auth()->check() && auth()->user()->role === 'agc')
-                <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations principales</h5>
-                <div class="alert alert-warning mb-0">En tant qu'AT/AGQ, vous ne pouvez pas modifier les informations principales du producteur. Vous pouvez lier des coopératives, gérer les parcelles et les documents ci-dessous.</div>
-                @else
                 <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations principales</h5>
                 <div class="row gy-3">
                     <div class="col-md-6">
@@ -129,12 +125,12 @@
                         <div class="form-text">Village ou localité du producteur</div>
                     </div>
                     <div class="col-md-12">
-                        <label class="form-label">Coopératives (max 5) *</label>
+                        <label class="form-label">Coopératives (max 5) <span class="text-muted">(optionnel)</span></label>
                         <div id="coop-list">
                             @php $coops = old('cooperatives', $producteur->cooperatives->pluck('id')->toArray()); @endphp
                             @foreach($coops as $i => $coopId)
                             <div class="input-group mb-2 coop-select-row">
-                                <select class="form-select" name="cooperatives[]" required>
+                                <select class="form-select" name="cooperatives[]">
                                     <option value="">Sélectionner une coopérative</option>
                                     @foreach($cooperatives as $cooperative)
                                         <option value="{{ $cooperative->id }}" {{ $coopId == $cooperative->id ? 'selected' : '' }}>{{ $cooperative->code }} - {{ $cooperative->nom }}</option>
@@ -146,7 +142,7 @@
                             @endforeach
                             @if(count($coops) == 0)
                             <div class="input-group mb-2 coop-select-row">
-                                <select class="form-select" name="cooperatives[]" required>
+                                <select class="form-select" name="cooperatives[]">
                                     <option value="">Sélectionner une coopérative</option>
                                     @foreach($cooperatives as $cooperative)
                                         <option value="{{ $cooperative->id }}">{{ $cooperative->code }} - {{ $cooperative->nom }}</option>
@@ -157,10 +153,9 @@
                             </div>
                             @endif
                         </div>
-                        <small class="text-muted">Vous pouvez ajouter jusqu'à 5 coopératives</small>
+                        <small class="text-muted">Vous pouvez ajouter jusqu'à 5 coopératives. Laissez vide si aucune coopérative.</small>
                     </div>
                 </div>
-                @endif
             </div>
             <!-- Section Parcelles -->
             <div class="card p-24 radius-12 mb-24">

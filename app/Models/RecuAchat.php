@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Auditable;
 
 class RecuAchat extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     // Spécifier le nom de la table (au singulier)
     protected $table = 'recus_achat';

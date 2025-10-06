@@ -122,6 +122,11 @@
                         <input type="number" step="0.1" min="0" class="form-control" id="distance_meagui" name="distances[meagui]" 
                                value="{{ old('distances.meagui', $distances['MEAG'] ?? '') }}" required>
                     </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distance_cotraf_korhogo" class="form-label">COTRAF Korhogo *</label>
+                        <input type="number" step="0.1" min="0" class="form-control" id="distance_cotraf_korhogo" name="distances[cotraf_korhogo]" 
+                               value="{{ old('distances.cotraf_korhogo', $distances['COT2'] ?? '') }}" required>
+                    </div>
                 </div>
                 <div class="alert alert-info">
                     <i class="ri-information-line me-2"></i>

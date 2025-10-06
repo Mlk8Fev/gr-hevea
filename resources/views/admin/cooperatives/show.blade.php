@@ -315,7 +315,7 @@
                                 <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon>
                                 Distances vers les centres de collecte
                             </h6>
-                            <span class="badge bg-primary">{{ $cooperative->distances->count() }}/6 centres</span>
+                            <span class="badge bg-primary">{{ $cooperative->distances->count() }}/7 centres</span>
                         </div>
                     </div>
                     <div class="card-body p-24">
@@ -325,7 +325,7 @@
                                 @foreach($cooperative->distances as $distance)
                                     @php
                                         $distanceKm = $distance->distance_km;
-                                        $isCOTRAF = $distance->centreCollecte->code === 'COT1';
+                                        $isCOTRAF = in_array($distance->centreCollecte->code, ['COT1', 'COT2']);
                                         $colorClass = '';
                                         $transportCost = 0;
                                         

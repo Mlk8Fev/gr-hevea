@@ -264,22 +264,50 @@
                                         </li>
                                     @endif
 
-                                            <!-- Pages numérotées -->
-                                    @foreach($ticketsValides->getUrlRange(1, $ticketsValides->lastPage()) as $page => $url)
-                                        @if($page == $ticketsValides->currentPage())
+                                            <!-- Pages intelligentes -->
+                                            @php
+                                                $currentPage = $ticketsValides->currentPage();
+                                                $lastPage = $ticketsValides->lastPage();
+                                                $startPage = max(1, $currentPage - 2);
+                                                $endPage = min($lastPage, $currentPage + 2);
+                                            @endphp
+
+                                            <!-- Première page -->
+                                            @if($startPage > 1)
+                                                <li class="page-item">
+                                                    <a href="{{ $ticketsValides->appends(request()->query())->url(1) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">1</a>
+                                                </li>
+                                                @if($startPage > 2)
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link bg-light border-0 text-muted">...</span>
+                                                    </li>
+                                                @endif
+                                            @endif
+
+                                            <!-- Pages autour de la page courante -->
+                                            @for($page = $startPage; $page <= $endPage; $page++)
+                                                @if($page == $currentPage)
                                             <li class="page-item active">
-                                                        <span class="page-link bg-primary border-0 text-white fw-semibold">
-                                                            {{ $page }}
-                                                        </span>
+                                                        <span class="page-link bg-primary border-0 text-white fw-semibold">{{ $page }}</span>
                                             </li>
                                         @else
                                             <li class="page-item">
-                                                        <a href="{{ $ticketsValides->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                            {{ $page }}
-                                                        </a>
+                                                        <a href="{{ $ticketsValides->appends(request()->query())->url($page) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">{{ $page }}</a>
+                                                    </li>
+                                                @endif
+                                            @endfor
+
+                                            <!-- Dernière page -->
+                                            @if($endPage < $lastPage)
+                                                @if($endPage < $lastPage - 1)
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link bg-light border-0 text-muted">...</span>
+                                                    </li>
+                                                @endif
+                                                <li class="page-item">
+                                                    <a href="{{ $ticketsValides->appends(request()->query())->url($lastPage) }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">{{ $lastPage }}</a>
                                             </li>
                                         @endif
-                                    @endforeach
 
                                             <!-- Page suivante -->
                                     @if($ticketsValides->hasMorePages())

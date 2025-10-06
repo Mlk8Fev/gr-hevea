@@ -20,7 +20,7 @@ class CentreCollecteController extends Controller
      */
     public function index()
     {
-        $centres = CentreCollecte::orderBy('nom')->get();
+        $centres = CentreCollecte::orderBy('nom')->paginate(25);
         $navigation = $this->navigationService->getNavigation();
         
         return view('admin.centres-collecte.index', compact('centres', 'navigation'));

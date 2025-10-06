@@ -73,6 +73,8 @@
             @csrf
             <div class="card p-24 radius-12 mb-24">
                 <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations principales</h5>
+                <div class="alert alert-info mb-0">En tant qu'AT/AGQ, vous pouvez modifier toutes les informations du producteur, gérer les coopératives, les parcelles et les documents.</div>
+                
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="nom" class="form-label">Nom *</label>

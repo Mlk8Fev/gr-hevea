@@ -116,9 +116,9 @@ class CalculPrixService
         $distance = $this->calculerDistance($ticketPesee);
         $centreCollecte = $ticketPesee->connaissement->centreCollecte;
         
-        // Vérifier si c'est l'usine COTRAF (COT1)
-        if ($centreCollecte && $centreCollecte->code === 'COT1') {
-            // Prix progressifs pour l'usine COTRAF
+        // Vérifier si c'est l'usine COTRAF (COT1) ou COTRAF Korhogo (COT2)
+        if ($centreCollecte && in_array($centreCollecte->code, ['COT1', 'COT2'])) {
+            // Prix progressifs pour les usines COTRAF
             if ($distance <= 100) return 14;
             elseif ($distance <= 200) return 15;
             elseif ($distance <= 300) return 16;

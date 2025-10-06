@@ -32,9 +32,9 @@ class FarmerListController extends Controller
             });
 
         // Scoping par secteur pour AGC
-        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur_id) {
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $query->whereHas('secteur', function($q) {
-                $q->where('id', auth()->user()->secteur_id);
+                $q->where('code', auth()->user()->secteur);
             });
         }
 
@@ -74,12 +74,19 @@ class FarmerListController extends Controller
         $secteurs = Secteur::orderBy('nom')->get();
         $cooperatives = Cooperative::with('secteur')->orderBy('nom')->get();
         $centresCollecte = CentreCollecte::orderBy('nom')->get();
+        
+        // Récupérer le secteur de l'utilisateur AGC
+        $userSecteur = null;
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteur = Secteur::where('code', auth()->user()->secteur)->first();
+        }
 
         return view('admin.farmer-lists.index', compact(
             'livraisons', 
             'secteurs',
             'cooperatives', 
-            'centresCollecte'
+            'centresCollecte',
+            'userSecteur'
         ));
     }
 

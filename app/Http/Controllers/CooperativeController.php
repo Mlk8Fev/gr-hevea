@@ -46,7 +46,7 @@ class CooperativeController extends Controller
             });
         }
         
-        $cooperatives = $query->paginate($request->get('per_page', 10));
+        $cooperatives = $query->paginate($request->get('per_page', 25));
         $secteurs = Secteur::orderBy('code')->get();
         $navigation = app(\App\Services\NavigationService::class)->getNavigation();
         
@@ -82,6 +82,7 @@ class CooperativeController extends Controller
             'distances.divo' => 'required|numeric|min:0',
             'distances.abengourou' => 'required|numeric|min:0',
             'distances.meagui' => 'required|numeric|min:0',
+            'distances.cotraf_korhogo' => 'required|numeric|min:0',
         ]);
 
         $cooperative = Cooperative::create([
@@ -107,7 +108,8 @@ class CooperativeController extends Controller
             'guiglo' => 'GUIG',
             'divo' => 'DIVO',
             'abengourou' => 'ABENG',
-            'meagui' => 'MEAG'
+            'meagui' => 'MEAG',
+            'cotraf_korhogo' => 'COT2'
         ];
         
         foreach ($centreMapping as $key => $code) {
@@ -205,7 +207,8 @@ class CooperativeController extends Controller
             'guiglo' => 'GUIG',
             'divo' => 'DIVO',
             'abengourou' => 'ABENG',
-            'meagui' => 'MEAG'
+            'meagui' => 'MEAG',
+            'cotraf_korhogo' => 'COT2'
         ];
         
         foreach ($centreMapping as $key => $code) {

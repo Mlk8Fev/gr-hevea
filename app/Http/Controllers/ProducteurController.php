@@ -88,7 +88,7 @@ class ProducteurController extends Controller
             'contact' => 'required|string|max:20',
             'superficie_totale' => 'nullable|numeric',
             'cooperatives' => 'required|array|max:5',
-            'cooperatives.*' => 'exists:cooperatives,id',
+            'cooperatives.*' => 'required_with:cooperatives|exists:cooperatives,id',
             // Validation des parcelles
             'parcelles' => 'nullable|array|max:10',
             'parcelles.*.nom_parcelle' => 'nullable|string|max:255',
@@ -102,6 +102,9 @@ class ProducteurController extends Controller
         \Log::info('Données complètes reçues:', $request->all());
         \Log::info('Données parcelles reçues:', $request->parcelles ?? []);
         \Log::info('Code FPHCI:', ['code' => $request->code_fphci]);
+        \Log::info('Coopératives reçues:', $request->cooperatives ?? 'NULL');
+        \Log::info('Type des coopératives:', ['type' => gettype($request->cooperatives)]);
+        \Log::info('Coopératives est vide?', ['empty' => empty($request->cooperatives) ? 'OUI' : 'NON']);
 
         // Validation des parcelles
         if ($request->has('parcelles')) {
@@ -129,7 +132,7 @@ class ProducteurController extends Controller
         \Log::info('Producteur créé avec ID:', ['id' => $producteur->id]);
         \Log::info('Code FPHCI du producteur créé:', ['code' => $producteur->code_fphci]);
         
-        $producteur->cooperatives()->sync($request->cooperatives);
+        $producteur->cooperatives()->sync($request->cooperatives ?? []);
 
         // Gestion des parcelles
         if ($request->has('parcelles')) {
@@ -216,19 +219,33 @@ class ProducteurController extends Controller
     {
         $producteur = Producteur::findOrFail($id);
 
-        // Si AGC, restreindre les champs modifiables
+        // Si AGC, permettre la modification de toutes les informations
         if (auth()->check() && auth()->user()->role === 'agc') {
-            // Valider uniquement ce que l'AGC peut modifier
+            // Valider toutes les informations pour AGC
             $request->validate([
+                'nom' => 'required|string|max:255',
+                'prenom' => 'required|string|max:255',
+                'code_fphci' => 'required|string|max:255|unique:producteurs,code_fphci,'.$producteur->id,
+                'agronica_id' => 'nullable|string|max:255',
+                'localite' => 'nullable|string|max:255',
+                'secteur_id' => 'required|exists:secteurs,id',
+                'genre' => 'required|string',
+                'contact' => 'required|string|max:20',
+                'superficie_totale' => 'nullable|numeric',
                 'cooperatives' => 'required|array|max:5',
                 'cooperatives.*' => 'exists:cooperatives,id',
                 'parcelles' => 'nullable|array|max:10',
-                'parcelles.*.latitude' => 'required_with:parcelles|numeric|between:-90,90',
-                'parcelles.*.longitude' => 'required_with:parcelles|numeric|between:-180,180',
-                'parcelles.*.superficie' => 'required_with:parcelles|numeric|min:0.01|max:999999.99',
+                'parcelles.*.latitude' => 'nullable|numeric|between:-90,90',
+                'parcelles.*.longitude' => 'nullable|numeric|between:-180,180',
+                'parcelles.*.superficie' => 'nullable|numeric|min:0.01|max:999999.99',
             ]);
 
-            // Mettre à jour uniquement les coopératives
+            // Mettre à jour toutes les informations
+            $producteur->update($request->only([
+                'nom', 'prenom', 'code_fphci', 'agronica_id', 'localite',
+                'secteur_id', 'genre', 'contact', 'superficie_totale'
+            ]));
+            
             $producteur->cooperatives()->sync($request->cooperatives);
 
             // Gérer les parcelles (remplacement complet puis recalcul)
@@ -270,7 +287,7 @@ class ProducteurController extends Controller
                 }
             }
 
-            return redirect()->route('admin.producteurs.show', $producteur)->with('success', 'Liaisons et parcelles mises à jour avec succès.');
+            return redirect()->route('admin.producteurs.show', $producteur)->with('success', 'Producteur mis à jour avec succès !');
         }
 
         // Comportement normal pour autres rôles

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Vérification 2FA - FPH-CI</title>
+    <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
+</head>
+<body>
+    <section class="auth bg-base d-flex flex-wrap">
+        <div class="auth-left d-lg-block d-none" style="background-image: url('{{ asset('wowdash/images/Couv.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        </div>
+        <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
+            <div class="max-w-464-px mx-auto w-100">
+                <div class="text-center mb-40">
+                    <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="FPH-CI" style="height: 80px;">
+                    <h4 class="mb-16 fw-bold mt-20" style="color: #447748;">Vérification 2FA</h4>
+                    <p class="text-secondary-light">Entrez le code reçu par email</p>
+                </div>
+
+                @if(session('success'))
+                    <div class="alert alert-success mb-16">
+                        <iconify-icon icon="solar:check-circle-outline" class="me-2"></iconify-icon>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger mb-16">
+                        <iconify-icon icon="solar:danger-circle-outline" class="me-2"></iconify-icon>
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <div class="card p-24 radius-12 border-0 shadow-sm">
+                    <div class="text-center mb-24">
+                        <iconify-icon icon="solar:letter-unread-outline" style="font-size: 48px; color: #447748;"></iconify-icon>
+                        <h5 class="mt-16 mb-8">Vérifiez votre email</h5>
+                        <p class="text-secondary-light mb-0">Un code à 6 chiffres a été envoyé à : <strong>{{ auth()->user()->email }}</strong></p>
+                    </div>
+
+                    <form action="{{ route('2fa.verify') }}" method="POST">
+                        @csrf
+                        <div class="mb-20">
+                            <label class="form-label fw-semibold">Code de vérification</label>
+                            <input type="text" 
+                                   name="code" 
+                                   class="form-control h-56-px bg-neutral-50 radius-12 text-center" 
+                                   placeholder="123456" 
+                                   maxlength="6"
+                                   pattern="[0-9]{6}"
+                                   autofocus
+                                   required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 radius-12 py-16 mb-16">
+                            <iconify-icon icon="solar:shield-check-outline" class="me-2"></iconify-icon>
+                            Vérifier et accéder
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-24">
+                        <small class="text-secondary-light">
+                            Le code ne expire plus
+                        </small>
+                    </div>
+
+                    <div class="text-center mt-16">
+                        <form action="{{ route('2fa.resend') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-primary btn-sm radius-8">
+                                <iconify-icon icon="solar:refresh-outline" class="me-1"></iconify-icon>
+                                Renvoyer le code
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="{{ asset('wowdash/js/lib/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('wowdash/js/lib/iconify-icon.min.js') }}"></script>
+</body>
+</html>
+
+    <script>
+        // Configuration CSRF pour AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
