@@ -26,14 +26,30 @@ class EneValidationController extends Controller
         // Récupérer les filtres
         $statutEne = $request->get('statut_ene', 'all');
         $search = $request->get('search', '');
+        $secteur = $request->get('secteur', '');
+        $cooperative = $request->get('cooperative', '');
         
         // Construire la requête de base
         $query = TicketPesee::where('statut', 'valide')
-            ->with(['connaissement.cooperative', 'connaissement.centreCollecte', 'createdBy', 'valideParEne']);
+            ->with(['connaissement.cooperative.secteur', 'connaissement.secteur', 'connaissement.centreCollecte', 'createdBy', 'valideParEne']);
         
         // Appliquer le filtre de statut ENE CI
         if ($statutEne !== 'all') {
             $query->where('statut_ene', $statutEne);
+        }
+        
+        // Filtre par secteur
+        if ($secteur) {
+            $query->whereHas('connaissement', function($q) use ($secteur) {
+                $q->where('secteur_id', $secteur);
+            });
+        }
+        
+        // Filtre par coopérative
+        if ($cooperative) {
+            $query->whereHas('connaissement', function($q) use ($cooperative) {
+                $q->where('cooperative_id', $cooperative);
+            });
         }
         
         // Appliquer la recherche
@@ -68,9 +84,13 @@ class EneValidationController extends Controller
             }
         }
 
+        // Récupérer les données pour les filtres
+        $secteurs = \App\Models\Secteur::orderBy('nom')->get();
+        $cooperatives = \App\Models\Cooperative::with('secteur')->orderBy('nom')->get();
+        
         $navigation = $this->navigationService->getNavigation();
         
-        return view('admin.ene-validation.index', compact('ticketsAvecPrix', 'navigation', 'tickets', 'statutEne', 'search'));
+        return view('admin.ene-validation.index', compact('ticketsAvecPrix', 'navigation', 'tickets', 'statutEne', 'search', 'secteurs', 'cooperatives', 'secteur', 'cooperative'));
     }
 
     /**

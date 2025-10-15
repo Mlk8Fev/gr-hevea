@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Utilisateurs - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Gestion des Utilisateurs - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <!-- BootStrap css -->
@@ -44,15 +44,15 @@
             <div class="col-auto">
                 <div class="d-flex flex-wrap align-items-center gap-4">
                     <button type="button" class="sidebar-toggle">
-                        <iconify-icon icon="heroicons:bars-3-solid" class="icon text-2xl non-active"></iconify-icon>
-                        <iconify-icon icon="iconoir:arrow-right" class="icon text-2xl active"></iconify-icon>
+                        <i class="ri-menu-line"></i>
+                        <i class="ri-arrow-right-line"></i>
                     </button>
                     <button type="button" class="sidebar-mobile-toggle">
-                        <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
+                        <i class="ri-menu-line"></i>
                     </button>
                     <form class="navbar-search">
                         <input type="text" name="search" placeholder="Rechercher">
-                        <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
+                        <i class="ri-search-line"></i>
                     </form>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                     
                     <div class="dropdown">
                         <button class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center" type="button" data-bs-toggle="dropdown">
-                            <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
+                            <i class="ri-eye-line text-primary-light text-xl"></i>
                         </button>
                         <div class="dropdown-menu to-top dropdown-menu-lg p-0">
                             <div class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
@@ -82,26 +82,23 @@
                             <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                                 <div>
                                     <h6 class="text-lg text-primary-light fw-semibold mb-2">{{ auth()->user()->full_name }}</h6>
-                                    <span class="text-secondary-light fw-medium text-sm">{{ ucfirst(auth()->user()->role) }}</span>
+                                    <span class="text-secondary-light fw-medium text-sm">{{ auth()->user()->fonction->nom ?? 'Aucune fonction' }}</span>
+                                    
                                 </div>
                                 <button type="button" class="hover-text-danger">
-                                    <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon> 
+                                    <i class="ri-eye-line icon text-xl"></i> 
                                 </button>
                             </div>
                             <ul class="to-top-list">
                                 <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="#"> 
-                                    <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon> Mon Profil</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="#"> 
-                                    <iconify-icon icon="icon-park-outline:setting-two" class="icon text-xl"></iconify-icon> Paramètres</a>
+                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="{{ route('profile') }}"> 
+                                    <i class="ri-user-line icon text-xl"></i> Mon Profil</a>
                                 </li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3 w-100 border-0 bg-transparent"> 
-                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Déconnexion</button>
+                                        <i class="ri-shut-down-line"></i> Déconnexion</button>
                                     </form>
                                 </li>
                             </ul>
@@ -118,7 +115,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -154,7 +151,7 @@
                     </select>
                     <form class="navbar-search" method="GET" action="{{ route('admin.users.index') }}">
                         <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ request('search') }}">
-                        <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
+                        <i class="ri-search-line"></i>
                     </form>
                     <form method="GET" action="{{ route('admin.users.index') }}" class="d-inline">
                         @if(request('search'))
@@ -184,13 +181,13 @@
 
                     @if(request('search') || (request('status') && request('status') !== 'all') || (request('fonction_id') && request('fonction_id') !== 'all'))
                         <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
-                            <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
+                            <i class="ri-close-line"></i>
                             Effacer les filtres
                         </a>
                     @endif
                 </div>
                 <button type="button" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
+                    <i class="ri-add-line icon text-xl line-height-1"></i>
                     Ajouter un utilisateur
                 </button>
             </div>
@@ -199,10 +196,8 @@
                     <table class="table bordered-table sm-table mb-0">
                         <thead>
                             <tr>
-                                <th scope="col">Nom</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Secteur</th>
-                                <th scope="col">Fonction</th>
+                                <th scope="col">Utilisateur</th>
+                                <th scope="col">Secteur & Fonction</th>
                                 <th scope="col" class="text-center">Statut</th>
                                 <th scope="col" class="text-center">Action</th>
                             </tr>
@@ -211,16 +206,27 @@
                             @foreach($users as $index => $user)
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="{{ asset('wowdash/images/avatar/avatar1.png') }}" alt="" class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                        <div class="flex-grow-1">
-                                            <span class="text-md mb-0 fw-normal text-secondary-light">{{ $user->full_name }}</span>
-                                        </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ $user->full_name }}</div>
+                                        <div class="text-muted text-sm">{{ $user->email }}</div>
                                     </div>
                                 </td>
-                                <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $user->email }}</span></td>
-                                <td>{{ $user->secteurRelation ? $user->secteurRelation->nom : 'Non défini' }}</td>
-                                <td>{{ $user->fonction ? $user->fonction->nom : 'Non défini' }}</td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        @if($user->secteurRelation)
+                                            <span class="bg-info-focus text-info-600 border border-info-main px-24 py-4 radius-4 fw-medium text-sm">
+                                                {{ $user->secteurRelation->nom }}
+                                            </span>
+                                        @else
+                                            <span class="bg-neutral-200 text-neutral-600 border border-neutral-400 px-24 py-4 radius-4 fw-medium text-sm">
+                                                Non défini
+                                            </span>
+                                        @endif
+                                        <span class="text-sm text-muted">
+                                            {{ $user->fonction ? $user->fonction->nom : 'Non défini' }}
+                                        </span>
+                                    </div>
+                                </td>
                                 <td class="text-center">
                                     @if($user->status === 'active')
                                         <span class="bg-success-focus text-success-600 border border-success-main px-24 py-4 radius-4 fw-medium text-sm">Active</span>
@@ -245,7 +251,7 @@
                                                 data-created="{{ $user->created_at->format('d/m/Y H:i') }}"
                                                 data-updated="{{ $user->updated_at->format('d/m/Y H:i') }}"
                                                 title="Voir">
-                                            <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
+                                            <i class="ri-eye-line"></i>
                                         </button>
                                         
                                         <!-- Bouton Modifier (Vert) -->
@@ -261,7 +267,7 @@
                                                 data-siege="{{ $user->siege ? '1' : '0' }}"
                                                 data-status="{{ $user->status }}"
                                                 title="Modifier">
-                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                            <i class="ri-edit-line"></i>
                                         </button>
                                         
                                         <!-- Bouton Activer/Désactiver -->
@@ -270,7 +276,7 @@
                                             @method('PATCH')
                                             <button type="submit" class="bg-{{ $user->status === 'active' ? 'warning' : 'success' }}-focus text-{{ $user->status === 'active' ? 'warning' : 'success' }}-600 bg-hover-{{ $user->status === 'active' ? 'warning' : 'success' }}-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" 
                                                     title="{{ $user->status === 'active' ? 'Désactiver' : 'Activer' }}">
-                                                <iconify-icon icon="ri-{{ $user->status === 'active' ? 'close-circle-line' : 'check-line' }}" class="menu-icon"></iconify-icon>
+                                                <i class="ri-{{ $user->status === 'active' ? 'close-line' : 'check-line' }} menu-icon"></i>
                                             </button>
                                         </form>
                                         
@@ -280,7 +286,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
-                                                <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                                <i class="ri-delete-bin-line"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -317,13 +323,13 @@
                         @if($users->onFirstPage())
                             <li class="page-item disabled">
                                 <span class="page-link bg-light border-0 text-muted">
-                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                    Précédent
                                 </span>
                             </li>
                         @else
                             <li class="page-item">
                                 <a href="{{ $users->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                    Précédent
                                 </a>
                             </li>
                         @endif
@@ -349,13 +355,13 @@
                         @if($users->hasMorePages())
                             <li class="page-item">
                                 <a href="{{ $users->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                    Suivant
                                 </a>
                             </li>
                         @else
                             <li class="page-item disabled">
                                 <span class="page-link bg-light border-0 text-muted">
-                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                    Suivant
                                 </span>
                             </li>
                         @endif
@@ -436,7 +442,14 @@
                                 <option value="superadmin" {{ old('role')=='superadmin' ? 'selected' : '' }}>Super Admin</option>
                                 <option value="admin" {{ old('role')=='admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="manager" {{ old('role')=='manager' ? 'selected' : '' }}>Manager</option>
-                                <option value="agc" {{ old('role')=='agc' ? 'selected' : '' }}>Agent gestion de qualité</option>
+                                <option value="agc" {{ old('role')=='agc' ? 'selected' : '' }}>Agent Gestion Qualité</option>
+                                <option value="cs" {{ old('role')=='cs' ? 'selected' : '' }}>Chef Secteur</option>
+                                <option value="ac" {{ old('role')=='ac' ? 'selected' : '' }}>Assistante Comptable</option>
+                                <option value="rt" {{ old('role')=='rt' ? 'selected' : '' }}>Responsable Traçabilité</option>
+                                <option value="rd" {{ old('role')=='rd' ? 'selected' : '' }}>Responsable Durabilité</option>
+                                <option value="comp" {{ old('role')=='comp' ? 'selected' : '' }}>Comptable Siège</option>
+                                <option value="ctu" {{ old('role')=='ctu' ? 'selected' : '' }}>Contrôleur Usine</option>
+                                <option value="rcoop" {{ old('role')=='rcoop' ? 'selected' : '' }}>Responsable Coopérative</option>
                                 <option value="user" {{ old('role')=='user' ? 'selected' : '' }}>Utilisateur</option>
                             </select>
                             @error('role')
@@ -459,12 +472,17 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="cooperative_id" class="form-label">Coopérative</label>
-                            <select class="form-select @error('cooperative_id') is-invalid @enderror" id="cooperative_id" name="cooperative_id">
-                                <option value="">Sélectionner une coopérative</option>
+                            <input type="text" class="form-control @error('cooperative_id') is-invalid @enderror" 
+                                   id="cooperative_display" name="cooperative_display" 
+                                   placeholder="Tapez le nom de la coopérative..." 
+                                   list="cooperatives-list" 
+                                   value="{{ old('cooperative_id') ? ($cooperatives->find(old('cooperative_id'))->nom ?? '') . ' (' . ($cooperatives->find(old('cooperative_id'))->code ?? '') . ')' : '' }}">
+                            <datalist id="cooperatives-list">
                                 @foreach($cooperatives as $cooperative)
-                                    <option value="{{ $cooperative->id }}" {{ old('cooperative_id')==$cooperative->id ? 'selected' : '' }}>{{ $cooperative->nom }} ({{ $cooperative->code }})</option>
+                                    <option value="{{ $cooperative->nom }} ({{ $cooperative->code }})" data-id="{{ $cooperative->id }}">
                                 @endforeach
-                            </select>
+                            </datalist>
+                            <input type="hidden" id="cooperative_id" name="cooperative_id" value="{{ old('cooperative_id') }}">
                             <small class="form-text text-muted">Obligatoire si la fonction nécessite une coopérative</small>
                             @error('cooperative_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -562,7 +580,14 @@
                                 <option value="superadmin">Super Admin</option>
                                 <option value="admin">Admin</option>
                                 <option value="manager">Manager</option>
-                                <option value="agc">Agent gestion de qualité</option>
+                                <option value="agc">Agent Gestion Qualité</option>
+                                <option value="cs">Chef Secteur</option>
+                                <option value="ac">Assistante Comptable</option>
+                                <option value="rt">Responsable Traçabilité</option>
+                                <option value="rd">Responsable Durabilité</option>
+                                <option value="comp">Comptable Siège</option>
+                                <option value="ctu">Contrôleur Usine</option>
+                                <option value="rcoop">Responsable Coopérative</option>
                                 <option value="user">Utilisateur</option>
                             </select>
                         </div>
@@ -579,12 +604,16 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="edit_cooperative_id" class="form-label">Coopérative</label>
-                            <select class="form-select" id="edit_cooperative_id" name="cooperative_id">
-                                <option value="">Sélectionner une coopérative</option>
+                            <input type="text" class="form-control" 
+                                   id="edit_cooperative_display" name="cooperative_display" 
+                                   placeholder="Tapez le nom de la coopérative..." 
+                                   list="edit-cooperatives-list">
+                            <datalist id="edit-cooperatives-list">
                                 @foreach($cooperatives as $cooperative)
-                                    <option value="{{ $cooperative->id }}">{{ $cooperative->nom }} ({{ $cooperative->code }})</option>
+                                    <option value="{{ $cooperative->nom }} ({{ $cooperative->code }})" data-id="{{ $cooperative->id }}">
                                 @endforeach
-                            </select>
+                            </datalist>
+                            <input type="hidden" id="edit_cooperative_id" name="cooperative_id">
                             <small class="form-text text-muted">Obligatoire si la fonction nécessite une coopérative</small>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -817,12 +846,25 @@ $(document).ready(function() {
         $('#edit_cooperative_id').val(cooperative);
         $('#edit_status').val(status);
         
-        // Gérer la checkbox siège
-        if (siege == '1') {
-            $('#edit_siege').prop('checked', true);
-        } else {
-            $('#edit_siege').prop('checked', false);
+    // Gérer la checkbox siège
+    if (siege == '1') {
+        $('#edit_siege').prop('checked', true);
+    } else {
+        $('#edit_siege').prop('checked', false);
+    }
+    
+    // Gérer la coopérative pour l'édition
+    if (cooperative) {
+        // Trouver le nom de la coopérative à partir de l'ID
+        var cooperativeOption = $('#edit-cooperatives-list option[data-id="' + cooperative + '"]');
+        if (cooperativeOption.length > 0) {
+            $('#edit_cooperative_display').val(cooperativeOption.val());
+            $('#edit_cooperative_id').val(cooperative);
         }
+    } else {
+        $('#edit_cooperative_display').val('');
+        $('#edit_cooperative_id').val('');
+    }
 
         // Mettre à jour l'action du formulaire
         $('#editUserForm').attr('action', '/admin/users/' + userId);
@@ -896,6 +938,36 @@ $(document).ready(function() {
                 cooperativeSelect.removeClass('is-invalid');
                 cooperativeSelect.siblings('.form-text').removeClass('text-danger').addClass('text-muted');
             }
+        }
+    });
+
+    // Gérer la sélection de coopérative avec datalist (Formulaire de création)
+    $('#cooperative_display').on('input', function() {
+        const input = $(this);
+        const value = input.val();
+        const datalist = $('#cooperatives-list');
+        
+        // Trouver l'option correspondante
+        const option = datalist.find(`option[value="${value}"]`);
+        if (option.length > 0) {
+            $('#cooperative_id').val(option.data('id'));
+        } else {
+            $('#cooperative_id').val('');
+        }
+    });
+    
+    // Gérer la sélection de coopérative avec datalist (Formulaire d'édition)
+    $('#edit_cooperative_display').on('input', function() {
+        const input = $(this);
+        const value = input.val();
+        const datalist = $('#edit-cooperatives-list');
+        
+        // Trouver l'option correspondante
+        const option = datalist.find(`option[value="${value}"]`);
+        if (option.length > 0) {
+            $('#edit_cooperative_id').val(option.data('id'));
+        } else {
+            $('#edit_cooperative_id').val('');
         }
     });
 

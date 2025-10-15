@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Secteurs - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Gestion des Secteurs - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
@@ -22,7 +22,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -60,19 +60,19 @@
                                        placeholder="Rechercher par code ou nom..." 
                                        value="{{ request('search') }}"
                                        autocomplete="off">
-                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                                <i class="ri-search-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
                             </div>
                         </div>
                         
                         <!-- Bouton Rechercher -->
                         <button type="button" id="searchButton" class="btn btn-primary">
-                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Rechercher
                         </button>
                         
                         <!-- Bouton reset -->
                         <button type="button" id="resetFilters" class="btn btn-outline-secondary">
-                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
+                            <i class="ri-refresh-line me-1"></i>
                             Reset
                         </button>
                     </div>
@@ -86,11 +86,11 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-20">
                         <h5 class="mb-0 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:building-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Liste des Secteurs
                         </h5>
                         <button type="button" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addSecteurModal">
-                            <iconify-icon icon="ri:add-line" class="icon text-xl line-height-1"></iconify-icon>
+                            <i class="ri-add-line icon text-xl line-height-1"></i>
                             Nouveau Secteur
                         </button>
                     </div>
@@ -111,12 +111,7 @@
                                 <tr>
                                     <td>{{ $secteurs->firstItem() + $index }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="bg-primary rounded-circle p-1">
-                                                <iconify-icon icon="solar:buildings-2-bold" class="text-white" style="font-size: 0.8rem;"></iconify-icon>
-                                            </div>
-                                            <span class="fw-semibold text-primary">{{ $secteur->code }}</span>
-                                        </div>
+                                        <span class="fw-semibold text-primary">{{ $secteur->code }}</span>
                                     </td>
                                     <td>
                                         <span class="fw-medium text-secondary">{{ $secteur->nom }}</span>
@@ -124,11 +119,11 @@
                                     <td>
                                         <div class="d-flex gap-2">
                                             <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:community-line" class="me-1"></iconify-icon>
+                                                <i class="ri-building-line me-1"></i>
                                                 {{ $secteur->cooperatives_count ?? 0 }} Coopératives
                                             </span>
                                             <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:user-3-line" class="me-1"></iconify-icon>
+                                                <i class="ri-user-line me-1"></i>
                                                 {{ $secteur->producteurs_count ?? 0 }} Producteurs
                                             </span>
                                         </div>
@@ -142,14 +137,14 @@
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#editSecteurModal"
                                                     title="Modifier">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                                <i class="ri-edit-line"></i>
                                             </button>
                                             <form action="{{ route('admin.secteurs.destroy', $secteur) }}" method="POST" class="d-inline" 
                                                   onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce secteur ?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
-                                                    <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                                    <i class="ri-delete-bin-line"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -186,13 +181,13 @@
                                             @if($secteurs->onFirstPage())
                                                 <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                                     </span>
                                                 </li>
                                             @else
                                                 <li class="page-item">
                                                     <a href="{{ $secteurs->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                                     </a>
                                                 </li>
                                             @endif
@@ -246,13 +241,13 @@
                                             @if($secteurs->hasMorePages())
                                                 <li class="page-item">
                                                     <a href="{{ $secteurs->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                                     </a>
                                                 </li>
                                             @else
                                                 <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                                     </span>
                                                 </li>
                                             @endif

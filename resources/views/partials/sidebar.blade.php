@@ -1,6 +1,6 @@
 <aside class="sidebar">
     <button type="button" class="sidebar-close-btn">
-        <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
+        <i class="ri-close-line"></i>
     </button>
     <div>
         <a href="{{ route('dashboard') }}" class="sidebar-logo">
@@ -17,7 +17,7 @@
                 @else
                     <li>
                         <a href="{{ $item['url'] }}" class="{{ $item['active'] ? 'active' : '' }}">
-                            <iconify-icon icon="{{ str_replace('ri-', 'ri:', $item['icon']) }}" class="menu-icon"></iconify-icon>
+                            <i class="{{ $item['icon'] }} menu-icon"></i>
                             <span>{{ $item['title'] }}</span>
                             @if(isset($item['badge']))
                                 <span class="badge bg-danger ms-auto">{{ $item['badge'] }}</span>

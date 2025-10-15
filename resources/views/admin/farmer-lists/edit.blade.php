@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier Producteur - Farmer List {{ $farmerList->connaissement->numero_livraison }} - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Modifier Producteur - Farmer List {{ $farmerList->connaissement->numero_livraison }} - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -198,11 +198,11 @@
                                 <div class="col-12">
                                     <div class="d-flex gap-2">
                                         <button type="submit" class="btn btn-primary">
-                                            <iconify-icon icon="ri-save-line"></iconify-icon> Enregistrer les Modifications
+                                            <i class="ri-save-line"></i> Enregistrer les Modifications
                                         </button>
                                         <a href="{{ route('admin.farmer-lists.show', $farmerList->connaissement) }}" 
                                            class="btn btn-secondary">
-                                            <iconify-icon icon="ri-arrow-left-line"></iconify-icon> Annuler
+                                            <i class="ri-arrow-left-line"></i> Annuler
                                         </a>
                                     </div>
                                 </div>

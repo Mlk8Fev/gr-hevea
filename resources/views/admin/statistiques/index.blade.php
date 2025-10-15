@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiques Basiques - FPH-CI</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -23,7 +23,7 @@
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            <i class="ri-home-line icon text-lg"></i>
                             Dashboard
                         </a>
                     </li>
@@ -49,7 +49,7 @@
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
-                                    <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                                    <i class="ri-search-line me-1"></i>
                                     Actualiser
                                 </button>
                             </div>
@@ -66,7 +66,7 @@
                             <div>
                                 <div class="d-flex align-items-center gap-2 mb-8">
                                     <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-success-100">
-                                        <iconify-icon icon="ri:seedling-line" class="text-success text-lg"></iconify-icon>
+                                        <i class="ri-scales-line text-success text-lg"></i>
                                     </div>
                                     <span class="text-muted text-sm fw-medium">Production Totale</span>
                                 </div>
@@ -74,17 +74,17 @@
                                 <div class="d-flex align-items-center gap-2 mt-8">
                                     @if($stats['evolution_production'] > 0)
                                         <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
-                                            <iconify-icon icon="ri:arrow-up-line" class="me-1"></iconify-icon>
+                                            <i class="ri-search-line me-1"></i>
                                             +{{ number_format($stats['evolution_production'], 1) }}%
                                         </span>
                                     @elseif($stats['evolution_production'] < 0)
                                         <span class="badge bg-danger-100 text-danger-600 px-8 py-2 radius-6">
-                                            <iconify-icon icon="ri:arrow-down-line" class="me-1"></iconify-icon>
+                                            <i class="ri-search-line me-1"></i>
                                             {{ number_format($stats['evolution_production'], 1) }}%
                                         </span>
                                     @else
                                         <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
-                                            <iconify-icon icon="ri:equal-line" class="me-1"></iconify-icon>
+                                            <i class="ri-search-line me-1"></i>
                                             Stable
                                         </span>
                                     @endif
@@ -100,7 +100,7 @@
                             <div>
                                 <div class="d-flex align-items-center gap-2 mb-8">
                                     <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
-                                        <iconify-icon icon="ri:file-list-3-line" class="text-primary text-lg"></iconify-icon>
+                                        <i class="ri-check-line text-primary text-lg"></i>
                                     </div>
                                     <span class="text-muted text-sm fw-medium">Tickets Validés</span>
                                 </div>
@@ -121,7 +121,7 @@
                             <div>
                                 <div class="d-flex align-items-center gap-2 mb-8">
                                     <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-info-100">
-                                        <iconify-icon icon="ri:community-line" class="text-info text-lg"></iconify-icon>
+                                        <i class="ri-building-line text-info text-lg"></i>
                                     </div>
                                     <span class="text-muted text-sm fw-medium">Coopératives</span>
                                 </div>
@@ -140,7 +140,7 @@
                             <div>
                                 <div class="d-flex align-items-center gap-2 mb-8">
                                     <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-warning-100">
-                                        <iconify-icon icon="ri:user-3-line" class="text-warning text-lg"></iconify-icon>
+                                        <i class="ri-user-3-line text-warning text-lg"></i>
                                     </div>
                                     <span class="text-muted text-sm fw-medium">Producteurs</span>
                                 </div>
@@ -161,15 +161,15 @@
                     <div class="card p-24 radius-12 border-0 shadow-sm h-100">
                         <div class="d-flex align-items-center justify-content-between mb-20">
                             <h5 class="mb-0 d-flex align-items-center gap-2">
-                                <iconify-icon icon="ri:line-chart-line" class="text-primary"></iconify-icon>
+                                <i class="ri-user-line text-primary"></i>
                                 Évolution Quotidienne de la Production
                             </h5>
                             <div class="d-flex gap-2">
                                 <button class="btn btn-outline-primary btn-sm" onclick="toggleChart('production')">
-                                    <iconify-icon icon="ri:bar-chart-line"></iconify-icon>
+                                    <i class="ri-bar-chart-line"></i>
                                 </button>
                                 <button class="btn btn-outline-primary btn-sm" onclick="toggleChart('tickets')">
-                                    <iconify-icon icon="ri:file-list-3-line"></iconify-icon>
+                                    <i class="ri-line-chart-line"></i>
                                 </button>
                             </div>
                         </div>
@@ -181,7 +181,7 @@
                 <div class="col-xl-4 mb-24">
                     <div class="card p-24 radius-12 border-0 shadow-sm h-100">
                         <h5 class="mb-20 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:pie-chart-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Répartition par Secteur
                         </h5>
                         <div id="secteurChart" style="height: 300px;"></div>
@@ -195,7 +195,7 @@
                 <div class="col-xl-6 mb-24">
                     <div class="card p-24 radius-12 border-0 shadow-sm h-100">
                         <h5 class="mb-20 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:trophy-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Top 5 Coopératives
                         </h5>
                         <div class="table-responsive">
@@ -246,7 +246,7 @@
                 <div class="col-xl-6 mb-24">
                     <div class="card p-24 radius-12 border-0 shadow-sm h-100">
                         <h5 class="mb-20 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:building-2-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Performance par Centre
                         </h5>
                         <div class="table-responsive">
@@ -290,7 +290,7 @@
                 <div class="col-12">
                     <div class="card p-24 radius-12 border-0 shadow-sm">
                         <h5 class="mb-20 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:star-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Métriques de Qualité
                         </h5>
                         <div class="row">

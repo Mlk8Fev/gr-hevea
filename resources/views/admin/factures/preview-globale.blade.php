@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview Facture Globale {{ $facture->numero_facture }} - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Preview Facture Globale {{ $facture->numero_facture }} - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -347,15 +347,15 @@
     <div class="action-buttons">
         <div class="d-flex flex-column gap-2">
             <a href="{{ route('admin.factures.pdf', $facture) }}" class="btn btn-primary btn-sm">
-                <iconify-icon icon="solar:download-linear" class="icon me-1"></iconify-icon>
+                <i class="ri-eye-line icon me-1"></i>
                 Télécharger PDF
             </a>
             <button type="button" class="btn btn-success btn-sm" onclick="window.print()">
-                <iconify-icon icon="basil:printer-outline" class="icon me-1"></iconify-icon>
+                <i class="ri-eye-line icon me-1"></i>
                 Imprimer
             </button>
             <a href="{{ route('admin.factures.index') }}" class="btn btn-outline-secondary btn-sm">
-                <iconify-icon icon="lucide:arrow-left" class="icon me-1"></iconify-icon>
+                <i class="ri-eye-line icon me-1"></i>
                 Retour
             </a>
         </div>

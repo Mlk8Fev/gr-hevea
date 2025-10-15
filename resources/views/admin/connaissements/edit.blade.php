@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier le Connaissement - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Modifier le Connaissement - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
@@ -24,7 +24,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -71,14 +71,18 @@
                             
                             <div class="mb-3">
                                 <label for="cooperative_id" class="form-label">Coopérative *</label>
-                                <select name="cooperative_id" id="cooperative_id" class="form-select @error('cooperative_id') is-invalid @enderror" required>
-                                    <option value="">Sélectionner une coopérative</option>
+                                <input type="text" class="form-control @error('cooperative_id') is-invalid @enderror" 
+                                       id="cooperative_display" name="cooperative_display" 
+                                       placeholder="Tapez le nom de la coopérative..." 
+                                       list="cooperatives-list" 
+                                       value="{{ $connaissement->cooperative_id ? ($cooperatives->find($connaissement->cooperative_id)->nom ?? '') . ' (' . ($cooperatives->find($connaissement->cooperative_id)->sigle ?? '') . ')' : '' }}" 
+                                       required>
+                                <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
-                                        <option value="{{ $cooperative->id }}" {{ $connaissement->cooperative_id == $cooperative->id ? 'selected' : '' }}>
-                                            {{ $cooperative->nom }} ({{ $cooperative->sigle }})
-                                        </option>
+                                        <option value="{{ $cooperative->nom }} ({{ $cooperative->sigle }})" data-id="{{ $cooperative->id }}">
                                     @endforeach
-                                </select>
+                                </datalist>
+                                <input type="hidden" id="cooperative_id" name="cooperative_id" value="{{ $connaissement->cooperative_id }}">
                                 @error('cooperative_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -266,11 +270,11 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('admin.connaissements.index') }}" class="btn btn-outline-secondary">
-                            <iconify-icon icon="lucide:x" class="icon me-1"></iconify-icon>
+                            <i class="ri-close-line"></i>
                             Annuler
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <iconify-icon icon="lucide:save" class="icon me-1"></iconify-icon>
+                            <i class="ri-save-line"></i>
                             Mettre à Jour
                         </button>
                     </div>
@@ -301,6 +305,26 @@ document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
         alert('Veuillez remplir tous les champs obligatoires.');
     }
+});
+
+// Gérer la sélection de coopérative avec datalist
+document.addEventListener('DOMContentLoaded', function() {
+    const cooperativeDisplay = document.getElementById('cooperative_display');
+    const cooperativeHidden = document.getElementById('cooperative_id');
+    
+    cooperativeDisplay.addEventListener('input', function() {
+        const input = this;
+        const value = input.value;
+        const datalist = document.getElementById('cooperatives-list');
+        
+        // Trouver l'option correspondante
+        const option = datalist.querySelector(`option[value="${value}"]`);
+        if (option) {
+            cooperativeHidden.value = option.getAttribute('data-id');
+        } else {
+            cooperativeHidden.value = '';
+        }
+    });
 });
 </script>
 </body>

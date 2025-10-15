@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validation ENE CI - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Validation ENE CI - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <!-- BootStrap css -->
@@ -47,7 +47,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -71,6 +71,71 @@
             </div>
         @endif
 
+        <!-- Filtres -->
+        <div class="card h-100 p-0 radius-12 mb-24">
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <!-- Recherche manuelle -->
+                    <div class="flex-grow-1">
+                        <div class="position-relative">
+                            <input type="text" 
+                                   id="searchInput" 
+                                   class="form-control" 
+                                   placeholder="Rechercher par numéro de ticket, coopérative..." 
+                                   value="{{ request('search') }}"
+                                   autocomplete="off">
+                            <i class="ri-search-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtre par secteur -->
+                    <div style="min-width: 200px;">
+                        <select id="secteurFilter" class="form-select">
+                            <option value="">Tous les secteurs</option>
+                            @foreach($secteurs as $secteur)
+                                <option value="{{ $secteur->id }}" {{ request('secteur') == $secteur->id ? 'selected' : '' }}>
+                                    {{ $secteur->code }} - {{ $secteur->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <!-- Filtre par coopérative -->
+                    <div style="min-width: 200px;">
+                        <input type="text" id="cooperativeFilter" class="form-control" placeholder="Tapez le nom de la coopérative..." list="cooperatives-list" value="{{ request('cooperative') ? ($cooperatives->find(request('cooperative'))->code ?? '') . ' - ' . ($cooperatives->find(request('cooperative'))->nom ?? '') : '' }}">
+                        <datalist id="cooperatives-list">
+                            @foreach($cooperatives as $cooperative)
+                                <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
+                            @endforeach
+                        </datalist>
+                        <input type="hidden" id="cooperativeFilterHidden" name="cooperative" value="{{ request('cooperative') }}">
+                    </div>
+                    
+                    <!-- Filtre par Statut ENE CI -->
+                    <div style="min-width: 200px;">
+                        <select id="statutEneFilter" class="form-select">
+                            <option value="all" {{ $statutEne === 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                            <option value="en_attente" {{ $statutEne === 'en_attente' ? 'selected' : '' }}>En attente ENE CI</option>
+                            <option value="valide_par_ene" {{ $statutEne === 'valide_par_ene' ? 'selected' : '' }}>Validé pour facturation</option>
+                            <option value="rejete_par_ene" {{ $statutEne === 'rejete_par_ene' ? 'selected' : '' }}>Rejeté par ENE CI</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="d-flex gap-2">
+                        <button type="button" id="searchButton" class="btn btn-primary">
+                            <i class="ri-search-line me-1"></i>
+                            Rechercher
+                        </button>
+                        <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                            <i class="ri-search-line me-1"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Onglets -->
         <div class="card h-100 p-0 radius-12">
             <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
@@ -83,30 +148,17 @@
                         <option>100</option>
                     </select>
                     
-                    <!-- Filtre par Statut ENE CI -->
-                    <form class="d-flex align-items-center gap-2" method="GET" action="{{ route('admin.ene-validation.index') }}">
-                        @if(request('search'))
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                        @endif
-                        <select name="statut_ene" class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" onchange="this.form.submit()">
-                            <option value="all" {{ $statutEne === 'all' ? 'selected' : '' }}>Tous les statuts</option>
-                            <option value="en_attente" {{ $statutEne === 'en_attente' ? 'selected' : '' }}>En attente ENE CI</option>
-                            <option value="valide_par_ene" {{ $statutEne === 'valide_par_ene' ? 'selected' : '' }}>Validé pour facturation</option>
-                            <option value="rejete_par_ene" {{ $statutEne === 'rejete_par_ene' ? 'selected' : '' }}>Rejeté par ENE CI</option>
-                        </select>
-                    </form>
-                    
                     <form class="navbar-search" method="GET" action="{{ route('admin.ene-validation.index') }}">
                         @if(request('statut_ene') && request('statut_ene') !== 'all')
                             <input type="hidden" name="statut_ene" value="{{ request('statut_ene') }}">
                         @endif
                         <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ $search }}">
-                        <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
+                        <i class="ri-search-line"></i>
                     </form>
                     
                     @if(request('search') || (request('statut_ene') && request('statut_ene') !== 'all'))
                         <a href="{{ route('admin.ene-validation.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
-                            <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
+                            <i class="ri-close-line"></i>
                             Effacer les filtres
                         </a>
                     @endif
@@ -120,8 +172,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">N° Ticket</th>
                                 <th scope="col">Coopérative</th>
-                                <th scope="col">Poids Net (kg)</th>
-                                <th scope="col">Prix Final</th>
+                                <th scope="col">Poids Net / Prix Final</th>
                                 <th scope="col">Montant Total</th>
                                 <th scope="col">Statut ENE CI</th>
                                 <th scope="col" class="text-center">Actions</th>
@@ -137,13 +188,15 @@
                                     <td>{{ $tickets->firstItem() + $index }}</td>
                                     <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $ticket->numero_ticket }}</span></td>
                                     <td><span class="text-md mb-0 fw-normal text-secondary-light">{{ $ticket->connaissement->cooperative->nom }}</span></td>
-                                    <td><span class="text-md mb-0 fw-normal text-success fw-bold">{{ number_format($ticket->poids_net, 2) }}</span></td>
                                     <td>
-                                        @if($prix && !isset($prix['erreur']))
-                                            <span class="text-md mb-0 fw-normal text-primary fw-bold">{{ number_format($prix['details']['prix_final_public'], 2) }} FCFA</span>
-                                        @else
-                                            <span class="text-sm text-muted">Erreur calcul</span>
-                                        @endif
+                                        <div>
+                                            <div class="text-success fw-bold">{{ number_format($ticket->poids_net, 2) }} kg</div>
+                                            @if($prix && !isset($prix['erreur']))
+                                                <div class="text-primary fw-bold text-sm">{{ number_format($prix['details']['prix_final_public'], 2) }} FCFA</div>
+                                            @else
+                                                <div class="text-muted text-sm">Erreur calcul</div>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         @if($prix && !isset($prix['erreur']))
@@ -164,7 +217,7 @@
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
                                             <a href="{{ route('admin.ene-validation.show', $ticket->id) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Voir Détails">
-                                                <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -173,7 +226,7 @@
                                 <tr>
                                     <td colspan="8" class="text-center py-24">
                                         <div class="text-center">
-                                            <iconify-icon icon="majesticons:inbox-line" class="text-6xl text-muted"></iconify-icon>
+                                            <i class="ri-inbox-line"></i>
                                             <h6 class="mt-3 text-muted">Aucun ticket trouvé</h6>
                                             <p class="text-muted mb-0">Aucun ticket ne correspond aux critères de recherche.</p>
                                         </div>
@@ -210,13 +263,13 @@
                                         @if($tickets->onFirstPage())
                                             <li class="page-item disabled">
                                                 <span class="page-link bg-light border-0 text-muted">
-                                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                    Précédent
                                                 </span>
                                             </li>
                                         @else
                                             <li class="page-item">
                                                 <a href="{{ $tickets->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                    Précédent
                                                 </a>
                                             </li>
                                         @endif
@@ -270,13 +323,13 @@
                                         @if($tickets->hasMorePages())
                                             <li class="page-item">
                                                 <a href="{{ $tickets->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                    Suivant
                                                 </a>
                                             </li>
                                         @else
                                             <li class="page-item disabled">
                                                 <span class="page-link bg-light border-0 text-muted">
-                                                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                    Suivant
                                                 </span>
                                             </li>
                                         @endif
@@ -293,5 +346,103 @@
 </main>
 
 @include('partials.wowdash-scripts')
+
+<script>
+// Recherche manuelle avec bouton
+const searchInput = document.getElementById('searchInput');
+const searchButton = document.getElementById('searchButton');
+const secteurFilter = document.getElementById('secteurFilter');
+const cooperativeFilter = document.getElementById('cooperativeFilter');
+const statutEneFilter = document.getElementById('statutEneFilter');
+const resetFilters = document.getElementById('resetFilters');
+
+function performSearch() {
+    const url = new URL(window.location);
+    const searchValue = searchInput.value.trim();
+    const secteurValue = secteurFilter.value;
+    const cooperativeValue = document.getElementById('cooperativeFilterHidden').value;
+    const statutEneValue = statutEneFilter.value;
+    
+    if (searchValue) {
+        url.searchParams.set('search', searchValue);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    if (secteurValue) {
+        url.searchParams.set('secteur', secteurValue);
+    } else {
+        url.searchParams.delete('secteur');
+    }
+    
+    if (cooperativeValue) {
+        url.searchParams.set('cooperative', cooperativeValue);
+    } else {
+        url.searchParams.delete('cooperative');
+    }
+    
+    if (statutEneValue && statutEneValue !== 'all') {
+        url.searchParams.set('statut_ene', statutEneValue);
+    } else {
+        url.searchParams.delete('statut_ene');
+    }
+    
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+
+// Recherche au clic du bouton
+searchButton.addEventListener('click', performSearch);
+
+// Recherche avec Entrée
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Gérer la sélection de coopérative avec datalist
+cooperativeFilter.addEventListener('input', function() {
+    const input = this;
+    const value = input.value;
+    const datalist = document.getElementById('cooperatives-list');
+    const hiddenInput = document.getElementById('cooperativeFilterHidden');
+    
+    // Trouver l'option correspondante
+    const option = datalist.querySelector(`option[value="${value}"]`);
+    if (option) {
+        hiddenInput.value = option.getAttribute('data-id');
+    } else {
+        hiddenInput.value = '';
+    }
+});
+
+// Filtres immédiats
+secteurFilter.addEventListener('change', performSearch);
+statutEneFilter.addEventListener('change', performSearch);
+
+// Reset des filtres
+resetFilters.addEventListener('click', function() {
+    searchInput.value = '';
+    secteurFilter.value = '';
+    cooperativeFilter.value = '';
+    document.getElementById('cooperativeFilterHidden').value = '';
+    statutEneFilter.value = 'all';
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('secteur');
+    url.searchParams.delete('cooperative');
+    url.searchParams.delete('statut_ene');
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+});
+
+function changePerPage(value) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', value);
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+</script>
 </body>
 </html> 

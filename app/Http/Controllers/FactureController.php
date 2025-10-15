@@ -385,6 +385,14 @@ class FactureController extends Controller
     }
 
     /**
+     * Générer le PDF d'une facture (alias pour la route)
+     */
+    public function generatePdf(Facture $facture)
+    {
+        return $this->pdf($facture);
+    }
+
+    /**
      * Générer le PDF d'une facture
      */
     public function pdf(Facture $facture)
@@ -408,7 +416,10 @@ class FactureController extends Controller
             }
         }
         
-        return view('admin.factures.pdf', compact('facture', 'ticketsAvecPrix'));
+        // Utiliser la vue compacte pour le PDF
+        $pdf = \PDF::loadView('admin.factures.pdf-compact', compact('facture', 'ticketsAvecPrix'));
+        
+        return $pdf->download('facture-' . $facture->numero_facture . '.pdf');
     }
 
     /**

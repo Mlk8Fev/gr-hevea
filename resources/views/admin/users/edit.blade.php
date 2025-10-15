@@ -61,6 +61,14 @@
                                     <option value="superadmin" {{ old('role', $user->role) == 'superadmin' ? 'selected' : '' }}>Super Administrateur</option>
                                     <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrateur</option>
                                     <option value="manager" {{ old('role', $user->role) == 'manager' ? 'selected' : '' }}>Manager</option>
+                                    <option value="agc" {{ old('role', $user->role) == 'agc' ? 'selected' : '' }}>Agent Gestion Qualité</option>
+                                    <option value="cs" {{ old('role', $user->role) == 'cs' ? 'selected' : '' }}>Chef Secteur</option>
+                                    <option value="ac" {{ old('role', $user->role) == 'ac' ? 'selected' : '' }}>Assistante Comptable</option>
+                                    <option value="rt" {{ old('role', $user->role) == 'rt' ? 'selected' : '' }}>Responsable Traçabilité</option>
+                                    <option value="rd" {{ old('role', $user->role) == 'rd' ? 'selected' : '' }}>Responsable Durabilité</option>
+                                    <option value="comp" {{ old('role', $user->role) == 'comp' ? 'selected' : '' }}>Comptable Siège</option>
+                                    <option value="ctu" {{ old('role', $user->role) == 'ctu' ? 'selected' : '' }}>Contrôleur Usine</option>
+                                    <option value="rcoop" {{ old('role', $user->role) == 'rcoop' ? 'selected' : '' }}>Responsable Coopérative</option>
                                     <option value="user" {{ old('role', $user->role) == 'user' ? 'selected' : '' }}>Utilisateur</option>
                                 </select>
                                 @error('role')
@@ -87,14 +95,17 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="cooperative_id" class="form-label">Coopérative</label>
-                                <select class="form-select @error('cooperative_id') is-invalid @enderror" id="cooperative_id" name="cooperative_id">
-                                    <option value="">Sélectionner une coopérative</option>
+                                <input type="text" class="form-control @error('cooperative_id') is-invalid @enderror" 
+                                       id="cooperative_display" name="cooperative_display" 
+                                       placeholder="Tapez le nom de la coopérative..." 
+                                       list="cooperatives-list" 
+                                       value="{{ old('cooperative_id', $user->cooperative_id) ? ($cooperatives->find(old('cooperative_id', $user->cooperative_id))->nom ?? '') . ' (' . ($cooperatives->find(old('cooperative_id', $user->cooperative_id))->code ?? '') . ')' : '' }}">
+                                <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
-                                        <option value="{{ $cooperative->id }}" {{ old('cooperative_id', $user->cooperative_id) == $cooperative->id ? 'selected' : '' }}>
-                                            {{ $cooperative->nom }} ({{ $cooperative->code }})
-                                        </option>
+                                        <option value="{{ $cooperative->nom }} ({{ $cooperative->code }})" data-id="{{ $cooperative->id }}">
                                     @endforeach
-                                </select>
+                                </datalist>
+                                <input type="hidden" id="cooperative_id" name="cooperative_id" value="{{ old('cooperative_id', $user->cooperative_id) }}">
                                 @error('cooperative_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -176,7 +187,23 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const fonctionSelect = document.getElementById('fonction_id');
-    const cooperativeSelect = document.getElementById('cooperative_id');
+    const cooperativeDisplay = document.getElementById('cooperative_display');
+    const cooperativeHidden = document.getElementById('cooperative_id');
+    
+    // Gérer la sélection de coopérative avec datalist
+    cooperativeDisplay.addEventListener('input', function() {
+        const input = this;
+        const value = input.value;
+        const datalist = document.getElementById('cooperatives-list');
+        
+        // Trouver l'option correspondante
+        const option = datalist.querySelector(`option[value="${value}"]`);
+        if (option) {
+            cooperativeHidden.value = option.getAttribute('data-id');
+        } else {
+            cooperativeHidden.value = '';
+        }
+    });
     
     // Fonction pour vérifier si la fonction nécessite une coopérative
     function checkCooperativeRequired() {
@@ -189,11 +216,11 @@ document.addEventListener('DOMContentLoaded', function() {
             );
             
             if (cooperativeRequired) {
-                cooperativeSelect.setAttribute('required', 'required');
-                cooperativeSelect.classList.add('is-invalid');
+                cooperativeDisplay.setAttribute('required', 'required');
+                cooperativeDisplay.classList.add('is-invalid');
             } else {
-                cooperativeSelect.removeAttribute('required');
-                cooperativeSelect.classList.remove('is-invalid');
+                cooperativeDisplay.removeAttribute('required');
+                cooperativeDisplay.classList.remove('is-invalid');
             }
         }
     }

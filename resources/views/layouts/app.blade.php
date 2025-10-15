@@ -6,7 +6,7 @@
     <title>@yield('title', 'Administration')</title>
     <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     
-    <!-- WowDash CSS -->
+    <!-- FPH-CI CSS -->
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/apexcharts.css') }}">

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Section Finance - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Section Finance - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -57,13 +57,13 @@
                                        placeholder="Rechercher par numéro de ticket, livraison, coopérative..." 
                                        value="{{ request('search') }}"
                                        autocomplete="off">
-                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                                <i class="ri-search-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
                             </div>
                         </div>
                         
                         <!-- Bouton Rechercher -->
                         <button type="button" id="searchButton" class="btn btn-primary">
-                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Rechercher
                         </button>
                         
@@ -81,14 +81,13 @@
 
                         <!-- Filtre par coopérative -->
                         <div style="min-width: 200px;">
-                            <select id="cooperativeFilter" class="form-select">
-                                <option value="">Toutes les coopératives</option>
+                            <input type="text" id="cooperativeFilter" class="form-control" placeholder="Tapez le nom de la coopérative..." list="cooperatives-list" value="{{ request('cooperative') ? ($cooperatives->find(request('cooperative'))->code ?? '') . ' - ' . ($cooperatives->find(request('cooperative'))->nom ?? '') : '' }}">
+                            <datalist id="cooperatives-list">
                                 @foreach($cooperatives as $cooperative)
-                                    <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
-                                        {{ $cooperative->code }} - {{ $cooperative->nom }}
-                                    </option>
+                                    <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                 @endforeach
-                    </select>
+                            </datalist>
+                            <input type="hidden" id="cooperativeFilterHidden" name="cooperative" value="{{ request('cooperative') }}">
                         </div>
                         
                         <!-- Filtre par statut ENE -->
@@ -112,11 +111,17 @@
                                    placeholder="Date de création">
                         </div>
                         
-                        <!-- Bouton reset -->
-                        <button type="button" id="resetFilters" class="btn btn-outline-secondary">
-                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
-                            Reset
-                        </button>
+                        <!-- Boutons d'action -->
+                        <div class="d-flex gap-2">
+                            <button type="button" id="searchButton" class="btn btn-primary">
+                                <i class="ri-search-line me-1"></i>
+                                Rechercher
+                            </button>
+                            <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                                <i class="ri-search-line me-1"></i>
+                                Reset
+                            </button>
+                        </div>
                 </div>
                 </div>
             </div>
@@ -128,12 +133,12 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-20">
                         <h5 class="mb-0 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:money-dollar-circle-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Tickets Validés pour Paiement
                         </h5>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
-                                <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                <i class="ri-search-line me-1"></i>
                                 {{ $ticketsValides->total() }} tickets
                             </span>
                         </div>
@@ -164,7 +169,7 @@
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
-                                                <iconify-icon icon="ri:file-text-line" class="text-primary text-lg"></iconify-icon>
+                                                <i class="ri-eye-line text-primary text-lg"></i>
                                             </div>
                                             <div>
                                                 <div class="fw-semibold text-primary">{{ $ticket->numero_ticket }}</div>
@@ -195,17 +200,17 @@
                                     <td>
                                         @if($ticket->statut_ene === 'valide_par_ene')
                                             <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                <i class="ri-search-line me-1"></i>
                                                 Validé par ENE
                                             </span>
                                         @elseif($ticket->statut_ene === 'rejete_par_ene')
                                             <span class="badge bg-danger-100 text-danger-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:close-line" class="me-1"></iconify-icon>
+                                                <i class="ri-search-line me-1"></i>
                                                 Rejeté par ENE
                                             </span>
                                         @else
                                             <span class="badge bg-warning-100 text-warning-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:time-line" class="me-1"></iconify-icon>
+                                                <i class="ri-search-line me-1"></i>
                                                 En attente
                                             </span>
                                         @endif
@@ -217,7 +222,7 @@
                                         <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
                                             <a href="{{ route('admin.finance.show-calcul', $ticket->id) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir calcul">
-                                                <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                             </a>
                                         </div>
                                         </td>
@@ -253,13 +258,13 @@
                                     @if($ticketsValides->onFirstPage())
                                         <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                             </span>
                                         </li>
                                     @else
                                         <li class="page-item">
                                                     <a href="{{ $ticketsValides->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                             </a>
                                         </li>
                                     @endif
@@ -313,13 +318,13 @@
                                     @if($ticketsValides->hasMorePages())
                                         <li class="page-item">
                                                     <a href="{{ $ticketsValides->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                             </a>
                                         </li>
                                     @else
                                         <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                             </span>
                                         </li>
                                     @endif
@@ -363,7 +368,7 @@ function performSearch() {
     const url = new URL(window.location);
     const searchValue = searchInput.value.trim();
     const secteurValue = secteurFilter.value;
-    const cooperativeValue = cooperativeFilter.value;
+    const cooperativeValue = document.getElementById('cooperativeFilterHidden').value;
     const statutEneValue = statutEneFilter.value;
     const dateValue = dateFilter.value;
     
@@ -411,9 +416,24 @@ searchInput.addEventListener('keypress', function(e) {
     }
 });
 
+// Gérer la sélection de coopérative avec datalist
+cooperativeFilter.addEventListener('input', function() {
+    const input = this;
+    const value = input.value;
+    const datalist = document.getElementById('cooperatives-list');
+    const hiddenInput = document.getElementById('cooperativeFilterHidden');
+    
+    // Trouver l'option correspondante
+    const option = datalist.querySelector(`option[value="${value}"]`);
+    if (option) {
+        hiddenInput.value = option.getAttribute('data-id');
+    } else {
+        hiddenInput.value = '';
+    }
+});
+
 // Filtres immédiats
 secteurFilter.addEventListener('change', performSearch);
-cooperativeFilter.addEventListener('change', performSearch);
 statutEneFilter.addEventListener('change', performSearch);
 dateFilter.addEventListener('change', performSearch);
 
@@ -422,6 +442,7 @@ resetFilters.addEventListener('click', function() {
     searchInput.value = '';
     secteurFilter.value = '';
     cooperativeFilter.value = '';
+    document.getElementById('cooperativeFilterHidden').value = '';
     statutEneFilter.value = 'all';
     dateFilter.value = '';
     const url = new URL(window.location);

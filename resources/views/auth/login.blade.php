@@ -90,7 +90,7 @@
             @if(session('error') && session('retry_after'))
                 <div class="alert alert-warning mb-16" id="rate-limit-alert">
                     <div class="d-flex align-items-center">
-                        <iconify-icon icon="solar:shield-warning-outline" class="me-2 text-warning"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-warning"></i>
                         <div>
                             <strong>{{ session('error') }}</strong>
                             <div class="mt-2">
@@ -151,14 +151,14 @@
                 @csrf
                 <div class="icon-field mb-16">
                     <span class="icon top-50 translate-middle-y">
-                        <iconify-icon icon="mdi:account"></iconify-icon>
+                        <i class="ri-eye-line"></i>
                     </span>
                     <input type="text" name="username" class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Nom d'utilisateur" value="{{ old('username') }}" required>
                 </div>
                 <div class="position-relative mb-20">
                     <div class="icon-field">
                         <span class="icon top-50 translate-middle-y">
-                            <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+                            <i class="ri-eye-line"></i>
                         </span> 
                         <input type="password" name="password" class="form-control h-56-px bg-neutral-50 radius-12" id="your-password" placeholder="Mot de passe" required>
                     </div>

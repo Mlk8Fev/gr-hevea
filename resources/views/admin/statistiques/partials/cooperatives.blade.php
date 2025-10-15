@@ -1,4 +1,4 @@
-<!-- Statistiques des Coopératives WowDash -->
+<!-- Statistiques des Coopératives FPH-CI -->
 <div class="row gy-4 mb-32">
     <!-- KPIs Coopératives -->
     <div class="col-xxl-3 col-sm-6">
@@ -10,12 +10,12 @@
                         <h6 class="mb-0">{{ number_format($stats['total_cooperatives'] ?? 0) }}</h6>
                     </div>
                     <div class="w-50-px h-50-px bg-primary-600 rounded-circle d-flex justify-content-center align-items-center">
-                        <iconify-icon icon="solar:users-group-rounded-outline" class="text-white text-2xl mb-0"></iconify-icon>
+                        <i class="ri-eye-line text-white text-2xl mb-0"></i>
                     </div>
                 </div>
                 <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                     <span class="d-inline-flex align-items-center gap-1 text-primary-main">
-                        <iconify-icon icon="solar:check-circle-outline" class="text-xs"></iconify-icon> Actives
+                        <i class="ri-eye-line text-xs"></i> Actives
                     </span> 
                     Partenaires enregistrés
                 </p>

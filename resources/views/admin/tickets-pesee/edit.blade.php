@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier le Ticket de Pesée - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Modifier le Ticket de Pesée - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('admin.tickets-pesee.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Liste des Tickets
                     </a>
                 </li>
@@ -32,7 +32,7 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
             <div class="d-flex align-items-center gap-2">
                 <a href="{{ route('admin.tickets-pesee.show', $ticketPesee) }}" class="btn btn-info">
-                    <i class="ri-eye-line me-2"></i>
+                    <i class="ri-check-line me-2"></i>
                     Voir les détails
                 </a>
             </div>

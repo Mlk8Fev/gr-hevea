@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Utilisateurs - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Gestion des Utilisateurs - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
@@ -22,7 +22,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -60,19 +60,19 @@
                                        placeholder="Rechercher par nom, email ou rôle..." 
                                        value="{{ request('search') }}"
                                        autocomplete="off">
-                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                                <i class="ri-search-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
                             </div>
                         </div>
                         
                         <!-- Bouton Rechercher -->
                         <button type="button" id="searchButton" class="btn btn-primary">
-                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Rechercher
                         </button>
                         
                         <!-- Bouton reset -->
                         <button type="button" id="resetFilters" class="btn btn-outline-secondary">
-                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
+                            <i class="ri-refresh-line me-1"></i>
                             Reset
                         </button>
                     </div>
@@ -86,11 +86,11 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-20">
                         <h5 class="mb-0 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:user-settings-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Liste des Utilisateurs
                         </h5>
                         <a href="{{ route('admin.users.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:add-line" class="icon text-xl line-height-1"></iconify-icon>
+                            <i class="ri-add-line icon text-xl line-height-1"></i>
                             Nouvel Utilisateur
                         </a>
                     </div>
@@ -102,8 +102,7 @@
                                     <th class="border-0">#</th>
                                     <th class="border-0">Utilisateur</th>
                                     <th class="border-0">Rôle</th>
-                                    <th class="border-0">Secteur</th>
-                                    <th class="border-0">Fonction</th>
+                                    <th class="border-0">Secteur & Fonction</th>
                                     <th class="border-0">Statut</th>
                                     <th class="border-0 text-center">Actions</th>
                                 </tr>
@@ -113,14 +112,9 @@
                                 <tr>
                                     <td>{{ $users->firstItem() + $index }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
-                                                <iconify-icon icon="ri:user-3-line" class="text-primary text-lg"></iconify-icon>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold text-dark">{{ $user->full_name }}</div>
-                                                <div class="text-muted text-sm">{{ $user->email }}</div>
-                                            </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ $user->full_name }}</div>
+                                            <div class="text-muted text-sm">{{ $user->email }}</div>
                                         </div>
                                     </td>
                                     <td>
@@ -129,13 +123,27 @@
                                                 'superadmin' => 'danger',
                                                 'admin' => 'warning', 
                                                 'manager' => 'info',
-                                                'agc' => 'success'
+                                                'agc' => 'success',
+                                                'cs' => 'primary',
+                                                'ac' => 'secondary',
+                                                'rt' => 'info',
+                                                'rd' => 'success',
+                                                'comp' => 'warning',
+                                                'ctu' => 'dark',
+                                                'rcoop' => 'primary'
                                             ];
                                             $roleLabels = [
                                                 'superadmin' => 'Super Admin',
                                                 'admin' => 'Admin',
                                                 'manager' => 'Manager',
-                                                'agc' => 'Agent Gestion Qualité'
+                                                'agc' => 'Agent Gestion Qualité',
+                                                'cs' => 'Chef Secteur',
+                                                'ac' => 'Assistante Comptable',
+                                                'rt' => 'Responsable Traçabilité',
+                                                'rd' => 'Responsable Durabilité',
+                                                'comp' => 'Comptable Siège',
+                                                'ctu' => 'Contrôleur Usine',
+                                                'rcoop' => 'Responsable Coopérative'
                                             ];
                                         @endphp
                                         <span class="badge bg-{{ $roleColors[$user->role] ?? 'secondary' }}-100 text-{{ $roleColors[$user->role] ?? 'secondary' }}-600 px-8 py-2 radius-6">
@@ -143,31 +151,31 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if($user->secteur)
-                                            <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:building-line" class="me-1"></iconify-icon>
-                                                {{ $user->secteur }}
-                                            </span>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($user->fonction)
-                                            <span class="fw-medium text-secondary">{{ $user->fonction->nom }}</span>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
+                                        <div class="d-flex flex-column gap-1">
+                                            @if($user->secteur)
+                                                <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
+                                                    <i class="ri-search-line me-1"></i>
+                                                    {{ $user->secteur }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                            @if($user->fonction)
+                                                <span class="fw-medium text-secondary text-sm">{{ $user->fonction->nom }}</span>
+                                            @else
+                                                <span class="text-muted text-sm">-</span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         @if($user->status === 'active')
                                             <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                <i class="ri-search-line me-1"></i>
                                                 Actif
                                             </span>
                                         @else
                                             <span class="badge bg-danger-100 text-danger-600 px-8 py-2 radius-6">
-                                                <iconify-icon icon="ri:close-line" class="me-1"></iconify-icon>
+                                                <i class="ri-search-line me-1"></i>
                                                 Inactif
                                             </span>
                                         @endif
@@ -180,13 +188,13 @@
                                                 @method('PATCH')
                                                 <button type="submit" class="bg-{{ $user->status === 'active' ? 'warning' : 'success' }}-focus text-{{ $user->status === 'active' ? 'warning' : 'success' }}-600 bg-hover-{{ $user->status === 'active' ? 'warning' : 'success' }}-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" 
                                                         title="{{ $user->status === 'active' ? 'Désactiver' : 'Activer' }}">
-                                                    <iconify-icon icon="ri:{{ $user->status === 'active' ? 'pause' : 'play' }}-line" class="menu-icon"></iconify-icon>
+                                                    <i class="ri-{{ $user->status === 'active' ? 'close-line' : 'check-line' }} menu-icon"></i>
                                                 </button>
                                             </form>
 
                                             <!-- Bouton Éditer -->
                                             <a href="{{ route('admin.users.edit', $user) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Éditer">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                                <i class="ri-edit-line"></i>
                                             </a>
 
                                             <!-- Bouton Supprimer -->
@@ -195,7 +203,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
-                                                    <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                                    <i class="ri-delete-bin-line"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -232,13 +240,13 @@
                                             @if($users->onFirstPage())
                                                 <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                                     </span>
                                                 </li>
                                             @else
                                                 <li class="page-item">
                                                     <a href="{{ $users->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                                     </a>
                                                 </li>
                                             @endif
@@ -292,13 +300,13 @@
                                             @if($users->hasMorePages())
                                                 <li class="page-item">
                                                     <a href="{{ $users->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                                     </a>
                                                 </li>
                                             @else
                                                 <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                                     </span>
                                                 </li>
                                             @endif

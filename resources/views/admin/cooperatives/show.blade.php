@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil de la Coopérative - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Profil de la Coopérative - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('admin.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Liste des Coopératives
                     </a>
                 </li>
@@ -33,13 +33,13 @@
                     <div class="card-header border-bottom bg-base py-16 px-24">
                         <div class="text-center mb-16">
                             <div class="bg-primary rounded-circle p-3 d-inline-flex mb-3">
-                                <iconify-icon icon="solar:buildings-2-bold" class="text-white" style="font-size: 2rem;"></iconify-icon>
+                                <i class="ri-building-line text-white"></i>
                             </div>
                             <h3 class="fw-bold text-primary mb-2">{{ $cooperative->nom }}</h3>
                             <span class="badge bg-secondary fs-6">{{ $cooperative->code }}</span>
                         </div>
                         <h6 class="text-lg fw-semibold mb-0">
-                            <iconify-icon icon="solar:info-circle-outline" class="me-2 text-info"></iconify-icon>
+                            <i class="ri-information-line me-2 text-info"></i>
                             Informations principales
                         </h6>
                     </div>
@@ -51,7 +51,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-primary rounded-circle p-2">
-                                                <iconify-icon icon="solar:users-group-rounded-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-building-line text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Nom de la coopérative</h6>
@@ -68,7 +68,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-info rounded-circle p-2">
-                                                <iconify-icon icon="solar:building-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-map-pin-line text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Secteur</h6>
@@ -87,7 +87,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-success rounded-circle p-2">
-                                                <iconify-icon icon="solar:user-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-user-star-line text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Président</h6>
@@ -104,7 +104,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-warning rounded-circle p-2">
-                                                <iconify-icon icon="solar:phone-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-phone-line text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Contact</h6>
@@ -121,7 +121,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-secondary rounded-circle p-2">
-                                                <iconify-icon icon="solar:hashtag-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-text text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Sigle</h6>
@@ -138,7 +138,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-danger rounded-circle p-2">
-                                                <iconify-icon icon="solar:map-point-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-map-2-line text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Coordonnées GPS</h6>
@@ -155,7 +155,7 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="bg-{{ $cooperative->a_sechoir ? 'success' : 'danger' }} rounded-circle p-2">
-                                                <iconify-icon icon="solar:fire-bold" class="text-white"></iconify-icon>
+                                                <i class="ri-home-4-line text-white"></i>
                                 </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-semibold">Séchoir</h6>
@@ -176,31 +176,33 @@
                 </div>
             </div>
             <div class="col-lg-8">
+                @if(auth()->user()->role !== 'agc')
                 <div class="card mb-24 radius-12">
                     <div class="card-header border-bottom bg-base py-16 px-24">
                         <h6 class="text-lg fw-semibold mb-0">
-                            <iconify-icon icon="solar:shield-check-outline" class="me-2 text-success"></iconify-icon>
+                            <i class="ri-bank-line me-2 text-success"></i>
                             Données bancaires sécurisées
                         </h6>
                     </div>
                     <div class="card-body p-24">
-                        <div class="row g-3">
+                        <!-- Première ligne : 3 premiers éléments -->
+                        <div class="row g-3 mb-3">
                             <!-- Compte bancaire -->
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="card border h-100">
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                                 <div class="bg-success rounded-circle p-2">
-                                                    <iconify-icon icon="solar:card-outline" class="text-white"></iconify-icon>
+                                                    <i class="ri-bank-line text-white"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-semibold">Compte bancaire</h6>
                                                     <small class="text-muted">Numéro de compte</small>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-outline-success btn-sm" onclick="toggleBankInfo('compte')">
-                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                            <button type="button" class="btn btn-outline-success" onclick="toggleBankInfo('compte')">
+                                                <i class="ri-eye-line me-1"></i>
                                                 Voir
                                             </button>
                                         </div>
@@ -214,22 +216,51 @@
                                 </div>
                             </div>
 
+                            <!-- Clé RIB -->
+                            <div class="col-md-4">
+                                <div class="card border h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                                <div class="bg-primary rounded-circle p-2">
+                                                    <i class="ri-key-line text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Clé RIB</h6>
+                                                    <small class="text-muted">Clé de contrôle</small>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-primary" onclick="toggleBankInfo('cle_rib')">
+                                                <i class="ri-eye-line me-1"></i>
+                                                Voir
+                                            </button>
+                                        </div>
+                                        <div id="cle_rib-display" class="text-muted">
+                                            <span class="badge bg-light text-dark">••</span>
+                                        </div>
+                                        <div id="cle_rib-value" class="d-none">
+                                            <span class="fw-semibold text-dark">{{ $cooperative->cle_rib ?? '00' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Code banque -->
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="card border h-100">
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                                 <div class="bg-info rounded-circle p-2">
-                                                    <iconify-icon icon="solar:buildings-2-outline" class="text-white"></iconify-icon>
+                                                    <i class="ri-building-line text-white"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-semibold">Code banque</h6>
                                                     <small class="text-muted">Identifiant banque</small>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-outline-info btn-sm" onclick="toggleBankInfo('banque')">
-                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                            <button type="button" class="btn btn-outline-info" onclick="toggleBankInfo('banque')">
+                                                <i class="ri-eye-line me-1"></i>
                                                 Voir
                                             </button>
                                         </div>
@@ -242,7 +273,10 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
+                        <!-- Deuxième ligne : 2 derniers éléments -->
+                        <div class="row g-3">
                             <!-- Code guichet -->
                             <div class="col-md-6">
                                 <div class="card border h-100">
@@ -250,15 +284,15 @@
                                         <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                                 <div class="bg-warning rounded-circle p-2">
-                                                    <iconify-icon icon="solar:home-outline" class="text-white"></iconify-icon>
+                                                    <i class="ri-store-line text-white"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-semibold">Code guichet</h6>
                                                     <small class="text-muted">Identifiant agence</small>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleBankInfo('guichet')">
-                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                            <button type="button" class="btn btn-outline-warning" onclick="toggleBankInfo('guichet')">
+                                                <i class="ri-eye-line me-1"></i>
                                                 Voir
                                             </button>
                                         </div>
@@ -279,15 +313,15 @@
                                         <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                                 <div class="bg-primary rounded-circle p-2">
-                                                    <iconify-icon icon="solar:user-outline" class="text-white"></iconify-icon>
+                                                    <i class="ri-user-line text-white"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-semibold">Nom à la banque</h6>
                                                     <small class="text-muted">Titulaire du compte</small>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleBankInfo('nom')">
-                                                <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                            <button type="button" class="btn btn-outline-primary" onclick="toggleBankInfo('nom')">
+                                                <i class="ri-eye-line me-1"></i>
                                                 Voir
                                             </button>
                                         </div>
@@ -303,7 +337,7 @@
                         </div>
 
                         <div class="alert alert-info mt-3">
-                            <iconify-icon icon="solar:shield-check-bold" class="me-2"></iconify-icon>
+                            <i class="ri-check-line me-2"></i>
                             <strong>Sécurité :</strong> Les informations bancaires sont masquées par défaut. Cliquez sur "Voir" pour les afficher.
                         </div>
                     </div>
@@ -312,7 +346,7 @@
                     <div class="card-header border-bottom bg-base py-16 px-24">
                         <div class="d-flex align-items-center justify-content-between">
                             <h6 class="text-lg fw-semibold mb-0">
-                                <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon>
+                                <i class="ri-road-map-line me-2 text-info"></i>
                                 Distances vers les centres de collecte
                             </h6>
                             <span class="badge bg-primary">{{ $cooperative->distances->count() }}/7 centres</span>
@@ -370,7 +404,7 @@
                                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                                     <div class="d-flex align-items-center gap-2">
                                                         <div class="bg-light rounded-circle p-2">
-                                                            <iconify-icon icon="solar:buildings-2-outline" class="text-secondary"></iconify-icon>
+                                                            <i class="ri-map-pin-line text-secondary"></i>
                                                         </div>
                                                         <div>
                                                             <h6 class="mb-0 fw-semibold">{{ $distance->centreCollecte->nom }}</h6>
@@ -398,23 +432,24 @@
                         @else
                             <div class="text-center py-5">
                                 <div class="mb-4">
-                                    <iconify-icon icon="solar:route-outline" class="text-muted" style="font-size: 4rem;"></iconify-icon>
+                                    <i class="ri-road-map-line text-muted"></i>
                                 </div>
                                 <h5 class="text-muted mb-3">Aucune distance configurée</h5>
                                 <p class="text-muted mb-4">Configurez les distances vers les centres de collecte pour optimiser le calcul des coûts de transport.</p>
                                 <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-primary">
-                                    <iconify-icon icon="solar:pen-bold" class="me-2"></iconify-icon>
+                                    <i class="ri-check-line me-2"></i>
                                     Configurer les distances
                                 </a>
                             </div>
                         @endif
                     </div>
                 </div>
+                @endif
                 <div class="card mb-24 radius-12">
                     <div class="card-header border-bottom bg-base py-16 px-24">
                         <div class="d-flex align-items-center justify-content-between">
                             <h6 class="text-lg fw-semibold mb-0">
-                                <iconify-icon icon="solar:document-text-outline" class="me-2 text-warning"></iconify-icon>
+                                <i class="ri-file-text-line me-2 text-warning"></i>
                                 Documents de traçabilité
                             </h6>
                             <div class="d-flex align-items-center gap-2">
@@ -425,8 +460,8 @@
                                 <span class="badge bg-{{ $providedDocs == $totalDocs ? 'success' : ($providedDocs > 0 ? 'warning' : 'danger') }}">
                                     {{ $providedDocs }}/{{ $totalDocs }} documents
                                 </span>
-                                <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning btn-sm">
-                                    <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
+                                <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
+                                    <i class="ri-edit-line me-1"></i>
                                     Modifier
                                 </a>
                             </div>
@@ -455,7 +490,7 @@
                                             <div class="d-flex align-items-center justify-content-between mb-2">
                                     <div class="d-flex align-items-center gap-2">
                                                     <div class="bg-{{ $doc ? 'success' : 'light' }} rounded-circle p-2">
-                                                        <iconify-icon icon="solar:document-outline" class="text-{{ $doc ? 'white' : 'muted' }}"></iconify-icon>
+                                                        <i class="ri-file-text-line text-{{ $doc ? 'white' : 'muted' }}"></i>
                                                     </div>
                                                     <div>
                                                         <h6 class="mb-0 fw-semibold text-sm">{{ $label }}</h6>
@@ -464,12 +499,12 @@
                                                 </div>
                                                 @if($doc)
                                                     <span class="badge bg-success">
-                                                        <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+                                                        <i class="ri-check-line me-1"></i>
                                                         Fourni
                                                     </span>
                                                 @else
                                                     <span class="badge bg-light text-muted">
-                                                        <iconify-icon icon="solar:close-circle-bold" class="me-1"></iconify-icon>
+                                                        <i class="ri-close-line me-1"></i>
                                                         Manquant
                                                     </span>
                                                 @endif
@@ -478,18 +513,18 @@
                                         @if($doc)
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <small class="text-muted">
-                                                        <iconify-icon icon="solar:calendar-outline" class="me-1"></iconify-icon>
+                                                        <i class="ri-calendar-line me-1"></i>
                                                         {{ $doc->created_at->format('d/m/Y') }}
                                                     </small>
-                                                    <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-success btn-sm">
-                                                        <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                                                    <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-success">
+                                                        <i class="ri-eye-line me-1"></i>
                                                         Voir
                                                     </a>
                                                 </div>
                                         @else
                                                 <div class="text-center py-2">
                                                     <small class="text-muted">
-                                                        <iconify-icon icon="solar:file-download-outline" class="me-1"></iconify-icon>
+                                                        <i class="ri-file-warning-line me-1"></i>
                                                         Document non fourni
                                                     </small>
                                                 </div>
@@ -505,7 +540,7 @@
                             <div class="col-md-8">
                                 <div class="alert alert-{{ $providedDocs == $totalDocs ? 'success' : ($providedDocs > 0 ? 'warning' : 'danger') }}">
                                     <div class="d-flex align-items-center gap-2">
-                                        <iconify-icon icon="solar:info-circle-bold"></iconify-icon>
+                                        <i class="ri-file-text-line"></i>
                                         <div>
                                             <strong>
                                                 @if($providedDocs == $totalDocs)
@@ -524,7 +559,7 @@
                             </div>
                             <div class="col-md-4 text-end">
                                 <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
-                                    <iconify-icon icon="solar:pen-bold" class="me-2"></iconify-icon>
+                                    <i class="ri-edit-line me-2"></i>
                                     Gérer les documents
                                 </a>
                             </div>
@@ -545,20 +580,20 @@ function toggleBankInfo(type) {
     const display = document.getElementById(type + '-display');
     const value = document.getElementById(type + '-value');
     const button = event.target.closest('button');
-    const icon = button.querySelector('iconify-icon');
+    const icon = button.querySelector('i');
     
     if (display.classList.contains('d-none')) {
         // Masquer
         display.classList.remove('d-none');
         value.classList.add('d-none');
-        icon.setAttribute('icon', 'solar:eye-outline');
-        button.innerHTML = '<iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>Voir';
+        icon.className = 'ri-eye-line me-1';
+        button.innerHTML = '<i class="ri-eye-line me-1"></i>Voir';
     } else {
         // Afficher
         display.classList.add('d-none');
         value.classList.remove('d-none');
-        icon.setAttribute('icon', 'solar:eye-closed-outline');
-        button.innerHTML = '<iconify-icon icon="solar:eye-closed-outline" class="me-1"></iconify-icon>Masquer';
+        icon.className = 'ri-eye-off-line me-1';
+        button.innerHTML = '<i class="ri-eye-off-line me-1"></i>Masquer';
     }
 }
 </script>

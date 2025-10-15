@@ -31,7 +31,15 @@ class CooperativeController extends Controller
     {
         $query = Cooperative::with('secteur')->orderBy('code');
         
-        // Filtre par secteur
+        // Pour les AGC, filtrer uniquement les coopératives de leur secteur
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            $query->whereHas('secteur', function($q) use ($userSecteurCode) {
+                $q->where('code', $userSecteurCode);
+            });
+        }
+        
+        // Filtre par secteur (pour les autres rôles)
         if ($request->filled('secteur')) {
             $query->where('secteur_id', $request->secteur);
         }
@@ -73,6 +81,7 @@ class CooperativeController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'compte_bancaire' => 'required|digits:12',
+            'cle_rib' => 'required|string|size:2|regex:/^[0-9]{2}$/',
             'code_banque' => 'required|string|size:5|regex:/^[A-Z0-9]{5}$/',
             'code_guichet' => 'required|digits:5',
             'nom_cooperative_banque' => 'required|string|max:255',
@@ -96,6 +105,7 @@ class CooperativeController extends Controller
             'longitude' => $request->longitude,
             'a_sechoir' => $request->boolean('a_sechoir'),
             'compte_bancaire' => $request->compte_bancaire,
+            'cle_rib' => $request->cle_rib,
             'code_banque' => $request->code_banque,
             'code_guichet' => $request->code_guichet,
             'nom_cooperative_banque' => $request->nom_cooperative_banque,
@@ -123,12 +133,35 @@ class CooperativeController extends Controller
             }
         }
 
-        // Gestion des uploads de documents un à un
+        // Gestion des uploads de documents un à un (SÉCURISÉ)
         foreach ($this->documentTypes as $key => $label) {
             if ($request->hasFile($key)) {
                 $file = $request->file($key);
-                $filename = $key . '_' . $cooperative->code . '.' . $file->getClientOriginalExtension();
+                
+                // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+                $mimeType = $file->getMimeType();
+                $allowedMimes = ['application/pdf'];
+                
+                if (!in_array($mimeType, $allowedMimes)) {
+                    return back()->withErrors([
+                        $key => 'Type de fichier non autorisé pour ' . $label . '. Seul le format PDF est accepté.'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 2: Valider la taille (10 MB max)
+                if ($file->getSize() > 10 * 1024 * 1024) {
+                    return back()->withErrors([
+                        $key => 'Fichier trop volumineux pour ' . $label . '. Taille maximale : 10 MB'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 3: Nom de fichier avec timestamp
+                $extension = $file->getClientOriginalExtension();
+                $filename = $key . '_' . $cooperative->code . '.' . $extension;
+                
+                // Stockage dans 'public' (accessible via /storage/)
                 $path = $file->storeAs('cooperatives/' . $cooperative->code, $filename, 'public');
+                
                 CooperativeDocument::create([
                     'cooperative_id' => $cooperative->id,
                     'type' => $key,
@@ -143,6 +176,15 @@ class CooperativeController extends Controller
     public function show($id)
     {
         $cooperative = Cooperative::with(['secteur', 'documents'])->findOrFail($id);
+        
+        // Vérifier que l'AGC ne peut voir que les coopératives de son secteur
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            if ($cooperative->secteur->code !== $userSecteurCode) {
+                abort(403, 'Accès non autorisé à cette coopérative.');
+            }
+        }
+        
         $documentTypes = $this->documentTypes;
         $navigation = app(\App\Services\NavigationService::class)->getNavigation();
         return view('admin.cooperatives.show', compact('cooperative', 'documentTypes', 'navigation'));
@@ -151,6 +193,15 @@ class CooperativeController extends Controller
     public function edit($id)
     {
         $cooperative = Cooperative::with(['documents', 'distances.centreCollecte'])->findOrFail($id);
+        
+        // Vérifier que l'AGC ne peut voir que les coopératives de son secteur
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            if ($cooperative->secteur->code !== $userSecteurCode) {
+                abort(403, 'Accès non autorisé à cette coopérative.');
+            }
+        }
+        
         $secteurs = Secteur::orderBy('code')->get();
         $documentTypes = $this->documentTypes;
         
@@ -167,6 +218,75 @@ class CooperativeController extends Controller
     public function update(Request $request, $id)
     {
         $cooperative = Cooperative::findOrFail($id);
+        
+        // Vérifier que l'AGC ne peut voir que les coopératives de son secteur
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
+            $userSecteurCode = auth()->user()->secteur;
+            if ($cooperative->secteur->code !== $userSecteurCode) {
+                abort(403, 'Accès non autorisé à cette coopérative.');
+            }
+        }
+        
+        // Pour les AGC, traiter uniquement les documents
+        if (auth()->user()->role === 'agc') {
+            // Gestion des uploads de documents (ajout ou remplacement - SÉCURISÉ)
+            foreach ($this->documentTypes as $key => $label) {
+                if ($request->hasFile($key)) {
+                    $file = $request->file($key);
+                    
+                    // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+                    $mimeType = $file->getMimeType();
+                    $allowedMimes = ['application/pdf'];
+                    
+                    if (!in_array($mimeType, $allowedMimes)) {
+                        return back()->withErrors([
+                            $key => 'Type de fichier non autorisé pour ' . $label . '. Seul le format PDF est accepté.'
+                        ])->withInput();
+                    }
+                    
+                    // SÉCURITÉ 2: Valider la taille (10 MB max)
+                    if ($file->getSize() > 10 * 1024 * 1024) {
+                        return back()->withErrors([
+                            $key => 'Fichier trop volumineux pour ' . $label . '. Taille maximale : 10 MB'
+                        ])->withInput();
+                    }
+                    
+                    // SÉCURITÉ 3: Nom de fichier avec code coopérative
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $key . '_' . $cooperative->code . '.' . $extension;
+                    
+                    // SÉCURITÉ 4: Supprimer l'ancien document s'il existe
+                    $existingDoc = $cooperative->documents()->where('type', $key)->first();
+                    if ($existingDoc) {
+                        if (Storage::exists($existingDoc->fichier)) {
+                            Storage::delete($existingDoc->fichier);
+                        }
+                        $existingDoc->delete();
+                    }
+                    
+                    // SÉCURITÉ 5: Stockage sécurisé
+                    $path = $file->storeAs('cooperatives/documents', $filename, 'public');
+                    
+                    // SÉCURITÉ 6: Validation base64 stricte (détection corruption)
+                    $fileContent = Storage::get('public/' . $path);
+                    if (base64_encode(base64_decode($fileContent, true)) !== base64_encode($fileContent)) {
+                        Storage::delete('public/' . $path);
+                        return back()->withErrors([
+                            $key => 'Fichier corrompu détecté pour ' . $label . '. Veuillez réessayer.'
+                        ])->withInput();
+                    }
+                    
+                    // Créer l'enregistrement en base
+                    $cooperative->documents()->create([
+                        'type' => $key,
+                        'fichier' => $path,
+                    ]);
+                }
+            }
+            
+            return redirect()->route('admin.cooperatives.show', $cooperative)->with('success', 'Documents mis à jour avec succès !');
+        }
+        
         $request->validate([
             'code' => 'required|string|max:50|unique:cooperatives,code,' . $cooperative->id,
             'nom' => 'required|string|max:255',
@@ -178,6 +298,7 @@ class CooperativeController extends Controller
             'longitude' => 'nullable|numeric',
             'kilometrage' => 'nullable|numeric',
             'compte_bancaire' => 'required|digits:12',
+            'cle_rib' => 'required|string|size:2|regex:/^[0-9]{2}$/',
             'code_banque' => 'required|string|size:5|regex:/^[A-Z0-9]{5}$/',
             'code_guichet' => 'required|digits:5',
             'nom_cooperative_banque' => 'required|string|max:255',
@@ -195,6 +316,7 @@ class CooperativeController extends Controller
             'kilometrage' => $request->kilometrage,
             'a_sechoir' => $request->boolean('a_sechoir'),
             'compte_bancaire' => $request->compte_bancaire,
+            'cle_rib' => $request->cle_rib,
             'code_banque' => $request->code_banque,
             'code_guichet' => $request->code_guichet,
             'nom_cooperative_banque' => $request->nom_cooperative_banque,
@@ -226,16 +348,39 @@ class CooperativeController extends Controller
             }
         }
 
-        // Gestion des uploads de documents (ajout ou remplacement)
+        // Gestion des uploads de documents (ajout ou remplacement - SÉCURISÉ)
         foreach ($this->documentTypes as $key => $label) {
             if ($request->hasFile($key)) {
                 $file = $request->file($key);
-                $filename = $key . '_' . $cooperative->code . '.' . $file->getClientOriginalExtension();
+                
+                // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+                $mimeType = $file->getMimeType();
+                $allowedMimes = ['application/pdf'];
+                
+                if (!in_array($mimeType, $allowedMimes)) {
+                    return back()->withErrors([
+                        $key => 'Type de fichier non autorisé pour ' . $label . '. Seul le format PDF est accepté.'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 2: Valider la taille (10 MB max)
+                if ($file->getSize() > 10 * 1024 * 1024) {
+                    return back()->withErrors([
+                        $key => 'Fichier trop volumineux pour ' . $label . '. Taille maximale : 10 MB'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 3: Nom de fichier avec code coopérative
+                $extension = $file->getClientOriginalExtension();
+                $filename = $key . '_' . $cooperative->code . '.' . $extension;
+                
+                // Stockage dans 'public' (accessible via /storage/)
                 $path = $file->storeAs('cooperatives/' . $cooperative->code, $filename, 'public');
+                
                 // Supprimer l'ancien document si existe
                 $doc = $cooperative->documents()->where('type', $key)->first();
                 if ($doc) {
-                    Storage::delete($doc->fichier);
+                    Storage::disk('public')->delete($doc->fichier);
                     $doc->update(['fichier' => $path]);
                 } else {
                     CooperativeDocument::create([

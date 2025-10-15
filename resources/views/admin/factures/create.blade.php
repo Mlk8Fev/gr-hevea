@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer une Facture - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Créer une Facture - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
@@ -24,7 +24,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -55,11 +55,11 @@
                         <h6 class="mb-0">Sélection des Tickets à Facturer</h6>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllTickets()">
-                                <iconify-icon icon="lucide:check-square" class="icon me-1"></iconify-icon>
+                                <i class="ri-eye-line icon me-1"></i>
                                 Tout sélectionner
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="deselectAllTickets()">
-                                <iconify-icon icon="lucide:square" class="icon me-1"></iconify-icon>
+                                <i class="ri-eye-line icon me-1"></i>
                                 Tout désélectionner
                             </button>
                         </div>
@@ -67,7 +67,7 @@
                     <div class="card-body p-24">
                         @if(count($ticketsAvecPrix) === 0)
                             <div class="text-center py-24">
-                                <iconify-icon icon="majesticons:inbox-line" class="text-6xl text-muted"></iconify-icon>
+                                <i class="ri-inbox-line"></i>
                                 <h6 class="mt-3 text-muted">Aucun ticket éligible</h6>
                                 <p class="text-muted mb-0">Tous les tickets validés par ENE CI ont déjà été facturés.</p>
                             </div>
@@ -170,12 +170,12 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('admin.factures.index') }}" class="btn btn-outline-secondary">
-                            <iconify-icon icon="lucide:x" class="icon me-1"></iconify-icon>
+                            <i class="ri-close-line"></i>
                             Annuler
                         </a>
                         @if(count($ticketsAvecPrix) > 0)
                             <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
-                                <iconify-icon icon="lucide:save" class="icon me-1"></iconify-icon>
+                                <i class="ri-save-line"></i>
                                 Créer la Facture
                             </button>
                         @endif

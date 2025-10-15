@@ -19,8 +19,13 @@ class CheckAdminOrSuperAdmin
 
         $user = auth()->user();
         
-        // Autoriser les admin ET les super-admin
-        if ($user->role === 'admin' || $user->role === 'superadmin') {
+        // Bloquer complètement les utilisateurs rcoop
+        if ($user->role === 'rcoop') {
+            return redirect()->route('dashboard')->with('error', 'Accès refusé. Cette section est réservée aux administrateurs.');
+        }
+        
+        // Autoriser les admin, super-admin ET agc
+        if ($user->role === 'admin' || $user->role === 'superadmin' || $user->role === 'agc') {
             return $next($request);
         }
 

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programmer la Livraison - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Programmer la Livraison - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -56,7 +56,7 @@
                 <div class="row mb-4">
                     <div class="col-12">
                         <h6 class="fw-semibold mb-3 text-primary">
-                            <iconify-icon icon="majesticons:file-list-line" class="icon me-2"></iconify-icon>
+                            <i class="ri-file-list-line"></i>
                             Détails du Connaissement
                         </h6>
                     </div>
@@ -111,7 +111,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3 text-primary">
-                                <iconify-icon icon="lucide:calendar" class="icon me-2"></iconify-icon>
+                                <i class="ri-calendar-line"></i>
                                 Programmation de la Livraison
                             </h6>
                         </div>

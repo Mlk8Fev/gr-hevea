@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter une Coopérative - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Ajouter une Coopérative - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -21,7 +21,7 @@
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="{{ route('admin.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            <i class="ri-home-line icon text-lg"></i>
                             Liste des Coopératives
                         </a>
                     </li>
@@ -30,7 +30,7 @@
                 </ul>
             </div>
             <div class="card p-24 radius-12 mb-24">
-                <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations générales</h5>
+                <h5 class="card-title mb-4"><i class="ri-eye-line me-2 text-primary"></i> Informations générales</h5>
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="code" class="form-label">Code de la coopérative *</label>
@@ -84,7 +84,7 @@
             <!-- Nouvelle section pour les distances -->
             <div class="card p-24 radius-12 mb-24">
                 <h5 class="card-title mb-4">
-                    <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon> 
+                    <i class="ri-eye-line me-2 text-info"></i> 
                     Distances vers les centres de collecte (en km)
                 </h5>
                 <div class="row gy-3">
@@ -124,13 +124,17 @@
             </div>
             
             <div class="card p-24 radius-12 mb-24">
-                <h5 class="card-title mb-4"><iconify-icon icon="solar:bank-outline" class="me-2 text-success"></iconify-icon> Données bancaires</h5>
+                <h5 class="card-title mb-4"><i class="ri-eye-line me-2 text-success"></i> Données bancaires</h5>
                 <div class="row gy-3">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="compte_bancaire" class="form-label">Compte (12 chiffres) *</label>
                         <input type="text" class="form-control" id="compte_bancaire" name="compte_bancaire" value="{{ old('compte_bancaire') }}" required maxlength="12">
                     </div>
                     <div class="col-md-2">
+                        <label for="cle_rib" class="form-label">Clé RIB (2 chiffres) *</label>
+                        <input type="text" class="form-control" id="cle_rib" name="cle_rib" value="{{ old('cle_rib', '00') }}" required maxlength="2" pattern="[0-9]{2}" title="La clé RIB doit contenir exactement 2 chiffres">
+                    </div>
+                    <div class="col-md-3">
                         <label for="code_banque" class="form-label">Code banque (5 caractères) *</label>
                         <input type="text" 
                                class="form-control" 
@@ -143,18 +147,20 @@
                                title="Le code banque doit contenir exactement 5 caractères (lettres majuscules et chiffres)"
                                style="text-transform: uppercase;">
                     </div>
-                    <div class="col-md-2">
+                </div>
+                <div class="row gy-3">
+                    <div class="col-md-3">
                         <label for="code_guichet" class="form-label">Code guichet (5 chiffres) *</label>
                         <input type="text" class="form-control" id="code_guichet" name="code_guichet" value="{{ old('code_guichet') }}" required maxlength="5">
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <label for="nom_cooperative_banque" class="form-label">Nom de la coopérative à la banque *</label>
                         <input type="text" class="form-control" id="nom_cooperative_banque" name="nom_cooperative_banque" value="{{ old('nom_cooperative_banque') }}" required>
                     </div>
                 </div>
             </div>
             <div class="card p-24 radius-12 mb-24">
-                <h5 class="card-title mb-4"><iconify-icon icon="solar:document-text-outline" class="me-2 text-warning"></iconify-icon> Documents de traçabilité</h5>
+                <h5 class="card-title mb-4"><i class="ri-eye-line me-2 text-warning"></i> Documents de traçabilité</h5>
                 <div class="row gy-3">
                     @foreach($documentTypes as $key => $label)
                     <div class="col-md-6">

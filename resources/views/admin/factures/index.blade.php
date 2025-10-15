@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Factures - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Gestion des Factures - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -57,13 +57,13 @@
                                        placeholder="Rechercher par numéro de facture, livraison, coopérative..." 
                                        value="{{ request('search') }}"
                                        autocomplete="off">
-                                <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                                <i class="ri-search-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
                             </div>
                         </div>
                         
                         <!-- Bouton Rechercher -->
                         <button type="button" id="searchButton" class="btn btn-primary">
-                            <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Rechercher
                         </button>
                         
@@ -81,14 +81,13 @@
                         
                         <!-- Filtre par coopérative -->
                         <div style="min-width: 200px;">
-                            <select id="cooperativeFilter" class="form-select">
-                                <option value="">Toutes les coopératives</option>
+                            <input type="text" id="cooperativeFilter" class="form-control" placeholder="Tapez le nom de la coopérative..." list="cooperatives-list" value="{{ request('cooperative') ? ($cooperatives->find(request('cooperative'))->code ?? '') . ' - ' . ($cooperatives->find(request('cooperative'))->nom ?? '') : '' }}">
+                            <datalist id="cooperatives-list">
                                 @foreach($cooperatives as $cooperative)
-                                    <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
-                                        {{ $cooperative->code }} - {{ $cooperative->nom }}
-                                    </option>
+                                    <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                 @endforeach
-                            </select>
+                            </datalist>
+                            <input type="hidden" id="cooperativeFilterHidden" name="cooperative" value="{{ request('cooperative') }}">
                         </div>
                         
                         <!-- Filtre par type -->
@@ -124,11 +123,17 @@
                                    placeholder="Date d'émission">
                         </div>
                         
-                        <!-- Bouton reset -->
-                        <button type="button" id="resetFilters" class="btn btn-outline-secondary">
-                            <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
-                            Reset
-                        </button>
+                        <!-- Boutons d'action -->
+                        <div class="d-flex gap-2">
+                            <button type="button" id="searchButton" class="btn btn-primary">
+                                <i class="ri-search-line me-1"></i>
+                                Rechercher
+                            </button>
+                            <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                                <i class="ri-search-line me-1"></i>
+                                Reset
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -140,11 +145,11 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-20">
                         <h5 class="mb-0 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:file-list-3-line" class="text-primary"></iconify-icon>
+                            <i class="ri-user-line text-primary"></i>
                             Liste des Factures
                         </h5>
                         <a href="{{ route('admin.factures.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                            <iconify-icon icon="ri:add-line" class="icon text-xl line-height-1"></iconify-icon>
+                            <i class="ri-add-line icon text-xl line-height-1"></i>
                             Nouvelle Facture
                         </a>
                     </div>
@@ -156,7 +161,7 @@
                                     <th class="border-0">#</th>
                                     <th class="border-0">Numéro / Type</th>
                                     <th class="border-0">Coopérative / Secteur</th>
-                                    <th class="border-0">Montant (FCFA)</th>
+                                    <th class="border-0">Montant / Poids</th>
                                     <th class="border-0">Date / Statut</th>
                                     <th class="border-0 text-center">Actions</th>
                                 </tr>
@@ -166,17 +171,12 @@
                                 <tr>
                                     <td>{{ $factures->firstItem() + $index }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="w-40-px h-40-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
-                                                <iconify-icon icon="ri:file-list-3-line" class="text-primary text-lg"></iconify-icon>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold text-primary">{{ $facture->numero_facture }}</div>
-                                                <div class="text-muted text-sm">
-                                                    <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
-                                                        {{ ucfirst($facture->type) }}
-                                                    </span>
-                                                </div>
+                                        <div>
+                                            <div class="fw-semibold text-primary">{{ $facture->numero_facture }}</div>
+                                            <div class="text-muted text-sm">
+                                                <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
+                                                    {{ ucfirst($facture->type) }}
+                                                </span>
                                             </div>
                                         </div>
                                     </td>
@@ -191,29 +191,34 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="fw-semibold text-success">{{ number_format($facture->montant_total, 0) }} FCFA</span>
+                                        <div>
+                                            <div class="fw-semibold text-success">{{ number_format($facture->montant_ttc, 0) }} FCFA</div>
+                                            <div class="text-muted text-sm">
+                                                Poids Total: {{ number_format($facture->poids_total, 2) }} kg
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <div class="fw-semibold text-dark">{{ $facture->date_emission ? $facture->date_emission->format('d/m/Y') : '-' }}</div>
                                         <div class="text-muted text-sm">
                                             @if($facture->statut === 'brouillon')
                                                 <span class="badge bg-warning-100 text-warning-600 px-6 py-1 radius-4 text-xs">
-                                                    <iconify-icon icon="ri:edit-line" class="me-1"></iconify-icon>
+                                                    <i class="ri-search-line me-1"></i>
                                                     Brouillon
                                                 </span>
                                             @elseif($facture->statut === 'validee')
                                                 <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
-                                                    <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                    <i class="ri-search-line me-1"></i>
                                                     Validée
                                                 </span>
                                             @elseif($facture->statut === 'payee')
                                                 <span class="badge bg-success-100 text-success-600 px-6 py-1 radius-4 text-xs">
-                                                    <iconify-icon icon="ri:money-dollar-circle-line" class="me-1"></iconify-icon>
+                                                    <i class="ri-search-line me-1"></i>
                                                     Payée
                                                 </span>
                                             @else
                                                 <span class="badge bg-danger-100 text-danger-600 px-6 py-1 radius-4 text-xs">
-                                                    <iconify-icon icon="ri:close-line" class="me-1"></iconify-icon>
+                                                    <i class="ri-search-line me-1"></i>
                                                     Annulée
                                                 </span>
                                             @endif
@@ -222,13 +227,10 @@
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
                                             <a href="{{ route('admin.factures.show', $facture) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
-                                                <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                             </a>
-                                            <a href="{{ route('admin.factures.edit', $facture) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                            </a>
-                                            <a href="{{ route('admin.factures.pdf', $facture) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="PDF">
-                                                <iconify-icon icon="ri:file-pdf-line" class="menu-icon"></iconify-icon>
+                                            <a href="{{ route('admin.factures.pdf', $facture) }}" class="bg-warning-focus bg-hover-warning-200 text-warning-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="PDF" target="_blank">
+                                                <i class="ri-file-pdf-line"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -264,13 +266,13 @@
                                             @if($factures->onFirstPage())
                                                 <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                                     </span>
                                                 </li>
                                             @else
                                                 <li class="page-item">
                                                     <a href="{{ $factures->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                        Précédent
                                                     </a>
                                                 </li>
                                             @endif
@@ -324,13 +326,13 @@
                                             @if($factures->hasMorePages())
                                                 <li class="page-item">
                                                     <a href="{{ $factures->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                                     </a>
                                                 </li>
                                             @else
                                                 <li class="page-item disabled">
                                                     <span class="page-link bg-light border-0 text-muted">
-                                                        <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                        Suivant
                                                     </span>
                                                 </li>
                                             @endif
@@ -375,7 +377,7 @@ function performSearch() {
     const url = new URL(window.location);
     const searchValue = searchInput.value.trim();
     const secteurValue = secteurFilter.value;
-    const cooperativeValue = cooperativeFilter.value;
+    const cooperativeValue = document.getElementById('cooperativeFilterHidden').value;
     const typeValue = typeFilter.value;
     const statutValue = statutFilter.value;
     const dateEmissionValue = dateEmissionFilter.value;
@@ -430,9 +432,24 @@ searchInput.addEventListener('keypress', function(e) {
     }
 });
 
+// Gérer la sélection de coopérative avec datalist
+cooperativeFilter.addEventListener('input', function() {
+    const input = this;
+    const value = input.value;
+    const datalist = document.getElementById('cooperatives-list');
+    const hiddenInput = document.getElementById('cooperativeFilterHidden');
+    
+    // Trouver l'option correspondante
+    const option = datalist.querySelector(`option[value="${value}"]`);
+    if (option) {
+        hiddenInput.value = option.getAttribute('data-id');
+    } else {
+        hiddenInput.value = '';
+    }
+});
+
 // Filtres immédiats
 secteurFilter.addEventListener('change', performSearch);
-cooperativeFilter.addEventListener('change', performSearch);
 typeFilter.addEventListener('change', performSearch);
 statutFilter.addEventListener('change', performSearch);
 dateEmissionFilter.addEventListener('change', performSearch);
@@ -442,6 +459,7 @@ resetFilters.addEventListener('click', function() {
     searchInput.value = '';
     secteurFilter.value = '';
     cooperativeFilter.value = '';
+    document.getElementById('cooperativeFilterHidden').value = '';
     typeFilter.value = 'all';
     statutFilter.value = 'all';
     dateEmissionFilter.value = '';

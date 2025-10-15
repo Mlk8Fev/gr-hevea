@@ -95,18 +95,18 @@
                                                      style="max-height: 100px;">
                                             </div>
                                             <small class="text-success">
-                                                <iconify-icon icon="ri-check-circle-fill"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                                 Signature présente
                                             </small>
                                         @else
                                             <div class="signature-box border rounded p-3 mb-2" style="min-height: 120px; background-color: #f8f9fa;">
                                                 <div class="text-center text-muted">
-                                                    <iconify-icon icon="ri-file-text-line" style="font-size: 2rem;"></iconify-icon>
+                                                    <i class="ri-file-text-line"></i>
                                                     <p class="mb-0">Aucune signature</p>
                                                 </div>
                                             </div>
                                             <small class="text-warning">
-                                                <iconify-icon icon="ri-alert-line"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                                 Signature manquante
                                             </small>
                                         @endif
@@ -125,18 +125,18 @@
                                                      style="max-height: 100px;">
                                             </div>
                                             <small class="text-success">
-                                                <iconify-icon icon="ri-check-circle-fill"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                                 Signature présente
                                             </small>
                                         @else
                                             <div class="signature-box border rounded p-3 mb-2" style="min-height: 120px; background-color: #f8f9fa;">
                                                 <div class="text-center text-muted">
-                                                    <iconify-icon icon="ri-file-text-line" style="font-size: 2rem;"></iconify-icon>
+                                                    <i class="ri-file-text-line"></i>
                                                     <p class="mb-0">Aucune signature</p>
                                                 </div>
                                             </div>
                                             <small class="text-warning">
-                                                <iconify-icon icon="ri-alert-line"></iconify-icon>
+                                                <i class="ri-eye-line"></i>
                                                 Signature manquante
                                             </small>
                                         @endif

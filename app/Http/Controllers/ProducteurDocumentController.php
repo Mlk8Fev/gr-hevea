@@ -59,12 +59,25 @@ class ProducteurDocumentController extends Controller
             $signatureData = $request->input('signature');
             $codeFphci = $producteur->code_fphci;
             $signaturePath = null;
+            
+            // SÉCURITÉ: Validation base64
             if (preg_match('/^data:image\/(png|jpeg);base64,/', $signatureData)) {
                 $signatureData = preg_replace('/^data:image\/(png|jpeg);base64,/', '', $signatureData);
                 $signatureData = str_replace(' ', '+', $signatureData);
+                
+                $decodedData = base64_decode($signatureData, true);
+                
+                if ($decodedData === false) {
+                    return back()->withErrors(['signature' => 'Signature invalide'])->withInput();
+                }
+                
+                if (strlen($decodedData) > 2 * 1024 * 1024) {
+                    return back()->withErrors(['signature' => 'Signature trop volumineuse (max 2 MB)'])->withInput();
+                }
+                
                 $filename = "selfdeclaration_{$codeFphci}.png";
                 $filePath = "signatures/selfdeclaration/{$filename}";
-                \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                \Storage::disk('public')->put($filePath, $decodedData);
                 $signaturePath = $filePath;
             }
             $document = ProducteurDocument::create([
@@ -90,16 +103,29 @@ class ProducteurDocumentController extends Controller
                 'signature' => 'required',
             ]);
             $data = $request->except(['_token', 'signature']);
-            // Sauvegarde de la signature en PNG
+            // Sauvegarde de la signature en PNG (SÉCURISÉ)
             $signatureData = $request->input('signature');
             $codeFphci = $producteur->code_fphci;
             $signaturePath = null;
+            
+            // SÉCURITÉ: Validation base64
             if (preg_match('/^data:image\/(png|jpeg);base64,/', $signatureData)) {
                 $signatureData = preg_replace('/^data:image\/(png|jpeg);base64,/', '', $signatureData);
                 $signatureData = str_replace(' ', '+', $signatureData);
-                $filename = "signature_lettre_d'engagement_{$codeFphci}.png";
+                
+                $decodedData = base64_decode($signatureData, true);
+                
+                if ($decodedData === false) {
+                    return back()->withErrors(['signature' => 'Signature invalide'])->withInput();
+                }
+                
+                if (strlen($decodedData) > 2 * 1024 * 1024) {
+                    return back()->withErrors(['signature' => 'Signature trop volumineuse (max 2 MB)'])->withInput();
+                }
+                
+                $filename = "signature_lettre_engagement_{$codeFphci}.png";
                 $filePath = "signatures/lettre_engagement/{$filename}";
-                \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                \Storage::disk('public')->put($filePath, $decodedData);
                 $signaturePath = $filePath;
             }
             ProducteurDocument::create([
@@ -121,29 +147,61 @@ class ProducteurDocumentController extends Controller
             ]);
             $data = $request->except(['_token', 'signature_producer', 'signature_agent']);
             $codeFphci = $producteur->code_fphci;
-            // Signature producteur
+            // Signature producteur (SÉCURISÉ)
             $signatureProducerPath = null;
             if ($request->filled('signature_producer')) {
                 $signatureData = $request->input('signature_producer');
+                
+                // SÉCURITÉ 1: Valider le format base64 strict
                 if (preg_match('/^data:image\\/(png|jpeg);base64,/', $signatureData)) {
                     $signatureData = preg_replace('/^data:image\\/(png|jpeg);base64,/', '', $signatureData);
                     $signatureData = str_replace(' ', '+', $signatureData);
-                    $filename = "signaturefichedenquete_producer_{$codeFphci}.png";
+                    
+                    // SÉCURITÉ 2: Décoder et valider que c'est une image valide
+                    $decodedData = base64_decode($signatureData, true);
+                    
+                    if ($decodedData === false) {
+                        return back()->withErrors(['signature_producer' => 'Signature invalide (base64 corrompu)']);
+                    }
+                    
+                    // SÉCURITÉ 3: Vérifier la taille (max 2 MB pour une signature)
+                    if (strlen($decodedData) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['signature_producer' => 'Signature trop volumineuse (max 2 MB)']);
+                    }
+                    
+                    // SÉCURITÉ 4: Générer nom de fichier aléatoire + stocker dans 'local'
+                    $filename = "signature_producer_".\Illuminate\Support\Str::random(40).".png";
                     $filePath = "signaturefichedenquete/{$filename}";
-                    \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                    \Storage::disk('public')->put($filePath, $decodedData);
                     $signatureProducerPath = $filePath;
                 }
             }
-            // Signature agent
+            // Signature agent (SÉCURISÉ)
             $signatureAgentPath = null;
             if ($request->filled('signature_agent')) {
                 $signatureData = $request->input('signature_agent');
+                
+                // SÉCURITÉ 1: Valider le format base64 strict
                 if (preg_match('/^data:image\\/(png|jpeg);base64,/', $signatureData)) {
                     $signatureData = preg_replace('/^data:image\\/(png|jpeg);base64,/', '', $signatureData);
                     $signatureData = str_replace(' ', '+', $signatureData);
-                    $filename = "signaturefichedenquete_agent_{$codeFphci}.png";
+                    
+                    // SÉCURITÉ 2: Décoder et valider que c'est une image valide
+                    $decodedData = base64_decode($signatureData, true);
+                    
+                    if ($decodedData === false) {
+                        return back()->withErrors(['signature_agent' => 'Signature invalide (base64 corrompu)']);
+                    }
+                    
+                    // SÉCURITÉ 3: Vérifier la taille (max 2 MB pour une signature)
+                    if (strlen($decodedData) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['signature_agent' => 'Signature trop volumineuse (max 2 MB)']);
+                    }
+                    
+                    // SÉCURITÉ 4: Générer nom de fichier aléatoire + stocker dans 'local'
+                    $filename = "signature_agent_".\Illuminate\Support\Str::random(40).".png";
                     $filePath = "signaturefichedenquete/{$filename}";
-                    \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                    \Storage::disk('public')->put($filePath, $decodedData);
                     $signatureAgentPath = $filePath;
                 }
             }
@@ -221,12 +279,25 @@ class ProducteurDocumentController extends Controller
             if ($request->filled('signature')) {
                 $signatureData = $request->input('signature');
                 $codeFphci = $producteur->code_fphci;
+                
+                // SÉCURITÉ: Validation base64
                 if (preg_match('/^data:image\/(png|jpeg);base64,/', $signatureData)) {
                     $signatureData = preg_replace('/^data:image\/(png|jpeg);base64,/', '', $signatureData);
                     $signatureData = str_replace(' ', '+', $signatureData);
-                    $filename = "signature_lettre_d'engagement_{$codeFphci}.png";
+                    
+                    $decodedData = base64_decode($signatureData, true);
+                    
+                    if ($decodedData === false) {
+                        return back()->withErrors(['signature' => 'Signature invalide'])->withInput();
+                    }
+                    
+                    if (strlen($decodedData) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['signature' => 'Signature trop volumineuse (max 2 MB)'])->withInput();
+                    }
+                    
+                    $filename = "signature_lettre_".\Illuminate\Support\Str::random(40).".png";
                     $filePath = "signatures/lettre_engagement/{$filename}";
-                    \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                    \Storage::disk('public')->put($filePath, $decodedData);
                     $signaturePath = $filePath;
                 }
             }
@@ -250,12 +321,28 @@ class ProducteurDocumentController extends Controller
             if ($request->filled('signature')) {
                 $signatureData = $request->input('signature');
                 $codeFphci = $producteur->code_fphci;
+                
+                // SÉCURITÉ 1: Valider le format base64 strict
                 if (preg_match('/^data:image\/(png|jpeg);base64,/', $signatureData)) {
                     $signatureData = preg_replace('/^data:image\/(png|jpeg);base64,/', '', $signatureData);
                     $signatureData = str_replace(' ', '+', $signatureData);
-                    $filename = "selfdeclaration_{$codeFphci}.png";
+                    
+                    // SÉCURITÉ 2: Décoder et valider
+                    $decodedData = base64_decode($signatureData, true);
+                    
+                    if ($decodedData === false) {
+                        return back()->withErrors(['signature' => 'Signature invalide (base64 corrompu)']);
+                    }
+                    
+                    // SÉCURITÉ 3: Vérifier la taille (max 2 MB)
+                    if (strlen($decodedData) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['signature' => 'Signature trop volumineuse (max 2 MB)']);
+                    }
+                    
+                    // SÉCURITÉ 4: Nom aléatoire + stockage 'local'
+                    $filename = "signature_selfdec_".\Illuminate\Support\Str::random(40).".png";
                     $filePath = "signatures/selfdeclaration/{$filename}";
-                    \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                    \Storage::disk('public')->put($filePath, $decodedData);
                     $signaturePath = $filePath;
                 }
             }
@@ -282,30 +369,62 @@ class ProducteurDocumentController extends Controller
             // Fusionner les données : nouvelles données personnelles + données existantes du questionnaire
             $mergedData = array_merge($existingData, $newData);
             
-            // Signature producteur
+            // Signature producteur (SÉCURISÉ)
             $signatureProducerPath = $existingData['signature_producer'] ?? null;
             if ($request->filled('signature_producer')) {
                 $signatureData = $request->input('signature_producer');
+                
+                // SÉCURITÉ 1: Valider le format base64 strict
                 if (preg_match('/^data:image\\/(png|jpeg);base64,/', $signatureData)) {
                     $signatureData = preg_replace('/^data:image\\/(png|jpeg);base64,/', '', $signatureData);
                     $signatureData = str_replace(' ', '+', $signatureData);
+                    
+                    // SÉCURITÉ 2: Décoder et valider
+                    $decodedData = base64_decode($signatureData, true);
+                    
+                    if ($decodedData === false) {
+                        return back()->withErrors(['signature_producer' => 'Signature invalide (base64 corrompu)']);
+                    }
+                    
+                    // SÉCURITÉ 3: Vérifier la taille (max 2 MB)
+                    if (strlen($decodedData) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['signature_producer' => 'Signature trop volumineuse (max 2 MB)']);
+                    }
+                    
+                    // SÉCURITÉ 4: Nom avec code FPHCI + stockage 'local'
                     $filename = "signaturefichedenquete_producer_{$codeFphci}.png";
                     $filePath = "signaturefichedenquete/{$filename}";
-                    \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                    \Storage::disk('public')->put($filePath, $decodedData);
                     $signatureProducerPath = $filePath;
                 }
             }
             
-            // Signature agent
+            // Signature agent (SÉCURISÉ)
             $signatureAgentPath = $existingData['signature_agent'] ?? null;
             if ($request->filled('signature_agent')) {
                 $signatureData = $request->input('signature_agent');
+                
+                // SÉCURITÉ 1: Valider le format base64 strict
                 if (preg_match('/^data:image\\/(png|jpeg);base64,/', $signatureData)) {
                     $signatureData = preg_replace('/^data:image\\/(png|jpeg);base64,/', '', $signatureData);
                     $signatureData = str_replace(' ', '+', $signatureData);
+                    
+                    // SÉCURITÉ 2: Décoder et valider
+                    $decodedData = base64_decode($signatureData, true);
+                    
+                    if ($decodedData === false) {
+                        return back()->withErrors(['signature_agent' => 'Signature invalide (base64 corrompu)']);
+                    }
+                    
+                    // SÉCURITÉ 3: Vérifier la taille (max 2 MB)
+                    if (strlen($decodedData) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['signature_agent' => 'Signature trop volumineuse (max 2 MB)']);
+                    }
+                    
+                    // SÉCURITÉ 4: Nom avec code FPHCI + stockage 'local'
                     $filename = "signaturefichedenquete_agent_{$codeFphci}.png";
                     $filePath = "signaturefichedenquete/{$filename}";
-                    \Storage::disk('public')->put($filePath, base64_decode($signatureData));
+                    \Storage::disk('public')->put($filePath, $decodedData);
                     $signatureAgentPath = $filePath;
                 }
             }

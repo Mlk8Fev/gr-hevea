@@ -22,9 +22,12 @@ class CheckRole
 
         $user = auth()->user();
 
-        // Si un rôle spécifique est demandé
+        // Si un ou plusieurs rôles sont demandés
         if ($role) {
-            if ($user->role !== $role && !$user->isSiege()) {
+            $allowedRoles = explode(',', $role);
+            $allowedRoles = array_map('trim', $allowedRoles);
+            
+            if (!in_array($user->role, $allowedRoles) && !$user->isSiege()) {
                 abort(403, 'Accès non autorisé');
             }
         }

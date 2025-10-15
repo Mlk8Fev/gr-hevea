@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logs d'Audit - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Logs d'Audit - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -34,7 +34,7 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center gap-3">
                         <div class="icon-box bg-primary-100 text-primary">
-                            <iconify-icon icon="solar:document-text-outline" class="text-xl"></iconify-icon>
+                            <i class="ri-bar-chart-line text-xl"></i>
                         </div>
                         <div>
                             <h6 class="fw-semibold mb-1">{{ number_format($stats['total']) }}</h6>
@@ -47,7 +47,7 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center gap-3">
                         <div class="icon-box bg-success-100 text-success">
-                            <iconify-icon icon="solar:check-circle-outline" class="text-xl"></iconify-icon>
+                            <i class="ri-check-line text-xl"></i>
                         </div>
                         <div>
                             <h6 class="fw-semibold mb-1">{{ number_format($stats['successful']) }}</h6>
@@ -60,7 +60,7 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center gap-3">
                         <div class="icon-box bg-danger-100 text-danger">
-                            <iconify-icon icon="solar:close-circle-outline" class="text-xl"></iconify-icon>
+                            <i class="ri-error-warning-line text-xl"></i>
                         </div>
                         <div>
                             <h6 class="fw-semibold mb-1">{{ number_format($stats['failed']) }}</h6>
@@ -73,7 +73,7 @@
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <div class="d-flex align-items-center gap-3">
                         <div class="icon-box bg-warning-100 text-warning">
-                            <iconify-icon icon="solar:chart-outline" class="text-xl"></iconify-icon>
+                            <i class="ri-percent-line text-xl"></i>
                         </div>
                         <div>
                             <h6 class="fw-semibold mb-1">{{ $stats['success_rate'] }}%</h6>
@@ -139,19 +139,19 @@
                 <div class="col-12">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <iconify-icon icon="solar:magnifer-outline" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Filtrer
                         </button>
                         <a href="{{ route('admin.audit-logs.index') }}" class="btn btn-secondary">
-                            <iconify-icon icon="solar:refresh-outline" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Réinitialiser
                         </a>
                         <a href="{{ route('admin.audit-logs.export-pdf', request()->query()) }}" class="btn btn-outline-danger">
-                            <iconify-icon icon="solar:file-download-outline" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Export PDF
                         </a>
                         <a href="{{ route('admin.audit-logs.export-excel', request()->query()) }}" class="btn btn-outline-success">
-                            <iconify-icon icon="solar:file-download-outline" class="me-1"></iconify-icon>
+                            <i class="ri-search-line me-1"></i>
                             Export Excel
                         </a>
                     </div>
@@ -186,16 +186,16 @@
                                 <td class="py-16 px-24">
                                     <div class="d-flex flex-column gap-1">
                                         <div class="d-flex align-items-center gap-2">
-                                            <iconify-icon icon="solar:calendar-outline" class="text-primary text-sm"></iconify-icon>
+                                            <i class="ri-calendar-line text-primary text-sm"></i>
                                             <span class="fw-semibold text-dark text-sm">{{ $log->created_at->format('d/m/Y') }}</span>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            <iconify-icon icon="solar:clock-outline" class="text-muted text-sm"></iconify-icon>
+                                            <i class="ri-time-line text-muted text-sm"></i>
                                             <span class="text-muted text-sm">{{ $log->created_at->format('H:i:s') }}</span>
                                         </div>
                                         @if($log->object_type && $log->object_id)
                                             <div class="d-flex align-items-center gap-2 mt-1">
-                                                <iconify-icon icon="solar:document-outline" class="text-warning text-sm"></iconify-icon>
+                                                <i class="ri-file-text-line text-warning text-sm"></i>
                                                 <span class="text-dark text-sm fw-medium">{{ $log->object_type }} #{{ $log->object_id }}</span>
                                             </div>
                                         @endif
@@ -216,7 +216,7 @@
                                 <td class="py-16 px-24">
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar-sm bg-primary-100 text-primary rounded-circle d-flex align-items-center justify-content-center">
-                                            <iconify-icon icon="solar:user-outline" class="text-sm"></iconify-icon>
+                                            <i class="ri-user-line text-sm"></i>
                                         </div>
                                         <div>
                                             <span class="fw-semibold text-dark text-sm">{{ $log->user_name ?? 'Système' }}</span>
@@ -236,17 +236,17 @@
                                 <td class="py-16 px-24">
                                     <div class="d-flex flex-column gap-2">
                                         <div class="d-flex align-items-center gap-1">
-                                            <iconify-icon icon="solar:global-outline" class="text-muted text-sm"></iconify-icon>
+                                            <i class="ri-global-line text-muted text-sm"></i>
                                             <span class="text-muted text-sm">{{ $log->ip_address }}</span>
                                         </div>
                                         @if($log->is_successful)
                                             <span class="badge bg-success text-sm">
-                                                <iconify-icon icon="solar:check-circle-outline" class="me-1"></iconify-icon>
+                                                <i class="ri-check-line me-1"></i>
                                                 Succès
                                             </span>
                                         @else
                                             <span class="badge bg-danger text-sm">
-                                                <iconify-icon icon="solar:close-circle-outline" class="me-1"></iconify-icon>
+                                                <i class="ri-close-line me-1"></i>
                                                 Échec
                                             </span>
                                         @endif
@@ -257,7 +257,7 @@
                                 <td class="py-16 px-24">
                                     <div class="d-flex align-items-center gap-2">
                                         <a href="{{ route('admin.audit-logs.show', $log) }}" class="btn btn-outline-primary btn-sm" title="Voir les détails">
-                                            <iconify-icon icon="solar:eye-outline" class="text-sm"></iconify-icon>
+                                            <i class="ri-eye-line text-sm"></i>
                                         </a>
                                     </div>
                                 </td>
@@ -266,7 +266,7 @@
                             <tr>
                                 <td colspan="6" class="py-24 px-24 text-center">
                                     <div class="d-flex flex-column align-items-center gap-3">
-                                        <iconify-icon icon="solar:document-text-outline" class="text-4xl text-muted"></iconify-icon>
+                                        <i class="ri-file-list-line text-4xl text-muted"></i>
                                         <div>
                                             <h6 class="fw-semibold text-dark mb-1">Aucun log d'audit trouvé</h6>
                                             <p class="text-muted mb-0">Aucun log ne correspond aux critères de recherche.</p>
@@ -307,13 +307,13 @@
                                 @if($auditLogs->onFirstPage())
                                     <li class="page-item disabled">
                                         <span class="page-link bg-light border-0 text-muted">
-                                            <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                            Précédent
                                         </span>
                                     </li>
                                 @else
                                     <li class="page-item">
                                         <a href="{{ $auditLogs->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                            <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                            Précédent
                                         </a>
                                     </li>
                                 @endif
@@ -367,13 +367,13 @@
                                 @if($auditLogs->hasMorePages())
                                     <li class="page-item">
                                         <a href="{{ $auditLogs->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                            <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                            Suivant
                                         </a>
                                     </li>
                                 @else
                                     <li class="page-item disabled">
                                         <span class="page-link bg-light border-0 text-muted">
-                                            <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                            Suivant
                                         </span>
                                     </li>
                                 @endif

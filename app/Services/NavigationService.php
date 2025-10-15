@@ -37,6 +37,27 @@ class NavigationService
             case 'agc':
                 $navigation = array_merge($navigation, $this->getAgcNavigation());
                 break;
+            case 'cs': // Chef Secteur
+                $navigation = array_merge($navigation, $this->getChefSecteurNavigation());
+                break;
+            case 'ac': // Assistante Comptable
+                $navigation = array_merge($navigation, $this->getAssistanteComptableNavigation());
+                break;
+            case 'rt': // Responsable Traçabilité
+                $navigation = array_merge($navigation, $this->getResponsableTracabiliteNavigation());
+                break;
+            case 'rd': // Responsable Durabilité
+                $navigation = array_merge($navigation, $this->getResponsableDurabiliteNavigation());
+                break;
+            case 'comp': // Comptable Siège
+                $navigation = array_merge($navigation, $this->getComptableSiegeNavigation());
+                break;
+            case 'ctu': // Contrôleur Usine
+                $navigation = array_merge($navigation, $this->getControleurUsineNavigation());
+                break;
+            case 'rcoop': // Responsable Coopérative
+                $navigation = array_merge($navigation, $this->getResponsableCooperativeNavigation());
+                break;
         }
 
         return $navigation;
@@ -46,11 +67,11 @@ class NavigationService
     {
         return [
             [
-                'title' => 'Administration',
+                'title' => 'Gestion des Ressources',
                 'type' => 'title'
             ],
             [
-                'title' => 'Gestion des Utilisateurs',
+                'title' => 'Utilisateurs',
                 'icon' => 'ri-user-settings-line',
                 'url' => route('admin.users.index'),
                 'active' => request()->routeIs('admin.users.*'),
@@ -58,7 +79,7 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Gestion des Coopératives',
+                'title' => 'Coopératives',
                 'icon' => 'ri-group-line',
                 'url' => route('admin.cooperatives.index'),
                 'active' => request()->routeIs('admin.cooperatives.*'),
@@ -66,7 +87,7 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Gestion des Secteurs',
+                'title' => 'Secteurs',
                 'icon' => 'ri-building-line',
                 'url' => route('admin.secteurs.index'),
                 'active' => request()->routeIs('admin.secteurs.*'),
@@ -74,14 +95,7 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Gestion des Rôles',
-                'icon' => 'ri-shield-user-line',
-                'url' => '#',
-                'active' => false,
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Gestion des Producteurs',
+                'title' => 'Producteurs',
                 'icon' => 'ri-user-3-line',
                 'url' => route('admin.producteurs.index'),
                 'active' => request()->routeIs('admin.producteurs.*'),
@@ -89,7 +103,7 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Gestion Logistique',
+                'title' => 'Chaîne Logistique',
                 'type' => 'title'
             ],
             [
@@ -100,21 +114,35 @@ class NavigationService
                 'badge' => \App\Models\CentreCollecte::count(),
                 'type' => 'item'
             ],
-                   [
-           'title' => 'Connaissements',
-           'icon' => 'ri-file-list-line',
-           'url' => route('admin.connaissements.index'),
-           'active' => request()->routeIs('admin.connaissements.*'),
-           'badge' => \App\Models\Connaissement::count(),
-           'type' => 'item'
-       ],
-                   [
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'badge' => \App\Models\Connaissement::count(),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Tickets de Pesée',
                 'icon' => 'ri-scales-line',
                 'url' => route('admin.tickets-pesee.index'),
                 'active' => request()->routeIs('admin.tickets-pesee.*'),
                 'badge' => \App\Models\TicketPesee::count(),
                 'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'badge' => \App\Models\Connaissement::whereHas('ticketsPesee', function($q) {
+                    $q->where('statut', 'valide');
+                })->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Finance & Facturation',
+                'type' => 'title'
             ],
             [
                 'title' => 'Finance',
@@ -133,7 +161,7 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Gestion des Factures',
+                'title' => 'Factures',
                 'icon' => 'ri-file-list-3-line',
                 'url' => route('admin.factures.index'),
                 'active' => request()->routeIs('admin.factures.*'),
@@ -141,17 +169,11 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Farmer Lists',
-                'icon' => 'ri-file-list-line',
-                'url' => route('admin.farmer-lists.index'),
-                'active' => request()->routeIs('admin.farmer-lists.*'),
-                'badge' => \App\Models\Connaissement::whereHas('ticketsPesee', function($q) {
-                    $q->where('statut', 'valide');
-                })->count(),
-                'type' => 'item'
+                'title' => 'Rapports & Analyses',
+                'type' => 'title'
             ],
             [
-                'title' => 'Statistiques',
+                'title' => 'Statistiques Générales',
                 'icon' => 'ri-bar-chart-2-line',
                 'url' => route('admin.statistiques.index'),
                 'active' => request()->routeIs('admin.statistiques.*'),
@@ -165,25 +187,6 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Paramètres Système',
-                'icon' => 'ri-settings-3-line',
-                'url' => '#',
-                'active' => false,
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Logs Système',
-                'icon' => 'ri-file-list-3-line',
-                'url' => route('admin.audit-logs.index'),
-                'active' => request()->routeIs('admin.audit-logs.*'),
-                'badge' => \App\Models\AuditLog::where('created_at', '>=', now()->subDays(7))->count(),
-                'type' => 'item'
-            ],
-            [
-                'title' => 'Rapports',
-                'type' => 'title'
-            ],
-            [
                 'title' => 'Rapports Globaux',
                 'icon' => 'ri-file-chart-line',
                 'url' => '#',
@@ -191,10 +194,15 @@ class NavigationService
                 'type' => 'item'
             ],
             [
-                'title' => 'Statistiques',
-                'icon' => 'ri-bar-chart-line',
-                'url' => '#',
-                'active' => false,
+                'title' => 'Système & Maintenance',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Logs Système',
+                'icon' => 'ri-file-list-3-line',
+                'url' => route('admin.audit-logs.index'),
+                'active' => request()->routeIs('admin.audit-logs.*'),
+                'badge' => \App\Models\AuditLog::where('created_at', '>=', now()->subDays(7))->count(),
                 'type' => 'item'
             ]
         ];
@@ -204,40 +212,107 @@ class NavigationService
     {
         return [
             [
-                'title' => 'Gestion',
+                'title' => 'Gestion des Données',
                 'type' => 'title'
             ],
             [
-                'title' => 'Gestion des Utilisateurs',
-                'icon' => 'ri-user-settings-line',
-                'url' => route('admin.users.index'),
-                'active' => request()->routeIs('admin.users.*'),
-                'badge' => \App\Models\User::count(),
+                'title' => 'Coopératives',
+                'icon' => 'ri-group-line',
+                'url' => route('admin.cooperatives.index'),
+                'active' => request()->routeIs('admin.cooperatives.*'),
+                'badge' => \App\Models\Cooperative::count(),
                 'type' => 'item'
             ],
             [
-                'title' => 'Gestion des Secteurs',
-                'icon' => 'ri-building-line',
-                'url' => '#',
-                'active' => false,
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'badge' => \App\Models\Producteur::count(),
                 'type' => 'item'
             ],
             [
-                'title' => 'Rapports',
+                'title' => 'Chaîne Logistique',
                 'type' => 'title'
             ],
             [
-                'title' => 'Rapports Secteur',
-                'icon' => 'ri-file-chart-line',
-                'url' => '#',
-                'active' => false,
+                'title' => 'Centres de Collecte',
+                'icon' => 'ri-map-pin-line',
+                'url' => route('admin.centres-collecte.index'),
+                'active' => request()->routeIs('admin.centres-collecte.*'),
+                'badge' => \App\Models\CentreCollecte::count(),
                 'type' => 'item'
             ],
             [
-                'title' => 'Statistiques',
-                'icon' => 'ri-bar-chart-line',
-                'url' => '#',
-                'active' => false,
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'badge' => \App\Models\Connaissement::count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'badge' => \App\Models\TicketPesee::count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'badge' => \App\Models\Connaissement::whereHas('ticketsPesee', function($q) {
+                    $q->where('statut', 'valide');
+                })->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Finance & Facturation',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Finance',
+                'icon' => 'ri-money-dollar-circle-line',
+                'url' => route('admin.finance.index'),
+                'active' => request()->routeIs('admin.finance.*'),
+                'badge' => \App\Models\TicketPesee::where('statut', 'valide')->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Validation ENE CI',
+                'icon' => 'ri-shield-check-line',
+                'url' => route('admin.ene-validation.index'),
+                'active' => request()->routeIs('admin.ene-validation.*'),
+                'badge' => \App\Models\TicketPesee::where('statut', 'valide')->where('statut_ene', 'en_attente')->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Factures',
+                'icon' => 'ri-file-list-3-line',
+                'url' => route('admin.factures.index'),
+                'active' => request()->routeIs('admin.factures.*'),
+                'badge' => \App\Models\Facture::where('statut', 'brouillon')->count(),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Rapports & Analyses',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Statistiques Générales',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Statistiques Avancées',
+                'icon' => 'ri-line-chart-line',
+                'url' => route('admin.statistiques.avancees'),
+                'active' => request()->routeIs('admin.statistiques.avancees'),
                 'type' => 'item'
             ]
         ];
@@ -324,6 +399,13 @@ class NavigationService
                 'type' => 'title'
             ],
             [
+                'title' => 'Coopératives',
+                'icon' => 'ri-group-line',
+                'url' => route('admin.cooperatives.index'),
+                'active' => request()->routeIs('admin.cooperatives.*'),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Producteurs',
                 'icon' => 'ri-user-3-line',
                 'url' => route('admin.producteurs.index'),
@@ -375,7 +457,21 @@ class NavigationService
             case 'user':
                 return $this->getUserStats();
             case 'agc':
-                return $this->getAgcStats(); // <- AJOUT
+                return $this->getAgcStats();
+            case 'cs': // Chef Secteur
+                return $this->getChefSecteurStats();
+            case 'ac': // Assistante Comptable
+                return $this->getAssistanteComptableStats();
+            case 'rt': // Responsable Traçabilité
+                return $this->getResponsableTracabiliteStats();
+            case 'rd': // Responsable Durabilité
+                return $this->getResponsableDurabiliteStats();
+            case 'comp': // Comptable Siège
+                return $this->getComptableSiegeStats();
+            case 'ctu': // Contrôleur Usine
+                return $this->getControleurUsineStats();
+            case 'rcoop': // Responsable Coopérative
+                return $this->getResponsableCooperativeStats();
             default:
                 return $this->getDefaultStats();
         }
@@ -737,6 +833,574 @@ class NavigationService
             'kpis' => [
                 'completionRate' => $completionRate,
             ],
+        ];
+    }
+
+    // ===== NOUVEAUX RÔLES =====
+
+    private function getChefSecteurNavigation()
+    {
+        return [
+            [
+                'title' => 'Mon Secteur',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getAssistanteComptableNavigation()
+    {
+        return [
+            [
+                'title' => 'Comptabilité',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Finance',
+                'icon' => 'ri-money-dollar-circle-line',
+                'url' => route('admin.finance.index'),
+                'active' => request()->routeIs('admin.finance.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Factures',
+                'icon' => 'ri-file-text-line',
+                'url' => route('admin.factures.index'),
+                'active' => request()->routeIs('admin.factures.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Validation ENE CI',
+                'icon' => 'ri-shield-check-line',
+                'url' => route('admin.ene-validation.index'),
+                'active' => request()->routeIs('admin.ene-validation.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Rapports',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getResponsableTracabiliteNavigation()
+    {
+        return [
+            [
+                'title' => 'Traçabilité',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Rapports',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getResponsableDurabiliteNavigation()
+    {
+        return [
+            [
+                'title' => 'Durabilité',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Rapports',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getComptableSiegeNavigation()
+    {
+        return [
+            [
+                'title' => 'Comptabilité Siège',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Finance',
+                'icon' => 'ri-money-dollar-circle-line',
+                'url' => route('admin.finance.index'),
+                'active' => request()->routeIs('admin.finance.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Factures',
+                'icon' => 'ri-file-text-line',
+                'url' => route('admin.factures.index'),
+                'active' => request()->routeIs('admin.factures.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Validation ENE CI',
+                'icon' => 'ri-shield-check-line',
+                'url' => route('admin.ene-validation.index'),
+                'active' => request()->routeIs('admin.ene-validation.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Rapports',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Statistiques Avancées',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getControleurUsineNavigation()
+    {
+        return [
+            [
+                'title' => 'Contrôle Usine',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Rapports',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getResponsableCooperativeNavigation()
+    {
+        return [
+            [
+                'title' => 'Ma Coopérative',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('cooperative.producteurs.index'),
+                'active' => request()->routeIs('cooperative.producteurs.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('cooperative.tickets-pesee.index'),
+                'active' => request()->routeIs('cooperative.tickets-pesee.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('cooperative.connaissements.index'),
+                'active' => request()->routeIs('cooperative.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Finance & Facturation',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Finance',
+                'icon' => 'ri-money-dollar-circle-line',
+                'url' => route('cooperative.finance.index'),
+                'active' => request()->routeIs('cooperative.finance.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Mes Factures',
+                'icon' => 'ri-file-list-3-line',
+                'url' => route('cooperative.factures.index'),
+                'active' => request()->routeIs('cooperative.factures.*'),
+                'type' => 'item'
+            ]
+        ];
+    }
+
+    // ===== STATISTIQUES POUR NOUVEAUX RÔLES =====
+
+    private function getChefSecteurStats()
+    {
+        $user = Auth::user();
+        $secteurCode = $user->secteur;
+
+        if (!$secteurCode) {
+            return $this->getDefaultStats();
+        }
+
+        // Statistiques par secteur
+        $producteursCount = \App\Models\Producteur::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $connaissementsCount = \App\Models\Connaissement::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $ticketsCount = \App\Models\TicketPesee::whereHas('connaissement.secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $farmerListsCount = \App\Models\FarmerList::whereHas('connaissement.secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        return [
+            'producteurs' => [
+                'count' => $producteursCount,
+                'icon' => 'ri-user-3-line',
+                'color' => 'green',
+                'label' => 'Producteurs (secteur)'
+            ],
+            'connaissements' => [
+                'count' => $connaissementsCount,
+                'icon' => 'ri-file-list-line',
+                'color' => 'blue',
+                'label' => 'Connaissements (secteur)'
+            ],
+            'tickets' => [
+                'count' => $ticketsCount,
+                'icon' => 'ri-scales-line',
+                'color' => 'orange',
+                'label' => 'Tickets de Pesée (secteur)'
+            ],
+            'farmer_lists' => [
+                'count' => $farmerListsCount,
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists (secteur)'
+            ]
+        ];
+    }
+
+    private function getAssistanteComptableStats()
+    {
+        return [
+            'tickets_valides' => [
+                'count' => \App\Models\TicketPesee::where('statut', 'valide')->count(),
+                'icon' => 'ri-check-line',
+                'color' => 'green',
+                'label' => 'Tickets Validés'
+            ],
+            'factures' => [
+                'count' => \App\Models\Facture::count(),
+                'icon' => 'ri-file-text-line',
+                'color' => 'blue',
+                'label' => 'Factures'
+            ],
+            'validation_ene' => [
+                'count' => \App\Models\TicketPesee::where('statut_ene', 'en_attente')->count(),
+                'icon' => 'ri-shield-check-line',
+                'color' => 'orange',
+                'label' => 'En attente ENE CI'
+            ],
+            'montant_total' => [
+                'count' => 'Calculé',
+                'icon' => 'ri-money-dollar-circle-line',
+                'color' => 'purple',
+                'label' => 'Montant Total'
+            ]
+        ];
+    }
+
+    private function getResponsableTracabiliteStats()
+    {
+        return [
+            'producteurs' => [
+                'count' => \App\Models\Producteur::count(),
+                'icon' => 'ri-user-3-line',
+                'color' => 'green',
+                'label' => 'Producteurs'
+            ],
+            'connaissements' => [
+                'count' => \App\Models\Connaissement::count(),
+                'icon' => 'ri-file-list-line',
+                'color' => 'blue',
+                'label' => 'Connaissements'
+            ],
+            'tickets' => [
+                'count' => \App\Models\TicketPesee::count(),
+                'icon' => 'ri-scales-line',
+                'color' => 'orange',
+                'label' => 'Tickets de Pesée'
+            ],
+            'farmer_lists' => [
+                'count' => \App\Models\FarmerList::count(),
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists'
+            ]
+        ];
+    }
+
+    private function getResponsableDurabiliteStats()
+    {
+        return [
+            'producteurs' => [
+                'count' => \App\Models\Producteur::count(),
+                'icon' => 'ri-user-3-line',
+                'color' => 'green',
+                'label' => 'Producteurs'
+            ],
+            'connaissements' => [
+                'count' => \App\Models\Connaissement::count(),
+                'icon' => 'ri-file-list-line',
+                'color' => 'blue',
+                'label' => 'Connaissements'
+            ],
+            'farmer_lists' => [
+                'count' => \App\Models\FarmerList::count(),
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists'
+            ],
+            'durabilite' => [
+                'count' => 'En cours',
+                'icon' => 'ri-leaf-line',
+                'color' => 'orange',
+                'label' => 'Programmes Durabilité'
+            ]
+        ];
+    }
+
+    private function getComptableSiegeStats()
+    {
+        return [
+            'tickets_valides' => [
+                'count' => \App\Models\TicketPesee::where('statut', 'valide')->count(),
+                'icon' => 'ri-check-line',
+                'color' => 'green',
+                'label' => 'Tickets Validés'
+            ],
+            'factures' => [
+                'count' => \App\Models\Facture::count(),
+                'icon' => 'ri-file-text-line',
+                'color' => 'blue',
+                'label' => 'Factures'
+            ],
+            'validation_ene' => [
+                'count' => \App\Models\TicketPesee::where('statut_ene', 'en_attente')->count(),
+                'icon' => 'ri-shield-check-line',
+                'color' => 'orange',
+                'label' => 'En attente ENE CI'
+            ],
+            'montant_total' => [
+                'count' => 'Calculé',
+                'icon' => 'ri-money-dollar-circle-line',
+                'color' => 'purple',
+                'label' => 'Montant Total'
+            ]
+        ];
+    }
+
+    private function getControleurUsineStats()
+    {
+        return [
+            'tickets' => [
+                'count' => \App\Models\TicketPesee::count(),
+                'icon' => 'ri-scales-line',
+                'color' => 'green',
+                'label' => 'Tickets de Pesée'
+            ],
+            'connaissements' => [
+                'count' => \App\Models\Connaissement::count(),
+                'icon' => 'ri-file-list-line',
+                'color' => 'blue',
+                'label' => 'Connaissements'
+            ],
+            'farmer_lists' => [
+                'count' => \App\Models\FarmerList::count(),
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists'
+            ],
+            'controle_qualite' => [
+                'count' => 'En cours',
+                'icon' => 'ri-shield-check-line',
+                'color' => 'orange',
+                'label' => 'Contrôles Qualité'
+            ]
+        ];
+    }
+
+    private function getResponsableCooperativeStats()
+    {
+        $user = Auth::user();
+        $cooperativeId = $user->cooperative_id;
+
+        if (!$cooperativeId) {
+            return $this->getDefaultStats();
+        }
+
+        // Statistiques par coopérative
+        $producteursCount = \App\Models\Producteur::whereHas('cooperatives', function($q) use ($cooperativeId) {
+            $q->where('cooperatives.id', $cooperativeId);
+        })->count();
+        $connaissementsCount = \App\Models\Connaissement::where('cooperative_id', $cooperativeId)->count();
+        $ticketsCount = \App\Models\TicketPesee::whereHas('connaissement', function($q) use ($cooperativeId) {
+            $q->where('cooperative_id', $cooperativeId);
+        })->count();
+        $farmerListsCount = \App\Models\FarmerList::whereHas('connaissement', function($q) use ($cooperativeId) {
+            $q->where('cooperative_id', $cooperativeId);
+        })->count();
+
+        return [
+            'producteurs' => [
+                'count' => $producteursCount,
+                'icon' => 'ri-user-3-line',
+                'color' => 'green',
+                'label' => 'Producteurs (coopérative)'
+            ],
+            'connaissements' => [
+                'count' => $connaissementsCount,
+                'icon' => 'ri-file-list-line',
+                'color' => 'blue',
+                'label' => 'Connaissements (coopérative)'
+            ],
+            'tickets' => [
+                'count' => $ticketsCount,
+                'icon' => 'ri-scales-line',
+                'color' => 'orange',
+                'label' => 'Tickets de Pesée (coopérative)'
+            ],
+            'farmer_lists' => [
+                'count' => $farmerListsCount,
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists (coopérative)'
+            ]
         ];
     }
 } 

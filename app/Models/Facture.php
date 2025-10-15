@@ -201,6 +201,14 @@ class Facture extends Model
     }
 
     /**
+     * Calculer le poids total de la facture
+     */
+    public function getPoidsTotalAttribute()
+    {
+        return $this->ticketsPesee()->sum('poids_net');
+    }
+
+    /**
      * Vérifie si la facture peut être validée
      */
     public function canBeValidated()

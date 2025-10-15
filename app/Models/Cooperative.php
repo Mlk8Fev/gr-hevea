@@ -23,6 +23,7 @@ class Cooperative extends Model
         'kilometrage',
         'a_sechoir',
         'compte_bancaire',
+        'cle_rib',
         'code_banque',
         'code_guichet',
         'nom_cooperative_banque',

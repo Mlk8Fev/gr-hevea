@@ -10,7 +10,7 @@
         <ul class="d-flex align-items-center gap-2">
             <li class="fw-medium">
                 <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                    <i class="ri-home-line icon text-lg"></i>
                     Dashboard
                 </a>
             </li>
@@ -26,7 +26,7 @@
     </div>
 
             <!-- Filtres et Navigation -->
-    <!-- Filtres et Navigation Moderne WowDash -->
+    <!-- Filtres et Navigation Moderne FPH-CI -->
     <div class="card radius-8 border-0 mb-32">
         <div class="card-body p-24">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-20">
@@ -35,7 +35,7 @@
                     <span class="text-sm fw-medium text-secondary-light">Filtrez et explorez vos données en profondeur</span>
                 </div>
                 <a href="{{ route('admin.statistiques.index') }}" class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                    <iconify-icon icon="solar:alt-arrow-left-linear" class="icon"></iconify-icon>
+                    <i class="ri-arrow-left-line icon"></i>
                     Retour aux Statistiques Basiques
                 </a>
             </div>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="col-xxl-2 col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary h-48-px px-24 w-100 radius-8 d-flex align-items-center justify-content-center gap-2">
-                        <iconify-icon icon="hugeicons:analytics-02" class="icon"></iconify-icon>
+                        <i class="ri-search-line icon"></i>
                         Analyser
                     </button>
                 </div>
@@ -77,35 +77,35 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link d-flex align-items-center {{ $type == 'generales' ? 'active' : '' }}" 
                    href="{{ route('admin.statistiques.avancees', ['type' => 'generales', 'date_debut' => $dateDebut->format('Y-m-d'), 'date_fin' => $dateFin->format('Y-m-d')]) }}">
-                    <iconify-icon icon="solar:chart-outline" class="me-6"></iconify-icon>
+                    <i class="ri-bar-chart-line me-6"></i>
                     Générales
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link d-flex align-items-center {{ $type == 'cooperatives' ? 'active' : '' }}" 
                    href="{{ route('admin.statistiques.avancees', ['type' => 'cooperatives', 'date_debut' => $dateDebut->format('Y-m-d'), 'date_fin' => $dateFin->format('Y-m-d')]) }}">
-                    <iconify-icon icon="solar:users-group-rounded-outline" class="me-6"></iconify-icon>
+                    <i class="ri-building-line me-6"></i>
                     Coopératives
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link d-flex align-items-center {{ $type == 'logistiques' ? 'active' : '' }}" 
                    href="{{ route('admin.statistiques.avancees', ['type' => 'logistiques', 'date_debut' => $dateDebut->format('Y-m-d'), 'date_fin' => $dateFin->format('Y-m-d')]) }}">
-                    <iconify-icon icon="solar:delivery-outline" class="me-6"></iconify-icon>
+                    <i class="ri-truck-line me-6"></i>
                     Logistiques
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link d-flex align-items-center {{ $type == 'financieres' ? 'active' : '' }}" 
                    href="{{ route('admin.statistiques.avancees', ['type' => 'financieres', 'date_debut' => $dateDebut->format('Y-m-d'), 'date_fin' => $dateFin->format('Y-m-d')]) }}">
-                    <iconify-icon icon="solar:wallet-money-outline" class="me-6"></iconify-icon>
+                    <i class="ri-money-dollar-circle-line me-6"></i>
                     Financières
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link d-flex align-items-center {{ $type == 'qualite' ? 'active' : '' }}" 
                    href="{{ route('admin.statistiques.avancees', ['type' => 'qualite', 'date_debut' => $dateDebut->format('Y-m-d'), 'date_fin' => $dateFin->format('Y-m-d')]) }}">
-                    <iconify-icon icon="solar:star-outline" class="me-6"></iconify-icon>
+                    <i class="ri-star-line me-6"></i>
                     Qualité
                 </a>
             </li>
@@ -133,9 +133,9 @@
 <!-- Apex Chart js -->
 <script src="{{ asset('wowdash/js/lib/apexcharts.min.js') }}"></script>
 <script>
-// Configuration WowDash pour les statistiques avancées
+// Configuration FPH-CI pour les statistiques avancées
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initialisation des statistiques avancées WowDash');
+    console.log('🚀 Initialisation des statistiques avancées FPH-CI');
     
     // Données pour les graphiques
     const statsData = @json($stats ?? []);

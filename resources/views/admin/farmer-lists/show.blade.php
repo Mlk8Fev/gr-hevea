@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer List - {{ $connaissement->numero_livraison }} - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Farmer List - {{ $connaissement->numero_livraison }} - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -114,29 +114,29 @@
                             @if($poidsRestant > 0)
                                 <a href="{{ route('admin.farmer-lists.create', $connaissement) }}" 
                                    class="btn btn-success">
-                                    <iconify-icon icon="ri-add-line"></iconify-icon> Ajouter un Producteur
+                                    <i class="ri-add-line"></i> Ajouter un Producteur
                                 </a>
                             @else
                                 <button class="btn btn-success" disabled>
-                                    <iconify-icon icon="ri-check-line"></iconify-icon> Farmer List Complète
+                                    <i class="ri-check-line"></i> Farmer List Complète
                                 </button>
                             @endif
                             
                             <a href="{{ route('admin.farmer-lists.view', $connaissement) }}" 
                                class="btn btn-info" 
                                target="_blank">
-                                <iconify-icon icon="ri-eye-line"></iconify-icon> Voir PDF
+                                <i class="ri-eye-line menu-icon"></i> Voir PDF
                             </a>
                             
                             <a href="{{ route('admin.farmer-lists.pdf', $connaissement) }}" 
                                class="btn btn-primary" 
                                target="_blank">
-                                <iconify-icon icon="ri-download-line"></iconify-icon> Télécharger PDF
+                                <i class="ri-download-line"></i> Télécharger PDF
                             </a>
                             
                             <a href="{{ route('admin.farmer-lists.index') }}" 
                                class="btn btn-secondary">
-                                <iconify-icon icon="ri-arrow-left-line"></iconify-icon> Retour à la Liste
+                                <i class="ri-arrow-left-line"></i> Retour à la Liste
                             </a>
                         </div>
                     </div>
@@ -206,7 +206,7 @@
                                                     <!-- Bouton Modifier Farmer List -->
                                                     <a href="{{ route('admin.farmer-lists.edit', $farmerList) }}" 
                                                        class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
-                                                        <iconify-icon icon="ri-edit-line"></iconify-icon>
+                                                        <i class="ri-edit-line"></i>
                                                         <span>Modifier</span>
                                                     </a>
                                                     
@@ -218,24 +218,24 @@
                                                         <!-- Boutons si reçu existe -->
                                                         <a href="{{ route('admin.recus-achat.show', $recuAchat) }}" 
                                                            class="btn btn-sm btn-outline-info d-flex align-items-center gap-1">
-                                                            <iconify-icon icon="ri-eye-line"></iconify-icon>
+                                                            <i class="ri-eye-line"></i>
                                                             <span>Voir Reçu</span>
                                                         </a>
                                                         <a href="{{ route('admin.recus-achat.edit', $recuAchat) }}" 
                                                            class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1">
-                                                            <iconify-icon icon="ri-edit-line"></iconify-icon>
+                                                            <i class="ri-edit-line"></i>
                                                             <span>Modifier Signatures</span>
                                                         </a>
                                                         <a href="{{ route('admin.recus-achat.pdf', $recuAchat) }}" 
                                                            class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
-                                                            <iconify-icon icon="ri-file-pdf-line"></iconify-icon>
+                                                            <i class="ri-eye-line"></i>
                                                             <span>Télécharger PDF</span>
                                                         </a>
                                                     @else
                                                         <!-- Bouton si pas de reçu -->
                                                         <a href="{{ route('admin.recus-achat.create', ['connaissement' => $connaissement, 'farmerList' => $farmerList]) }}" 
                                                            class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
-                                                            <iconify-icon icon="ri-file-text-line"></iconify-icon>
+                                                            <i class="ri-file-text-line"></i>
                                                             <span>Générer Reçu</span>
                                                         </a>
                                                     @endif
@@ -249,7 +249,7 @@
                                                         @method('DELETE')
                                                         <button type="submit" 
                                                                 class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
-                                                            <iconify-icon icon="ri-delete-bin-line"></iconify-icon>
+                                                            <i class="ri-delete-bin-line"></i>
                                                             <span>Supprimer</span>
                                                         </button>
                                                     </form>

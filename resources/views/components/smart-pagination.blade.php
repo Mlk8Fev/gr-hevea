@@ -7,14 +7,12 @@
         @if($paginator->onFirstPage())
             <li class="page-item disabled">
                 <span class="page-link bg-light border-0 text-muted">
-                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
                     Précédent
                 </span>
             </li>
         @else
             <li class="page-item">
                 <a href="{{ $paginator->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                    <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
                     Précédent
                 </a>
             </li>
@@ -70,14 +68,12 @@
             <li class="page-item">
                 <a href="{{ $paginator->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
                     Suivant
-                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
                 </a>
             </li>
         @else
             <li class="page-item disabled">
                 <span class="page-link bg-light border-0 text-muted">
                     Suivant
-                    <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
                 </span>
             </li>
         @endif

@@ -82,7 +82,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:superadmin,admin,manager,user,qualite,agc',
+            'role' => 'required|in:superadmin,admin,manager,user,agc,cs,ac,rt,rd,comp,ctu,rcoop',
             'secteur' => 'nullable|string|max:255',
             'fonction_id' => 'required|exists:fonctions,id',
             'cooperative_id' => 'nullable|exists:cooperatives,id',
@@ -135,7 +135,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
-            'role' => 'required|in:superadmin,admin,manager,user,qualite,agc',
+            'role' => 'required|in:superadmin,admin,manager,user,agc,cs,ac,rt,rd,comp,ctu,rcoop',
             'secteur' => 'nullable|string|max:255',
             'fonction_id' => 'required|exists:fonctions,id',
             'cooperative_id' => 'nullable|exists:cooperatives,id',
@@ -207,5 +207,14 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin.users.index')->with('error', 'Erreur lors du changement de statut.');
         }
+    }
+
+    // Afficher le profil de l'utilisateur connecté
+    public function profile()
+    {
+        $user = auth()->user();
+        $user->load(['fonction', 'cooperative', 'secteurRelation', 'centreCollecte']);
+        
+        return view('admin.users.profile', compact('user'));
     }
 }

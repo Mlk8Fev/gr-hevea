@@ -99,7 +99,7 @@ class User extends Authenticatable
     // Méthode pour obtenir le nom complet
     public function getFullNameAttribute(): string
     {
-        return $this->prenom . ' ' . $this->nom;
+        return $this->name;
     }
 
     /**

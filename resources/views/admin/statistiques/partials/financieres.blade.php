@@ -1,4 +1,4 @@
-<!-- Statistiques Financières WowDash -->
+<!-- Statistiques Financières FPH-CI -->
 <div class="row gy-4 mb-32">
     <!-- KPIs Financiers -->
     <div class="col-xl-3 col-md-6">

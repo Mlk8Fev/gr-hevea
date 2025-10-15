@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facture {{ $facture->numero_facture }} - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Facture {{ $facture->numero_facture }} - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
@@ -24,7 +24,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -61,7 +61,7 @@
                             <form action="{{ route('admin.factures.validate', $facture) }}" method="POST" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Valider cette facture ?')">
-                                    <iconify-icon icon="lucide:check" class="icon me-1"></iconify-icon>
+                                    <i class="ri-check-line"></i>
                                     Valider
                                 </button>
                             </form>
@@ -69,15 +69,15 @@
                         
                         @if($facture->canBePaid())
                             <button type="button" class="btn btn-success btn-sm" onclick="markAsPaid({{ $facture->id }}, {{ $facture->montant_ttc }})">
-                                <iconify-icon icon="lucide:credit-card" class="icon me-1"></iconify-icon>
+                                <i class="ri-money-dollar-circle-line me-1"></i>
                                 Marquer comme payée
                             </button>
                         @endif
                         
-                        @if($facture->statut === 'validee')
-                            <a href="{{ route('admin.factures.preview', $facture) }}" class="btn btn-primary">
-                                <iconify-icon icon="lucide:file-text" class="icon me-1"></iconify-icon>
-                                Preview PDF
+                        @if($facture->statut === 'validee' || $facture->statut === 'payee')
+                            <a href="{{ route('admin.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
+                                <i class="ri-file-pdf-line me-1"></i>
+                                Télécharger PDF
                             </a>
                         @endif
                         
@@ -86,7 +86,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">
-                                    <iconify-icon icon="lucide:trash-2" class="icon me-1"></iconify-icon>
+                                    <i class="ri-delete-bin-line me-1"></i>
                                     Supprimer
                                 </button>
                             </form>
@@ -98,191 +98,251 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Numéro de facture</span>
-                            <span class="fw-bold text-primary text-lg">{{ $facture->numero_facture }}</span>
+                            <h6 class="fw-semibold mb-3 text-primary">
+                                <i class="ri-building-line me-2"></i>FACTURÉ À
+                            </h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Coopérative :</span>
+                                    <span class="fw-semibold">{{ $facture->cooperative->nom }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Secteur :</span>
+                                    <span class="fw-semibold">{{ $facture->cooperative->secteur->code }} - {{ $facture->cooperative->secteur->nom }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Président :</span>
+                                    <span class="fw-semibold">{{ $facture->cooperative->president }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Contact :</span>
+                                    <span class="fw-semibold">{{ $facture->cooperative->contact ?? 'N/A' }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Type</span>
-                            @if($facture->type === 'individuelle')
-                                <span class="badge bg-info fs-6">Individuelle</span>
-                            @else
-                                <span class="badge bg-success fs-6">Globale</span>
-                            @endif
+                            <h6 class="fw-semibold mb-3 text-info">
+                                <i class="ri-file-list-line me-2"></i>INFORMATIONS FACTURE
+                            </h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Type :</span>
+                                    <span class="fw-semibold">{{ ucfirst($facture->type) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Statut :</span>
+                                    <span>
+                                        @if($facture->statut === 'brouillon')
+                                            <span class="badge bg-warning">Brouillon</span>
+                                        @elseif($facture->statut === 'validee')
+                                            <span class="badge bg-info">Validée</span>
+                                        @elseif($facture->statut === 'payee')
+                                            <span class="badge bg-success">Payée</span>
+                                        @else
+                                            <span class="badge bg-danger">Annulée</span>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Date d'émission :</span>
+                                    <span class="fw-semibold">{{ $facture->date_emission ? $facture->date_emission->format('d/m/Y') : '-' }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Date d'échéance :</span>
+                                    <span class="fw-semibold">{{ $facture->date_echeance ? $facture->date_echeance->format('d/m/Y') : '-' }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Nombre de tickets :</span>
+                                    <span class="fw-semibold">{{ $facture->ticketsPesee->count() }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Poids total :</span>
+                                    <span class="fw-semibold">{{ number_format($facture->poids_total, 2) }} kg</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="row mt-16">
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Coopérative</span>
-                            <span class="fw-medium">{{ $facture->cooperative->nom }}</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Statut</span>
-                            @if($facture->statut === 'brouillon')
-                                <span class="badge bg-warning">Brouillon</span>
-                            @elseif($facture->statut === 'validee')
-                                <span class="badge bg-info">Validée</span>
-                            @elseif($facture->statut === 'payee')
-                                <span class="badge bg-success">Payée</span>
-                            @elseif($facture->statut === 'annulee')
-                                <span class="badge bg-secondary">Annulée</span>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-16">
-                    <div class="col-md-3">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Date d'émission</span>
-                            <span class="fw-medium">{{ $facture->date_emission->format('d/m/Y') }}</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Date d'échéance</span>
-                            <span class="fw-medium {{ $facture->isEnRetard() ? 'text-danger' : '' }}">
-                                {{ $facture->date_echeance->format('d/m/Y') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Montant TTC</span>
-                            <span class="fw-bold text-success text-lg">{{ number_format($facture->montant_ttc, 0) }} FCFA</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Montant payé</span>
-                            <span class="fw-bold text-info text-lg">{{ number_format($facture->montant_paye, 0) }} FCFA</span>
-                        </div>
-                    </div>
-                </div>
-                
-                @if($facture->montant_paye > 0)
-                <div class="row mt-16">
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Montant restant</span>
-                            <span class="fw-bold text-warning text-lg">{{ number_format($facture->montant_restant, 0) }} FCFA</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Date de paiement</span>
-                            <span class="fw-medium">{{ $facture->date_paiement ? $facture->date_paiement->format('d/m/Y') : '-' }}</span>
-                        </div>
-                    </div>
-                </div>
-                @endif
-                
-                @if($facture->conditions_paiement || $facture->notes)
-                <div class="row mt-16">
-                    @if($facture->conditions_paiement)
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Conditions de paiement</span>
-                            <span class="fw-medium">{{ $facture->conditions_paiement }}</span>
-                        </div>
-                    </div>
-                    @endif
-                    @if($facture->notes)
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Notes</span>
-                            <span class="fw-medium">{{ $facture->notes }}</span>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-                @endif
-                
-                @if($facture->valideePar)
-                <div class="row mt-16">
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Validée par</span>
-                            <span class="fw-medium">{{ $facture->valideePar->name }}</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex flex-column">
-                            <span class="text-sm text-muted mb-1">Date de validation</span>
-                            <span class="fw-medium">{{ $facture->date_validation->format('d/m/Y H:i') }}</span>
-                        </div>
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
-        
-        <!-- Détails des Tickets -->
-        <div class="card h-100 p-0 radius-12">
+
+        @if($facture->ticketsPesee->count() > 0)
+        <!-- Détail des Tickets de Pesée -->
+        <div class="card h-100 p-0 radius-12 mb-24">
             <div class="card-header border-bottom bg-base py-16 px-24">
-                <h6 class="mb-0">Détails des Tickets Facturés</h6>
+                <h6 class="mb-0 text-success">
+                    <i class="ri-scales-line me-2"></i>DÉTAIL DES TICKETS DE PESÉE
+                </h6>
             </div>
             <div class="card-body p-24">
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
-                                <th>N° Ticket</th>
-                                <th>Date</th>
-                                <th>Poids Net</th>
-                                <th>Prix Final</th>
-                                <th>Montant</th>
-                                <th>Centre de Collecte</th>
+                                <th class="border-0">N° Ticket</th>
+                                <th class="border-0">Date</th>
+                                <th class="border-0">Poids Net (kg)</th>
+                                <th class="border-0">Prix/Kg</th>
+                                <th class="border-0">Montant</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($facture->factureTicketsPesee as $factureTicket)
-                                @php
-                                    $ticket = $factureTicket->ticketPesee;
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <span class="fw-medium">{{ $ticket->numero_ticket }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">{{ $ticket->date_entree->format('d/m/Y') }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-success fw-bold">{{ number_format($ticket->poids_net, 2) }} kg</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-primary fw-bold">{{ number_format($factureTicket->montant_ticket / $ticket->poids_net, 2) }} FCFA/kg</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-success fw-bold">{{ number_format($factureTicket->montant_ticket, 0) }} FCFA</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">{{ $ticket->connaissement->centreCollecte->nom }}</span>
-                                    </td>
-                                </tr>
+                            @foreach($ticketsAvecPrix as $item)
+                            @php
+                                $ticket = $item['ticket'];
+                                $prix = $item['prix'];
+                            @endphp
+                            <tr>
+                                <td class="fw-semibold">{{ $ticket->numero_ticket }}</td>
+                                <td>{{ $ticket->date_entree->format('d/m/Y') }}</td>
+                                <td>{{ number_format($ticket->poids_net, 2) }}</td>
+                                <td>
+                                    @if(isset($prix['details']['prix_final_public']))
+                                        {{ number_format($prix['details']['prix_final_public'], 0) }} FCFA
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td class="fw-bold text-success">
+                                    @if(isset($prix['details']['prix_final_public']))
+                                        {{ number_format($ticket->poids_net * $prix['details']['prix_final_public'], 0) }} FCFA
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                            </tr>
                             @endforeach
                         </tbody>
-                        <tfoot>
-                            <tr class="table-light">
-                                <td colspan="4" class="text-end fw-bold">Total :</td>
-                                <td class="fw-bold text-success">{{ number_format($facture->montant_ttc, 0) }} FCFA</td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détails de Calcul -->
+        <div class="card h-100 p-0 radius-12 mb-24">
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <h6 class="mb-0 text-warning">
+                    <i class="ri-calculator-line me-2"></i>DÉTAILS DE CALCUL
+                </h6>
+            </div>
+            <div class="card-body p-24">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0">Élément de Calcul</th>
+                                <th class="border-0">Valeur</th>
+                                <th class="border-0">Unité</th>
+                                <th class="border-0">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $firstTicket = $ticketsAvecPrix[0]['prix'] ?? null;
+                            @endphp
+                            @if($firstTicket && isset($firstTicket['details']))
+                                <tr>
+                                    <td class="fw-semibold">Prix de base</td>
+                                    <td>{{ number_format($firstTicket['details']['prix_base'] ?? 0, 2) }}</td>
+                                    <td>FCFA/kg</td>
+                                    <td class="text-muted">Prix de référence</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Bonus qualité</td>
+                                    <td>{{ number_format($firstTicket['details']['bonus_qualite'] ?? 0, 2) }}</td>
+                                    <td>FCFA/kg</td>
+                                    <td class="text-muted">Prime qualité</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Coût transport</td>
+                                    <td>{{ number_format($firstTicket['details']['cout_transport'] ?? 0, 2) }}</td>
+                                    <td>FCFA/kg</td>
+                                    <td class="text-muted">Frais de transport</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td class="fw-bold">Prix final</td>
+                                    <td class="fw-bold">{{ number_format($firstTicket['details']['prix_final_public'] ?? 0, 2) }}</td>
+                                    <td class="fw-bold">FCFA/kg</td>
+                                    <td class="fw-bold">Prix total par kg</td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Calcul non disponible</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Totaux -->
+        <div class="card h-100 p-0 radius-12 mb-24">
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <h6 class="mb-0 text-dark">
+                    <i class="ri-money-dollar-circle-line me-2"></i>TOTAUX
+                </h6>
+            </div>
+            <div class="card-body p-24">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Poids Total :</span>
+                                <span class="fw-semibold">{{ number_format($facture->poids_total, 2) }} kg</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Montant HT :</span>
+                                <span class="fw-semibold">{{ number_format($facture->montant_ht, 0) }} FCFA</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">TVA (18%) :</span>
+                                <span class="fw-semibold">{{ number_format($facture->montant_tva, 0) }} FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between border-top pt-2">
+                                <span class="fw-bold text-primary">MONTANT TTC :</span>
+                                <span class="fw-bold text-primary">{{ number_format($facture->montant_ttc, 0) }} FCFA</span>
+                            </div>
+                            @if($facture->montant_paye > 0)
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Montant Payé :</span>
+                                <span class="fw-semibold text-success">{{ number_format($facture->montant_paye, 0) }} FCFA</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Reste à Payer :</span>
+                                <span class="fw-semibold text-warning">{{ number_format($facture->montant_restant, 0) }} FCFA</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ route('admin.factures.index') }}" class="btn btn-outline-secondary px-24 py-12 radius-8">
+                        <i class="ri-arrow-left-line me-2"></i>Retour à la Liste
+                    </a>
+                    @if($facture->statut === 'validee' || $facture->statut === 'payee')
+                        <a href="{{ route('admin.factures.pdf', $facture) }}" class="btn btn-warning px-24 py-12 radius-8" target="_blank">
+                            <i class="ri-file-pdf-line me-2"></i>Télécharger PDF
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-@include('partials.wowdash-scripts')
 
 <!-- Modal pour marquer comme payée -->
 <div class="modal fade" id="markAsPaidModal" tabindex="-1" aria-labelledby="markAsPaidModalLabel" aria-hidden="true">
@@ -296,7 +356,7 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="montant_paye" class="form-label">Montant payé (FCFA)</label>
+                        <label for="montant_paye" class="form-label">Montant payé</label>
                         <input type="number" class="form-control" id="montant_paye" name="montant_paye" step="0.01" required>
                         <div class="form-text">Montant total de la facture : <span id="montantTotal"></span> FCFA</div>
                     </div>
@@ -314,6 +374,8 @@
     </div>
 </div>
 
+@include('partials.wowdash-scripts')
+
 <script>
 function markAsPaid(factureId, montantTotal) {
     document.getElementById('montantTotal').textContent = montantTotal.toLocaleString();
@@ -326,4 +388,4 @@ function markAsPaid(factureId, montantTotal) {
 </script>
 
 </body>
-</html> 
+</html>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nouveau Connaissement - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Nouveau Connaissement - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -59,7 +59,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3 text-primary">
-                                <iconify-icon icon="majesticons:map-pin-line" class="icon me-2"></iconify-icon>
+                                <i class="ri-map-pin-line"></i>
                                 Informations de Départ
                             </h6>
                         </div>
@@ -85,15 +85,18 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="cooperative_id" class="form-label">Coopérative *</label>
-                                <select class="form-select @error('cooperative_id') is-invalid @enderror" 
-                                        id="cooperative_id" name="cooperative_id" required>
-                                    <option value="">Sélectionner une coopérative</option>
+                                <input type="text" class="form-control @error('cooperative_id') is-invalid @enderror" 
+                                       id="cooperative_display" name="cooperative_display" 
+                                       placeholder="Tapez le nom de la coopérative..." 
+                                       list="cooperatives-list" 
+                                       value="{{ old('cooperative_id') ? ($cooperatives->find(old('cooperative_id'))->nom ?? '') . ' (' . ($cooperatives->find(old('cooperative_id'))->code ?? '') . ')' : '' }}" 
+                                       required>
+                                <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
-                                        <option value="{{ $cooperative->id }}" {{ old('cooperative_id') == $cooperative->id ? 'selected' : '' }}>
-                                            {{ $cooperative->nom }} ({{ $cooperative->code }})
-                                        </option>
+                                        <option value="{{ $cooperative->nom }} ({{ $cooperative->code }})" data-id="{{ $cooperative->id }}">
                                     @endforeach
-                                </select>
+                                </datalist>
+                                <input type="hidden" id="cooperative_id" name="cooperative_id" value="{{ old('cooperative_id') }}">
                                 @error('cooperative_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -145,7 +148,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3 text-primary">
-                                <iconify-icon icon="majesticons:truck-line" class="icon me-2"></iconify-icon>
+                                <i class="ri-truck-line"></i>
                                 Informations Transport
                             </h6>
                         </div>
@@ -204,7 +207,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3 text-primary">
-                                <iconify-icon icon="majesticons:package-line" class="icon me-2"></iconify-icon>
+                                <i class="ri-package-line"></i>
                                 Informations Cargaison
                             </h6>
                         </div>
@@ -246,11 +249,11 @@
                     <!-- Boutons d'action -->
                     <div class="d-flex justify-content-end gap-3">
                         <a href="{{ route('admin.connaissements.index') }}" class="btn btn-secondary">
-                            <iconify-icon icon="lucide:x" class="icon me-1"></iconify-icon>
+                            <i class="ri-close-line"></i>
                             Annuler
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <iconify-icon icon="lucide:save" class="icon me-1"></iconify-icon>
+                            <i class="ri-save-line"></i>
                             Créer le Connaissement
                         </button>
                     </div>
@@ -261,5 +264,27 @@
 </main>
 
 @include('partials.wowdash-scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gérer la sélection de coopérative avec datalist
+    const cooperativeDisplay = document.getElementById('cooperative_display');
+    const cooperativeHidden = document.getElementById('cooperative_id');
+    
+    cooperativeDisplay.addEventListener('input', function() {
+        const input = this;
+        const value = input.value;
+        const datalist = document.getElementById('cooperatives-list');
+        
+        // Trouver l'option correspondante
+        const option = datalist.querySelector(`option[value="${value}"]`);
+        if (option) {
+            cooperativeHidden.value = option.getAttribute('data-id');
+        } else {
+            cooperativeHidden.value = '';
+        }
+    });
+});
+</script>
 </body>
 </html>

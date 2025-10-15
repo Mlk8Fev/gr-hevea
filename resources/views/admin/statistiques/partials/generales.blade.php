@@ -1,4 +1,4 @@
-<!-- Statistiques Générales Avancées WowDash -->
+<!-- Statistiques Générales Avancées FPH-CI -->
 <div class="row gy-4 mb-32">
     <!-- KPIs Principaux Niveau Général -->
     <div class="col-xxl-3 col-sm-6">
@@ -10,12 +10,12 @@
                         <h6 class="mb-0">{{ number_format($stats['total_graines'] ?? 0, 0, ',', ' ') }} Kg</h6>
                     </div>
                     <div class="w-50-px h-50-px bg-primary-600 rounded-circle d-flex justify-content-center align-items-center">
-                        <iconify-icon icon="hugeicons:seed" class="text-white text-2xl mb-0"></iconify-icon>
+                        <i class="ri-eye-line text-white text-2xl mb-0"></i>
                     </div>
                 </div>
                 <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                     <span class="d-inline-flex align-items-center gap-1 text-success-main">
-                        <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +12%
+                        <i class="ri-eye-line text-xs"></i> +12%
                     </span> 
                     Production ce mois
                 </p>
@@ -32,12 +32,12 @@
                         <h6 class="mb-0">{{ number_format($stats['nombre_tickets'] ?? 0) }}</h6>
                     </div>
                     <div class="w-50-px h-50-px bg-success-main rounded-circle d-flex justify-content-center align-items-center">
-                        <iconify-icon icon="hugeicons:invoice-03" class="text-white text-2xl mb-0"></iconify-icon>
+                        <i class="ri-eye-line text-white text-2xl mb-0"></i>
                     </div>
                 </div>
                 <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                     <span class="d-inline-flex align-items-center gap-1 text-success-main">
-                        <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +8%
+                        <i class="ri-eye-line text-xs"></i> +8%
                     </span> 
                     Documents traités ce mois
                 </p>
@@ -54,12 +54,12 @@
                         <h6 class="mb-0">{{ number_format($stats['moyenne_poids_net'] ?? 0, 2) }} Kg</h6>
                     </div>
                     <div class="w-50-px h-50-px bg-warning-main rounded-circle d-flex justify-content-center align-items-center">
-                        <iconify-icon icon="solar:scale-outline" class="text-white text-2xl mb-0"></iconify-icon>
+                        <i class="ri-eye-line text-white text-2xl mb-0"></i>
                     </div>
                 </div>
                 <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                     <span class="d-inline-flex align-items-center gap-1 text-warning-main">
-                        <iconify-icon icon="solar:check-circle-outline" class="text-xs"></iconify-icon> Stable
+                        <i class="ri-eye-line text-xs"></i> Stable
                     </span> 
                     Par ticket cette période
                 </p>
@@ -76,12 +76,12 @@
                         <h6 class="mb-0">{{ number_format($stats['total_sacs'] ?? 0) }}</h6>
                     </div>
                     <div class="w-50-px h-50-px bg-info rounded-circle d-flex justify-content-center align-items-center">
-                        <iconify-icon icon="hugeicons:package" class="text-white text-2xl mb-0"></iconify-icon>
+                        <i class="ri-eye-line text-white text-2xl mb-0"></i>
                     </div>
                 </div>
                 <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                     <span class="d-inline-flex align-items-center gap-1 text-info-main">
-                        <iconify-icon icon="solar:bag-outline" class="text-xs"></iconify-icon> {{ $stats['total_sacs'] ?? 0 }}
+                        <i class="ri-eye-line text-xs"></i> {{ $stats['total_sacs'] ?? 0 }}
                     </span> 
                     Sacs collectés au total
                 </p>

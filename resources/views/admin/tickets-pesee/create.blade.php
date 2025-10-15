@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un Ticket de Pesée - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Créer un Ticket de Pesée - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('admin.tickets-pesee.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Liste des Tickets
                     </a>
                 </li>
@@ -304,11 +304,11 @@
                 <!-- Boutons d'action -->
                 <div class="d-flex justify-content-end gap-3">
                     <a href="{{ route('admin.tickets-pesee.index') }}" class="btn btn-secondary">
-                        <iconify-icon icon="lucide:x" class="icon me-1"></iconify-icon>
+                        <i class="ri-close-line"></i>
                         Annuler
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <iconify-icon icon="lucide:save" class="icon me-1"></iconify-icon>
+                        <i class="ri-save-line"></i>
                         Créer le Ticket de Pesée
                     </button>
                 </div>

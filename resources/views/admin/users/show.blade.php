@@ -45,8 +45,36 @@
                                 <tr>
                                     <td class="fw-bold">Rôle :</td>
                                     <td>
-                                        <span class="badge bg-{{ $user->role === 'superadmin' ? 'danger' : ($user->role === 'admin' ? 'warning' : ($user->role === 'manager' ? 'info' : 'secondary')) }}">
-                                            {{ ucfirst($user->role) }}
+                                        @php
+                                            $roleColors = [
+                                                'superadmin' => 'danger',
+                                                'admin' => 'warning', 
+                                                'manager' => 'info',
+                                                'agc' => 'success',
+                                                'cs' => 'primary',
+                                                'ac' => 'secondary',
+                                                'rt' => 'info',
+                                                'rd' => 'success',
+                                                'comp' => 'warning',
+                                                'ctu' => 'dark',
+                                                'rcoop' => 'primary'
+                                            ];
+                                            $roleLabels = [
+                                                'superadmin' => 'Super Admin',
+                                                'admin' => 'Admin',
+                                                'manager' => 'Manager',
+                                                'agc' => 'Agent Gestion Qualité',
+                                                'cs' => 'Chef Secteur',
+                                                'ac' => 'Assistante Comptable',
+                                                'rt' => 'Responsable Traçabilité',
+                                                'rd' => 'Responsable Durabilité',
+                                                'comp' => 'Comptable Siège',
+                                                'ctu' => 'Contrôleur Usine',
+                                                'rcoop' => 'Responsable Coopérative'
+                                            ];
+                                        @endphp
+                                        <span class="badge bg-{{ $roleColors[$user->role] ?? 'secondary' }}-100 text-{{ $roleColors[$user->role] ?? 'secondary' }}-600 px-8 py-2 radius-6">
+                                            {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
                                         </span>
                                     </td>
                                 </tr>

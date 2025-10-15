@@ -18,7 +18,7 @@
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="{{ route('admin.farmer-lists.show', $connaissement) }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:arrow-left-outline" class="icon text-lg"></iconify-icon>
+                            <i class="ri-home-line icon text-lg"></i>
                             Retour à la Farmer List
                         </a>
                     </li>

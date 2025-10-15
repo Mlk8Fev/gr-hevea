@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier un Producteur - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Modifier un Producteur - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -49,6 +49,15 @@
     background: #6366f1 !important;
     color: #fff !important;
 }
+/* Style pour les inputs de coopératives */
+.cooperative-input {
+    position: relative;
+}
+.cooperative-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+}
 </style>
 </head>
 <body>
@@ -61,7 +70,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('admin.producteurs.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Liste des Producteurs
                     </a>
                 </li>
@@ -73,7 +82,7 @@
             @csrf
             @method('PUT')
             <div class="card p-24 radius-12 mb-24">
-                <h5 class="card-title mb-4"><iconify-icon icon="solar:info-square-outline" class="me-2 text-primary"></iconify-icon> Informations principales</h5>
+                <h5 class="card-title mb-4"><i class="ri-eye-line me-2 text-primary"></i> Informations principales</h5>
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="nom" class="form-label">Nom *</label>
@@ -130,26 +139,28 @@
                             @php $coops = old('cooperatives', $producteur->cooperatives->pluck('id')->toArray()); @endphp
                             @foreach($coops as $i => $coopId)
                             <div class="input-group mb-2 coop-select-row">
-                                <select class="form-select" name="cooperatives[]">
-                                    <option value="">Sélectionner une coopérative</option>
+                                <input class="form-control cooperative-input" name="cooperatives_display[]" list="cooperatives-list" placeholder="Tapez le nom de la coopérative..." value="{{ $coopId ? ($cooperatives->find($coopId)->code ?? '') . ' - ' . ($cooperatives->find($coopId)->nom ?? '') : '' }}">
+                                <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
-                                        <option value="{{ $cooperative->id }}" {{ $coopId == $cooperative->id ? 'selected' : '' }}>{{ $cooperative->code }} - {{ $cooperative->nom }}</option>
+                                        <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                     @endforeach
-                                </select>
-                                <button type="button" class="btn btn-outline-danger btn-remove-coop d-none"><iconify-icon icon="ic:round-remove" class="icon"></iconify-icon></button>
-                                <button type="button" class="btn btn-outline-primary btn-add-coop ms-2"><iconify-icon icon="ic:round-add" class="icon"></iconify-icon></button>
+                                </datalist>
+                                <input type="hidden" name="cooperatives[]" class="cooperative-id-input" value="{{ $coopId }}">
+                                <button type="button" class="btn btn-outline-danger btn-remove-coop d-none"><i class="ri-eye-line icon"></i></button>
+                                <button type="button" class="btn btn-outline-primary btn-add-coop ms-2"><i class="ri-eye-line icon"></i></button>
                             </div>
                             @endforeach
                             @if(count($coops) == 0)
                             <div class="input-group mb-2 coop-select-row">
-                                <select class="form-select" name="cooperatives[]">
-                                    <option value="">Sélectionner une coopérative</option>
+                                <input class="form-control cooperative-input" name="cooperatives_display[]" list="cooperatives-list" placeholder="Tapez le nom de la coopérative...">
+                                <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
-                                        <option value="{{ $cooperative->id }}">{{ $cooperative->code }} - {{ $cooperative->nom }}</option>
+                                        <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                     @endforeach
-                                </select>
-                                <button type="button" class="btn btn-outline-danger btn-remove-coop d-none"><iconify-icon icon="ic:round-remove" class="icon"></iconify-icon></button>
-                                <button type="button" class="btn btn-outline-primary btn-add-coop ms-2"><iconify-icon icon="ic:round-add" class="icon"></iconify-icon></button>
+                                </datalist>
+                                <input type="hidden" name="cooperatives[]" class="cooperative-id-input">
+                                <button type="button" class="btn btn-outline-danger btn-remove-coop d-none"><i class="ri-eye-line icon"></i></button>
+                                <button type="button" class="btn btn-outline-primary btn-add-coop ms-2"><i class="ri-eye-line icon"></i></button>
                             </div>
                             @endif
                         </div>
@@ -160,7 +171,7 @@
             <!-- Section Parcelles -->
             <div class="card p-24 radius-12 mb-24">
                 <h5 class="card-title mb-4">
-                    <iconify-icon icon="solar:map-outline" class="me-2 text-primary"></iconify-icon> 
+                    <i class="ri-eye-line me-2 text-primary"></i> 
                     Parcelles (max 10)
                 </h5>
                 <div id="parcelles-container">
@@ -189,7 +200,7 @@
                                 <div class="col-md-2">
                                     <label class="form-label">Actions</label>
                                     <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeParcelle(this)">
-                                        <iconify-icon icon="solar:trash-bin-outline"></iconify-icon> Supprimer
+                                        <i class="ri-delete-bin-line menu-icon"></i> Supprimer
                                     </button>
                                 </div>
                             </div>
@@ -218,7 +229,7 @@
                                 <div class="col-md-2">
                                     <label class="form-label">Actions</label>
                                     <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeParcelle(this)">
-                                        <iconify-icon icon="solar:trash-bin-outline"></iconify-icon> Supprimer
+                                        <i class="ri-delete-bin-line menu-icon"></i> Supprimer
                                     </button>
                                 </div>
                             </div>
@@ -226,17 +237,17 @@
                     @endif
                 </div>
                 <button type="button" class="btn btn-outline-primary" onclick="addParcelle()">
-                    <iconify-icon icon="solar:add-circle-outline"></iconify-icon> Ajouter une parcelle
+                    <i class="ri-add-line icon text-xl line-height-1"></i> Ajouter une parcelle
                 </button>
                 <div class="mt-3">
                     <small class="text-muted">
-                        <iconify-icon icon="solar:info-circle-outline"></iconify-icon>
+                        <i class="ri-eye-line"></i>
                         La superficie totale sera calculée automatiquement à partir des parcelles ajoutées.
                     </small>
                 </div>
             </div>
             <div class="card p-24 radius-12 mb-24">
-                <h5 class="card-title mb-4"><iconify-icon icon="solar:document-text-outline" class="me-2 text-warning"></iconify-icon> Documents de traçabilité</h5>
+                <h5 class="card-title mb-4"><i class="ri-eye-line me-2 text-warning"></i> Documents de traçabilité</h5>
                 <div class="row gy-3">
                     @foreach($documentTypes as $key => $label)
                     <div class="col-md-6">
@@ -271,19 +282,28 @@ $(function() {
         rows.find('.btn-remove-coop').toggleClass('d-none', rows.length === 1);
     }
     function applySelect2() {
-        $('#coop-list select').select2({
-            width: '100%',
-            placeholder: 'Sélectionner une coopérative',
-            allowClear: true,
-            dropdownParent: $('#coop-list')
+        // Gérer la sélection des coopératives avec datalist
+        $('.cooperative-input').on('input', function() {
+            const input = $(this);
+            const value = input.val();
+            const datalist = $('#cooperatives-list');
+            const hiddenInput = input.siblings('.cooperative-id-input');
+            
+            // Trouver l'option correspondante
+            const option = datalist.find(`option[value="${value}"]`);
+            if (option.length > 0) {
+                hiddenInput.val(option.data('id'));
+            } else {
+                hiddenInput.val('');
+            }
         });
     }
     $(document).on('click', '.btn-add-coop', function() {
         let count = $('#coop-list .coop-select-row').length;
         if(count >= 5) return;
         let row = $(this).closest('.coop-select-row').clone();
-        row.find('select').val('');
-        row.find('select').next('.select2-container').remove();
+        row.find('.cooperative-input').val('');
+        row.find('.cooperative-id-input').val('');
         $('#coop-list').append(row);
         applySelect2();
         updateButtons();
@@ -292,7 +312,6 @@ $(function() {
         $(this).closest('.coop-select-row').remove();
         updateButtons();
     });
-    applySelect2();
     updateButtons();
 });
 
@@ -329,7 +348,7 @@ function addParcelle() {
             <div class="col-md-2">
                 <label class="form-label">Actions</label>
                 <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeParcelle(this)">
-                    <iconify-icon icon="solar:trash-bin-outline"></iconify-icon> Supprimer
+                    <i class="ri-delete-bin-line menu-icon"></i> Supprimer
                 </button>
             </div>
         </div>

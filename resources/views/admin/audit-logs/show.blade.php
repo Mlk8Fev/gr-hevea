@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails du Log d'Audit - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Détails du Log d'Audit - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -39,7 +39,7 @@
             <div class="col-lg-8">
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <h5 class="card-title mb-4">
-                        <iconify-icon icon="solar:document-text-outline" class="me-2 text-primary"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-primary"></i>
                         Informations du Log
                     </h5>
                     
@@ -85,7 +85,7 @@
                 <!-- Utilisateur -->
                 <div class="card p-24 radius-12 border-0 shadow-sm mt-3">
                     <h5 class="card-title mb-4">
-                        <iconify-icon icon="solar:user-outline" class="me-2 text-primary"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-primary"></i>
                         Informations Utilisateur
                     </h5>
                     
@@ -115,7 +115,7 @@
                 @if($auditLog->old_values || $auditLog->new_values)
                 <div class="card p-24 radius-12 border-0 shadow-sm mt-3">
                     <h5 class="card-title mb-4">
-                        <iconify-icon icon="solar:database-outline" class="me-2 text-primary"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-primary"></i>
                         Données de l'Objet
                     </h5>
                     
@@ -189,7 +189,7 @@
             <div class="col-lg-4">
                 <div class="card p-24 radius-12 border-0 shadow-sm">
                     <h5 class="card-title mb-4">
-                        <iconify-icon icon="solar:settings-outline" class="me-2 text-primary"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-primary"></i>
                         Informations Techniques
                     </h5>
                     
@@ -199,12 +199,12 @@
                             <p class="mb-0">
                                 @if($auditLog->is_successful)
                                     <span class="badge bg-success">
-                                        <iconify-icon icon="solar:check-circle-outline" class="me-1"></iconify-icon>
+                                        <i class="ri-search-line me-1"></i>
                                         Succès
                                     </span>
                                 @else
                                     <span class="badge bg-danger">
-                                        <iconify-icon icon="solar:close-circle-outline" class="me-1"></iconify-icon>
+                                        <i class="ri-search-line me-1"></i>
                                         Échec
                                     </span>
                                 @endif
@@ -271,7 +271,7 @@
                 @if($auditLog->request_data)
                 <div class="card p-24 radius-12 border-0 shadow-sm mt-3">
                     <h5 class="card-title mb-4">
-                        <iconify-icon icon="solar:code-outline" class="me-2 text-primary"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-primary"></i>
                         Données de la Requête
                     </h5>
                     
@@ -285,7 +285,7 @@
                 @if($auditLog->user_agent)
                 <div class="card p-24 radius-12 border-0 shadow-sm mt-3">
                     <h5 class="card-title mb-4">
-                        <iconify-icon icon="solar:monitor-outline" class="me-2 text-primary"></iconify-icon>
+                        <i class="ri-eye-line me-2 text-primary"></i>
                         User Agent
                     </h5>
                     
@@ -300,7 +300,7 @@
         <!-- Actions -->
         <div class="d-flex gap-3 mt-24">
             <a href="{{ route('admin.audit-logs.index') }}" class="btn btn-secondary">
-                <iconify-icon icon="solar:arrow-left-outline" class="me-1"></iconify-icon>
+                <i class="ri-search-line me-1"></i>
                 Retour à la liste
             </a>
             @if($auditLog->object_type && $auditLog->object_id)
@@ -309,7 +309,7 @@
                 @endphp
                 @if(Route::has($objectRoute))
                     <a href="{{ route($objectRoute, $auditLog->object_id) }}" class="btn btn-outline-primary">
-                        <iconify-icon icon="solar:eye-outline" class="me-1"></iconify-icon>
+                        <i class="ri-search-line me-1"></i>
                         Voir l'objet
                     </a>
                 @endif

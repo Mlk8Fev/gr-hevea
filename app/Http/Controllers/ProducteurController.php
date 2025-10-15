@@ -162,12 +162,36 @@ class ProducteurController extends Controller
         }
 
         // Gestion upload fichiers documents (optionnel)
+        // Gestion upload fichiers documents (SÉCURISÉ)
         $documentTypes = ['fiche_enquete','lettre_engagement','self_declaration'];
         foreach ($documentTypes as $type) {
             if ($request->hasFile($type.'_fichier')) {
                 $file = $request->file($type.'_fichier');
-                $filename = $type.'_'.time().'.'.$file->getClientOriginalExtension();
+                
+                // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+                $mimeType = $file->getMimeType();
+                $allowedMimes = ['application/pdf'];
+                
+                if (!in_array($mimeType, $allowedMimes)) {
+                    return back()->withErrors([
+                        $type.'_fichier' => 'Type de fichier non autorisé. Seul le format PDF est accepté.'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 2: Valider la taille (10 MB max)
+                if ($file->getSize() > 10 * 1024 * 1024) {
+                    return back()->withErrors([
+                        $type.'_fichier' => 'Fichier trop volumineux. Taille maximale : 10 MB'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 3: Nom de fichier avec timestamp
+                $extension = $file->getClientOriginalExtension();
+                $filename = $type.'_'.time().'.'.$extension;
+                
+                // Stockage dans 'public' (accessible via /storage/)
                 $path = $file->storeAs('producteurs/'.$producteur->code_fphci, $filename, 'public');
+                
                 ProducteurDocument::create([
                     'producteur_id' => $producteur->id,
                     'type' => $type,
@@ -266,16 +290,40 @@ class ProducteurController extends Controller
                 $producteur->calculateSuperficieTotale();
             }
 
-            // Gestion upload fichiers documents
+            // Gestion upload fichiers documents (SÉCURISÉ)
             $documentTypes = ['fiche_enquete','lettre_engagement','self_declaration'];
             foreach ($documentTypes as $type) {
                 if ($request->hasFile($type.'_fichier')) {
                     $file = $request->file($type.'_fichier');
-                    $filename = $type.'_'.time().'.'.$file->getClientOriginalExtension();
-                    $path = $file->storeAs('producteurs/'.$producteur->code_fphci, $filename, 'public');
+                    
+                    // SÉCURITÉ 1: Valider le MIME type réel
+                    $mimeType = $file->getMimeType();
+                    $allowedMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+                    
+                    if (!in_array($mimeType, $allowedMimes)) {
+                        return back()->withErrors([
+                            $type.'_fichier' => 'Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG'
+                        ])->withInput();
+                    }
+                    
+                    // SÉCURITÉ 2: Valider la taille (10 MB max)
+                    if ($file->getSize() > 10 * 1024 * 1024) {
+                        return back()->withErrors([
+                            $type.'_fichier' => 'Fichier trop volumineux. Taille maximale : 10 MB'
+                        ])->withInput();
+                    }
+                    
+                    // SÉCURITÉ 3: Générer nom de fichier aléatoire sécurisé
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $type.'_'.\Illuminate\Support\Str::random(40).'.'.$extension;
+                    
+                    // SÉCURITÉ 4: Stocker dans 'local' (pas 'public' pour protection)
+                    $path = $file->storeAs('producteurs/'.$producteur->code_fphci, $filename, 'local');
+                    
                     $doc = $producteur->documents()->where('type', $type)->first();
                     if ($doc) {
-                        \Storage::delete($doc->fichier);
+                        // Supprimer l'ancien fichier
+                        \Storage::disk('public')->delete($doc->fichier);
                         $doc->update(['fichier' => $path]);
                     } else {
                         ProducteurDocument::create([
@@ -335,16 +383,40 @@ class ProducteurController extends Controller
             $producteur->calculateSuperficieTotale();
         }
 
-        // Gestion upload fichiers documents (identique au dessus)
+        // Gestion upload fichiers documents (SÉCURISÉ)
         $documentTypes = ['fiche_enquete','lettre_engagement','self_declaration'];
         foreach ($documentTypes as $type) {
             if ($request->hasFile($type.'_fichier')) {
                 $file = $request->file($type.'_fichier');
-                $filename = $type.'_'.time().'.'.$file->getClientOriginalExtension();
+                
+                // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+                $mimeType = $file->getMimeType();
+                $allowedMimes = ['application/pdf'];
+                
+                if (!in_array($mimeType, $allowedMimes)) {
+                    return back()->withErrors([
+                        $type.'_fichier' => 'Type de fichier non autorisé. Seul le format PDF est accepté.'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 2: Valider la taille (10 MB max)
+                if ($file->getSize() > 10 * 1024 * 1024) {
+                    return back()->withErrors([
+                        $type.'_fichier' => 'Fichier trop volumineux. Taille maximale : 10 MB'
+                    ])->withInput();
+                }
+                
+                // SÉCURITÉ 3: Nom de fichier avec timestamp
+                $extension = $file->getClientOriginalExtension();
+                $filename = $type.'_'.time().'.'.$extension;
+                
+                // Stockage dans 'public' (accessible via /storage/)
                 $path = $file->storeAs('producteurs/'.$producteur->code_fphci, $filename, 'public');
+                
                 $doc = $producteur->documents()->where('type', $type)->first();
                 if ($doc) {
-                    \Storage::delete($doc->fichier);
+                    // Supprimer l'ancien fichier
+                    \Storage::disk('local')->delete($doc->fichier);
                     $doc->update(['fichier' => $path]);
                 } else {
                     ProducteurDocument::create([

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier la Coopérative - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Modifier la Coopérative - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('admin.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Liste des Coopératives
                     </a>
                 </li>
@@ -31,7 +31,14 @@
             <form action="{{ route('admin.cooperatives.update', $cooperative) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                @if(auth()->user()->role === 'agc')
+                    <div class="alert alert-info">
+                        <i class="ri-information-line me-2"></i>
+                        <strong>Information :</strong> En tant qu'AGC, vous ne pouvez modifier que les documents de traçabilité de cette coopérative.
+                    </div>
+                @endif
                 <div class="row gy-3">
+                    @if(auth()->user()->role !== 'agc')
                     <div class="col-md-6">
                         <label for="code" class="form-label">Code de la coopérative *</label>
                         <input type="text" class="form-control" id="code" name="code" value="{{ old('code', $cooperative->code) }}" required>
@@ -85,10 +92,12 @@
                         <div class="form-text">La coopérative dispose-t-elle d'un séchoir ?</div>
                     </div>
                 </div>
+                @endif
                 
+                @if(auth()->user()->role !== 'agc')
                 <!-- Section des distances -->
                 <h5 class="mt-4">
-                    <iconify-icon icon="solar:route-outline" class="me-2 text-info"></iconify-icon> 
+                    <i class="ri-eye-line me-2 text-info"></i> 
                     Distances vers les centres de collecte (en km)
                 </h5>
                 <div class="row">
@@ -132,14 +141,20 @@
                     <i class="ri-information-line me-2"></i>
                     <strong>Information :</strong> Ces distances seront utilisées pour calculer le coût de transport lors de la facturation.
                 </div>
+                @endif
                 
+                @if(auth()->user()->role !== 'agc')
                 <h5 class="mt-4">Données bancaires</h5>
                 <div class="row">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="compte_bancaire" class="form-label">Compte (12 chiffres) *</label>
                         <input type="text" class="form-control" id="compte_bancaire" name="compte_bancaire" value="{{ old('compte_bancaire', $cooperative->compte_bancaire) }}" required maxlength="12">
                     </div>
                     <div class="col-md-2 mb-3">
+                        <label for="cle_rib" class="form-label">Clé RIB (2 chiffres) *</label>
+                        <input type="text" class="form-control" id="cle_rib" name="cle_rib" value="{{ old('cle_rib', $cooperative->cle_rib ?? '00') }}" required maxlength="2" pattern="[0-9]{2}" title="La clé RIB doit contenir exactement 2 chiffres">
+                    </div>
+                    <div class="col-md-3 mb-3">
                         <label for="code_banque" class="form-label">Code banque (5 caractères) *</label>
                         <input type="text" 
                                class="form-control" 
@@ -152,15 +167,18 @@
                                title="Le code banque doit contenir exactement 5 caractères (lettres majuscules et chiffres)"
                                style="text-transform: uppercase;">
                     </div>
-                    <div class="col-md-2 mb-3">
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
                         <label for="code_guichet" class="form-label">Code guichet (5 chiffres) *</label>
                         <input type="text" class="form-control" id="code_guichet" name="code_guichet" value="{{ old('code_guichet', $cooperative->code_guichet) }}" required maxlength="5">
                     </div>
-                    <div class="col-md-5 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="nom_cooperative_banque" class="form-label">Nom de la coopérative à la banque *</label>
                         <input type="text" class="form-control" id="nom_cooperative_banque" name="nom_cooperative_banque" value="{{ old('nom_cooperative_banque', $cooperative->nom_cooperative_banque) }}" required>
                     </div>
                 </div>
+                @endif
                 <h5 class="mt-4">Documents à uploader</h5>
                 <div class="row">
                     @foreach($documentTypes as $key => $label)
@@ -172,11 +190,11 @@
                         @if($doc)
                             <div class="mb-2 p-2 bg-success-focus border border-success-main radius-4">
                                 <div class="d-flex align-items-center gap-2 mb-1">
-                                    <iconify-icon icon="solar:check-circle-bold" class="text-success"></iconify-icon>
+                                    <i class="ri-eye-line text-success"></i>
                                     <span class="text-success-600 fw-medium">Document déjà fourni</span>
                                 </div>
                                 <a href="{{ asset('storage/' . $doc->fichier) }}" target="_blank" class="btn btn-outline-success btn-sm">
-                                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                                    <i class="ri-eye-line"></i>
                                     Voir le document
                                 </a>
                                 <small class="text-muted d-block mt-1">Uploadé le {{ $doc->created_at->format('d/m/Y H:i') }}</small>
@@ -184,7 +202,7 @@
                         @else
                             <div class="mb-2 p-2 bg-neutral-200 border border-neutral-400 radius-4">
                                 <div class="d-flex align-items-center gap-2">
-                                    <iconify-icon icon="solar:close-circle-bold" class="text-danger"></iconify-icon>
+                                    <i class="ri-eye-line text-danger"></i>
                                     <span class="text-neutral-600">Document non fourni</span>
                                 </div>
                             </div>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Lists - Gestion des Livraisons - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Farmer Lists - Gestion des Livraisons - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/style.css') }}">
@@ -19,7 +19,7 @@
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            <i class="ri-home-line icon text-lg"></i>
                             Dashboard
                         </a>
                     </li>
@@ -56,13 +56,13 @@
                                            placeholder="Rechercher par numéro de livraison..." 
                                            value="{{ request('search') }}"
                                            autocomplete="off">
-                                    <iconify-icon icon="ri:search-line" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></iconify-icon>
+                                    <i class="ri-search-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
                                 </div>
                             </div>
                             
                             <!-- Bouton Rechercher -->
                             <button type="button" id="searchButton" class="btn btn-primary">
-                                <iconify-icon icon="ri:search-line" class="me-1"></iconify-icon>
+                                <i class="ri-search-line me-1"></i>
                                 Rechercher
                             </button>
                             
@@ -93,22 +93,19 @@
                             
                             <!-- Filtre par coopérative -->
                             <div style="min-width: 200px;">
-                                <select id="cooperativeFilter" class="form-select">
-                                    <option value="">Toutes les coopératives</option>
+                                <input type="text" id="cooperativeFilter" class="form-control" placeholder="Tapez le nom de la coopérative..." list="cooperatives-list" value="{{ request('cooperative') ? ($cooperatives->find(request('cooperative'))->code ?? '') . ' - ' . ($cooperatives->find(request('cooperative'))->nom ?? '') : '' }}">
+                                <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
                                         @if(auth()->check() && auth()->user()->role === 'agc')
                                             @if($cooperative->secteur_id == auth()->user()->secteur_id)
-                                                <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
-                                                    {{ $cooperative->code }} - {{ $cooperative->nom }}
-                                                </option>
+                                                <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                             @endif
                                         @else
-                                        <option value="{{ $cooperative->id }}" {{ request('cooperative') == $cooperative->id ? 'selected' : '' }}>
-                                            {{ $cooperative->code }} - {{ $cooperative->nom }}
-                                        </option>
+                                        <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                         @endif
                                     @endforeach
-                                </select>
+                                </datalist>
+                                <input type="hidden" id="cooperativeFilterHidden" name="cooperative" value="{{ request('cooperative') }}">
                             </div>
                             
                             <!-- Filtre par centre de collecte -->
@@ -133,7 +130,7 @@
                             
                             <!-- Bouton reset -->
                             <button type="button" id="resetFilters" class="btn btn-outline-secondary">
-                                <iconify-icon icon="ri:refresh-line" class="me-1"></iconify-icon>
+                                <i class="ri-search-line me-1"></i>
                                 Reset
                             </button>
                         </div>
@@ -147,7 +144,7 @@
                     <div class="card p-24 radius-12 border-0 shadow-sm">
                         <div class="d-flex align-items-center justify-content-between mb-20">
                             <h5 class="mb-0 d-flex align-items-center gap-2">
-                                <iconify-icon icon="ri:file-list-2-line" class="text-primary"></iconify-icon>
+                                <i class="ri-user-line text-primary"></i>
                                 Livraisons avec Farmer Lists
                             </h5>
                         </div>
@@ -198,12 +195,12 @@
                                                 <div class="text-muted text-sm">
                                                     @if($livraison->farmer_list_complete)
                                                         <span class="badge bg-success-100 text-success-600 px-6 py-1 radius-4 text-xs">
-                                                            <iconify-icon icon="ri:check-line" class="me-1"></iconify-icon>
+                                                            <i class="ri-search-line me-1"></i>
                                                             Complète
                                                         </span>
                                                     @else
                                                         <span class="badge bg-warning-100 text-warning-600 px-6 py-1 radius-4 text-xs">
-                                                            <iconify-icon icon="ri:time-line" class="me-1"></iconify-icon>
+                                                            <i class="ri-search-line me-1"></i>
                                                             Incomplète
                                                         </span>
                                                     @endif
@@ -212,15 +209,15 @@
                                             <td class="text-center">
                                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                                     <a href="{{ route('admin.farmer-lists.show', $livraison) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
-                                                        <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
+                                                        <i class="ri-eye-line"></i>
                                                     </a>
                                                     @if(!$livraison->farmer_list_complete)
                                                         <a href="{{ route('admin.farmer-lists.create', $livraison) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Ajouter">
-                                                            <iconify-icon icon="ri:add-line" class="menu-icon"></iconify-icon>
+                                                            <i class="ri-add-line"></i>
                                                         </a>
                                                     @endif
                                                     <a href="{{ route('admin.farmer-lists.pdf', $livraison) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="PDF" target="_blank">
-                                                        <iconify-icon icon="ri:file-pdf-line" class="menu-icon"></iconify-icon>
+                                                        <i class="ri-printer-line"></i>
                                                     </a>
                                                 </div>
                                             </td>
@@ -256,13 +253,13 @@
                                                     @if($livraisons->onFirstPage())
                                                         <li class="page-item disabled">
                                                             <span class="page-link bg-light border-0 text-muted">
-                                                                <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                                Précédent
                                                             </span>
                                                         </li>
                                                     @else
                                                         <li class="page-item">
                                                             <a href="{{ $livraisons->appends(request()->query())->previousPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                                <iconify-icon icon="ri:arrow-left-s-line" class="text-xl"></iconify-icon>
+                                                                Précédent
                                                             </a>
                                                         </li>
                                                     @endif
@@ -322,13 +319,13 @@
                                                     @if($livraisons->hasMorePages())
                                                         <li class="page-item">
                                                             <a href="{{ $livraisons->appends(request()->query())->nextPageUrl() }}" class="page-link bg-white border-0 text-primary hover-bg-primary hover-text-white transition-all">
-                                                                <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                                Suivant
                                                             </a>
                                                         </li>
                                                     @else
                                                         <li class="page-item disabled">
                                                             <span class="page-link bg-light border-0 text-muted">
-                                                                <iconify-icon icon="ri:arrow-right-s-line" class="text-xl"></iconify-icon>
+                                                                Suivant
                                                             </span>
                                                         </li>
                                                     @endif
@@ -352,7 +349,7 @@
                             @endif
                         @else
                             <div class="text-center py-5">
-                                <iconify-icon icon="ri-inbox-line" class="display-1 text-muted"></iconify-icon>
+                                <i class="ri-inbox-line"></i>
                                 <h5 class="mt-3">Aucune livraison trouvée</h5>
                                 <p class="text-muted">Aucune livraison validée ne correspond à vos critères de recherche.</p>
                             </div>
@@ -378,7 +375,7 @@
         const url = new URL(window.location);
         const searchValue = searchInput.value.trim();
         const secteurValue = secteurFilter.value;
-        const cooperativeValue = cooperativeFilter.value;
+        const cooperativeValue = document.getElementById('cooperativeFilterHidden').value;
         const centreCollecteValue = centreCollecteFilter.value;
         
         if (searchValue) {
@@ -419,9 +416,24 @@
         }
     });
 
+    // Gérer la sélection de coopérative avec datalist
+    cooperativeFilter.addEventListener('input', function() {
+        const input = this;
+        const value = input.value;
+        const datalist = document.getElementById('cooperatives-list');
+        const hiddenInput = document.getElementById('cooperativeFilterHidden');
+        
+        // Trouver l'option correspondante
+        const option = datalist.querySelector(`option[value="${value}"]`);
+        if (option) {
+            hiddenInput.value = option.getAttribute('data-id');
+        } else {
+            hiddenInput.value = '';
+        }
+    });
+
     // Filtres immédiats
     secteurFilter.addEventListener('change', performSearch);
-    cooperativeFilter.addEventListener('change', performSearch);
     centreCollecteFilter.addEventListener('change', performSearch);
 
     // Reset des filtres
@@ -429,6 +441,7 @@
         searchInput.value = '';
         secteurFilter.value = '';
         cooperativeFilter.value = '';
+        document.getElementById('cooperativeFilterHidden').value = '';
         centreCollecteFilter.value = '';
         const url = new URL(window.location);
         url.searchParams.delete('search');

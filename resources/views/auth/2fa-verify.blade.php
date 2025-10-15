@@ -54,20 +54,20 @@
 
                 @if(session('success'))
                     <div class="alert alert-success mb-16">
-                        <iconify-icon icon="solar:check-circle-outline" class="me-2"></iconify-icon>
+                        <i class="ri-check-line me-2"></i>
                         {{ session('success') }}
                     </div>
                 @endif
 
                 @if(session('error'))
                     <div class="alert alert-danger mb-16">
-                        <iconify-icon icon="solar:danger-circle-outline" class="me-2"></iconify-icon>
+                        <i class="ri-check-line me-2"></i>
                         {{ session('error') }}
                     </div>
                 @endif
 
                 <div class="text-center mb-24">
-                    <iconify-icon icon="solar:shield-check-outline" style="font-size: 48px; color: #447748;"></iconify-icon>
+                    <i class="ri-eye-line"></i>
                     <p class="text-secondary-light mt-16 mb-0">Un code à 6 chiffres a été envoyé à : <strong>{{ auth()->user()->email }}</strong></p>
                 </div>
 
@@ -75,7 +75,7 @@
                     @csrf
                     <div class="icon-field mb-16">
                         <span class="icon top-50 translate-middle-y">
-                            <iconify-icon icon="solar:lock-keyhole-outline"></iconify-icon>
+                            <i class="ri-eye-line"></i>
                         </span>
                         <input type="text" 
                                name="code" 
@@ -103,7 +103,7 @@
                     <form action="{{ route('2fa.email.send-verify') }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-outline-secondary btn-sm">
-                            <iconify-icon icon="solar:refresh-outline" class="icon"></iconify-icon>
+                            <i class="ri-eye-line icon"></i>
                             Renvoyer le code
                         </button>
                     </form>

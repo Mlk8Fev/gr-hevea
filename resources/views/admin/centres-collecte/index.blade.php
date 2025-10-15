@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Centres de Collecte - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Gestion des Centres de Collecte - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/dataTables.min.css') }}">
@@ -20,7 +20,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -52,17 +52,17 @@
                     </select>
                     <form class="navbar-search" method="GET" action="{{ route('admin.centres-collecte.index') }}">
                         <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Rechercher..." value="{{ request('search') }}">
-                        <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
+                        <i class="ri-search-line"></i>
                     </form>
                     @if(request('search'))
                         <a href="{{ route('admin.centres-collecte.index') }}" class="btn btn-outline-secondary btn-sm px-12 py-6 radius-8 d-flex align-items-center gap-2">
-                            <iconify-icon icon="lucide:x" class="icon text-sm"></iconify-icon>
+                            <i class="ri-close-line"></i>
                             Effacer les filtres
                         </a>
                     @endif
                 </div>
                 <a href="{{ route('admin.centres-collecte.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                    <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
+                    <i class="ri-add-line icon text-xl line-height-1"></i>
                     Ajouter un centre
                 </a>
             </div>
@@ -96,15 +96,16 @@
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
                                         <button type="button" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir" data-bs-toggle="modal" data-bs-target="#viewCentreModal{{ $centre->id }}">
-                                            <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
+                                            <i class="ri-eye-line"></i>
                                         </button>
                                         <a href="{{ route('admin.centres-collecte.edit', $centre) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                            <i class="ri-edit-line"></i>
                                         </a>
                                         <form action="{{ route('admin.centres-collecte.destroy', $centre) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer ce centre de collecte ?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
+                                                <i class="ri-delete-bin-line"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -119,7 +120,7 @@
                     <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                         <li class="page-item">
                             <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-left"></iconify-icon>
+                                Précédent
                             </a>
                         </li>
                         <li class="page-item">
@@ -127,7 +128,7 @@
                         </li>
                         <li class="page-item">
                             <a class="page-link bg-neutral-200 text-secondary-light fw-semibold radius-8 border-0 d-flex align-items-center justify-content-center h-32-px w-32-px text-md" href="javascript:void(0)">
-                                <iconify-icon icon="ep:d-arrow-right"></iconify-icon>
+                                Suivant
                             </a>
                         </li>
                     </ul>
@@ -143,7 +144,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="viewCentreModalLabel{{ $centre->id }}">
-                        <iconify-icon icon="majesticons:building-line" class="icon me-2"></iconify-icon>
+                        <i class="ri-eye-line icon me-2"></i>
                         Détails du Centre de Collecte
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -199,11 +200,11 @@
                 </div>
                 <div class="modal-footer">
                     <a href="{{ route('admin.centres-collecte.edit', $centre) }}" class="btn btn-warning btn-sm">
-                        <iconify-icon icon="lucide:edit" class="icon me-1"></iconify-icon>
+                        <i class="ri-edit-line"></i>
                         Modifier
                     </a>
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <iconify-icon icon="lucide:x" class="icon me-1"></iconify-icon>
+                        <i class="ri-close-line"></i>
                         Fermer
                     </button>
                 </div>

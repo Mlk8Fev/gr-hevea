@@ -18,7 +18,7 @@
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="{{ route('admin.recus-achat.show', $recuAchat) }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:arrow-left-outline" class="icon text-lg"></iconify-icon>
+                            <i class="ri-home-line icon text-lg"></i>
                             Retour au Reçu
                         </a>
                     </li>
@@ -73,11 +73,11 @@
                                                 <canvas id="signatureAcheteur" class="signature-pad" width="400" height="200"></canvas>
                                                 <div class="d-flex gap-2 mt-2">
                                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearSignature('signatureAcheteur')">
-                                                        <iconify-icon icon="solar:refresh-outline"></iconify-icon>
+                                                        <i class="ri-eye-line"></i>
                                                         Effacer
                                                     </button>
                                                     <button type="button" class="btn btn-outline-info btn-sm" onclick="reloadSignatures()">
-                                                        <iconify-icon icon="solar:refresh-outline"></iconify-icon>
+                                                        <i class="ri-eye-line"></i>
                                                         Recharger
                                                     </button>
                                                 </div>
@@ -94,11 +94,11 @@
                                                 <canvas id="signatureProducteur" class="signature-pad" width="400" height="200"></canvas>
                                                 <div class="d-flex gap-2 mt-2">
                                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearSignature('signatureProducteur')">
-                                                        <iconify-icon icon="solar:refresh-outline"></iconify-icon>
+                                                        <i class="ri-eye-line"></i>
                                                         Effacer
                                                     </button>
                                                     <button type="button" class="btn btn-outline-info btn-sm" onclick="reloadSignatures()">
-                                                        <iconify-icon icon="solar:refresh-outline"></iconify-icon>
+                                                        <i class="ri-eye-line"></i>
                                                         Recharger
                                                     </button>
                                                 </div>
@@ -110,11 +110,11 @@
 
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary">
-                                        <iconify-icon icon="solar:check-circle-outline"></iconify-icon>
+                                        <i class="ri-eye-line"></i>
                                         Mettre à jour les Signatures
                                     </button>
                                     <a href="{{ route('admin.recus-achat.show', $recuAchat) }}" class="btn btn-outline-secondary">
-                                        <iconify-icon icon="solar:close-circle-outline"></iconify-icon>
+                                        <i class="ri-eye-line"></i>
                                         Annuler
                                     </a>
                                 </div>

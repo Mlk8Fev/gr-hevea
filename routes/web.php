@@ -26,14 +26,13 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Routes protégées
 Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Profil utilisateur
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 
     // Routes admin
     Route::prefix('admin')->name('admin.')->middleware(['auth', 'audit'])->group(function () {
         Route::get('producteurs/{producteur}/documents/{document}/pdf', [\App\Http\Controllers\ProducteurDocumentController::class, 'generatePdf'])->name('admin.producteurs.documents.pdf');
-        Route::resource('users', UserController::class);
-        Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
-        
-        Route::resource('secteurs', SecteurController::class);
         Route::resource('cooperatives', \App\Http\Controllers\CooperativeController::class);
         Route::resource('producteurs', \App\Http\Controllers\ProducteurController::class);
         Route::resource('producteurs.documents', \App\Http\Controllers\ProducteurDocumentController::class);
@@ -64,12 +63,14 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             Route::patch('finance/matrice-prix/{id}/activer', [\App\Http\Controllers\FinanceController::class, 'activerMatricePrix'])->name('finance.activer-matrice-prix');
         });
         
-        // Validation ENE CI
-        Route::get('ene-validation', [\App\Http\Controllers\EneValidationController::class, 'index'])->name('ene-validation.index');
-        Route::get('ene-validation/{id}', [\App\Http\Controllers\EneValidationController::class, 'show'])->name('ene-validation.show');
-        Route::post('ene-validation/{id}/validate', [\App\Http\Controllers\EneValidationController::class, 'validate'])->name('ene-validation.validate');
-        Route::post('ene-validation/{id}/reject', [\App\Http\Controllers\EneValidationController::class, 'reject'])->name('ene-validation.reject');
-        Route::patch('ene-validation/{id}/cancel', [\App\Http\Controllers\EneValidationController::class, 'cancel'])->name('ene-validation.cancel');
+        // Validation ENE CI (BLOQUÉE pour les AGC)
+        Route::middleware(['role:admin,superadmin'])->group(function () {
+            Route::get('ene-validation', [\App\Http\Controllers\EneValidationController::class, 'index'])->name('ene-validation.index');
+            Route::get('ene-validation/{id}', [\App\Http\Controllers\EneValidationController::class, 'show'])->name('ene-validation.show');
+            Route::post('ene-validation/{id}/validate', [\App\Http\Controllers\EneValidationController::class, 'validate'])->name('ene-validation.validate');
+            Route::post('ene-validation/{id}/reject', [\App\Http\Controllers\EneValidationController::class, 'reject'])->name('ene-validation.reject');
+            Route::patch('ene-validation/{id}/cancel', [\App\Http\Controllers\EneValidationController::class, 'cancel'])->name('ene-validation.cancel');
+        });
         
         // Gestion des Factures (SÉCURISÉE - Admin + Super-Admin)
         Route::middleware(['admin-or-superadmin', 'security'])->group(function () {
@@ -78,6 +79,17 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             Route::post('factures/{facture}/mark-as-paid', [\App\Http\Controllers\FactureController::class, 'markAsPaid'])->name('factures.mark-as-paid');
             Route::get('factures/{facture}/pdf', [\App\Http\Controllers\FactureController::class, 'generatePdf'])->name('factures.pdf');
             Route::get('factures/{facture}/preview', [\App\Http\Controllers\FactureController::class, 'preview'])->name('factures.preview');
+        });
+        
+        // Coopératives (SÉCURISÉES - Admin + Super-Admin + AGC avec restrictions)
+        Route::middleware(['role:admin,superadmin,agc'])->group(function () {
+            Route::get('cooperatives', [\App\Http\Controllers\CooperativeController::class, 'index'])->name('cooperatives.index');
+            Route::get('cooperatives/{cooperative}', [\App\Http\Controllers\CooperativeController::class, 'show'])->name('cooperatives.show');
+            Route::get('cooperatives/{cooperative}/edit', [\App\Http\Controllers\CooperativeController::class, 'edit'])->name('cooperatives.edit');
+            Route::put('cooperatives/{cooperative}', [\App\Http\Controllers\CooperativeController::class, 'update'])->name('cooperatives.update');
+            Route::get('cooperatives/{cooperative}/documents', [\App\Http\Controllers\CooperativeController::class, 'documents'])->name('cooperatives.documents');
+            Route::post('cooperatives/{cooperative}/documents', [\App\Http\Controllers\CooperativeController::class, 'storeDocument'])->name('cooperatives.store-document');
+            Route::delete('cooperatives/{cooperative}/documents/{document}', [\App\Http\Controllers\CooperativeController::class, 'destroyDocument'])->name('cooperatives.destroy-document');
         });
         
         // Farmer Lists
@@ -114,7 +126,35 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             Route::get('audit-logs/export/pdf', [\App\Http\Controllers\AuditLogController::class, 'exportPdf'])->name('audit-logs.export-pdf');
             Route::get('audit-logs/export/excel', [\App\Http\Controllers\AuditLogController::class, 'exportExcel'])->name('audit-logs.export-excel');
             Route::get('audit-logs/stats', [\App\Http\Controllers\AuditLogController::class, 'stats'])->name('audit-logs.stats');
+            
+            // Gestion des Utilisateurs (SÉCURISÉE - Super-Admin uniquement)
+            Route::resource('users', UserController::class);
+            Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+            
+            // Gestion des Secteurs (SÉCURISÉE - Super-Admin uniquement)
+            Route::resource('secteurs', SecteurController::class);
         });
+    });
+
+    // Routes pour les Responsables de Coopératives (rcoop)
+    Route::prefix('cooperative')->name('cooperative.')->middleware(['auth', 'audit', 'role:rcoop'])->group(function () {
+        Route::get('producteurs', [\App\Http\Controllers\CooperativeProducteurController::class, 'index'])->name('producteurs.index');
+        Route::get('producteurs/{producteur}', [\App\Http\Controllers\CooperativeProducteurController::class, 'show'])->name('producteurs.show');
+        
+        Route::get('tickets-pesee', [\App\Http\Controllers\CooperativeTicketPeseeController::class, 'index'])->name('tickets-pesee.index');
+        Route::get('tickets-pesee/{ticketPesee}', [\App\Http\Controllers\CooperativeTicketPeseeController::class, 'show'])->name('tickets-pesee.show');
+        
+        Route::get('connaissements', [\App\Http\Controllers\CooperativeConnaissementController::class, 'index'])->name('connaissements.index');
+        Route::get('connaissements/{connaissement}', [\App\Http\Controllers\CooperativeConnaissementController::class, 'show'])->name('connaissements.show');
+        
+        Route::get('finance', [\App\Http\Controllers\CooperativeFinanceController::class, 'index'])->name('finance.index');
+        Route::get('finance/{ticket}/calcul', [\App\Http\Controllers\CooperativeFinanceController::class, 'showCalcul'])->name('finance.show-calcul');
+        
+        Route::get('factures', [\App\Http\Controllers\CooperativeFactureController::class, 'index'])->name('factures.index');
+        Route::get('factures/create', [\App\Http\Controllers\CooperativeFactureController::class, 'create'])->name('factures.create');
+        Route::get('factures/{facture}', [\App\Http\Controllers\CooperativeFactureController::class, 'show'])->name('factures.show');
+        Route::get('factures/{facture}/preview', [\App\Http\Controllers\CooperativeFactureController::class, 'preview'])->name('factures.preview');
+        Route::get('factures/{facture}/pdf', [\App\Http\Controllers\CooperativeFactureController::class, 'pdf'])->name('factures.pdf');
     });
 });
 
@@ -129,200 +169,4 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             // Désactivation 2FA (Super-Admin uniquement)
             Route::post('email/disable', [\App\Http\Controllers\TwoFactorController::class, 'disable'])->name('email.disable');
         });
-
-// Test email (à supprimer après test)
-Route::get('/test-email', function () {
-    try {
-        Mail::raw('Test email FPH-CI depuis votre domaine Hostinger', function ($message) {
-            $message->to('mlkfph.ci@gmail.com')
-                   ->subject('Test Email FPH-CI - ' . now());
-        });
-        
-        return '✅ Email envoyé avec succès depuis notifications@fphcigrainehevea.com !';
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Debug 2FA (à supprimer après test)
-Route::get('/debug-2fa', function () {
-    $user = auth()->user();
-    
-    return [
-        'user_id' => $user->id,
-        'email' => $user->email,
-        'email_2fa_enabled' => $user->email_2fa_enabled,
-        'email_2fa_code' => $user->email_2fa_code ? 'Code présent' : 'Aucun code',
-        'email_2fa_code_expires_at' => $user->email_2fa_code_expires_at,
-        'email_2fa_attempts' => $user->email_2fa_attempts,
-        'email_2fa_locked_until' => $user->email_2fa_locked_until,
-    ];
-});
-
-// Nettoyer 2FA (à supprimer après test)
-Route::get('/clean-2fa', function () {
-    $user = auth()->user();
-    $user->update([
-        'email_2fa_enabled' => false,
-        'email_2fa_enabled_at' => null,
-        'email_2fa_code' => null,
-        'email_2fa_code_expires_at' => null,
-        'email_2fa_attempts' => 0,
-        'email_2fa_locked_until' => null
-    ]);
-    
-    return '✅ Données 2FA nettoyées. Vous pouvez maintenant tester.';
-});
-
-// Test envoi code 2FA (à supprimer après test)
-Route::get('/test-send-code', function () {
-    try {
-        $user = auth()->user();
-        $service = new \App\Services\Email2FAService();
-        
-        $result = $service->sendCode($user, 'setup');
-        
-        if ($result) {
-            return '✅ Code envoyé ! Vérifiez votre email.';
-        } else {
-            return '❌ Erreur envoi code.';
-        }
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Test stockage direct (à supprimer après test)
-Route::get('/test-store-code', function () {
-    try {
-        $user = auth()->user();
-        
-        // Stocker directement en base
-        $user->update([
-            'email_2fa_code' => '123456',
-            'email_2fa_code_expires_at' => now()->addMinutes(5),
-            'email_2fa_attempts' => 0,
-            'email_2fa_locked_until' => null
-        ]);
-        
-        return '✅ Code stocké directement en base : 123456';
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Test service 2FA (à supprimer après test)
-Route::get('/test-service', function () {
-    try {
-        $user = auth()->user();
-        $service = new \App\Services\Email2FAService();
-        
-        // Test génération de code
-        $code = $service->generateCode();
-        
-        // Test stockage
-        $user->update([
-            'email_2fa_code' => $code,
-            'email_2fa_code_expires_at' => now()->addMinutes(5)
-        ]);
-        
-        return '✅ Code généré : ' . $code . '<br>Stocké en base : ' . ($user->fresh()->email_2fa_code ? 'OUI' : 'NON');
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Test base de données (à supprimer après test)
-Route::get('/test-db', function () {
-    try {
-        $user = auth()->user();
-        
-        // Test lecture
-        $currentCode = $user->email_2fa_code;
-        
-        // Test écriture
-        $user->email_2fa_code = 'TEST123';
-        $user->save();
-        
-        // Test relecture
-        $user->refresh();
-        $newCode = $user->email_2fa_code;
-        
-        return '✅ Code actuel : ' . ($currentCode ?: 'NULL') . '<br>Code après save : ' . ($newCode ?: 'NULL');
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Test structure table (à supprimer après test)
-Route::get('/test-table', function () {
-    try {
-        $user = auth()->user();
-        
-        // Vérifier si les colonnes existent
-        $columns = \Schema::getColumnListing('users');
-        
-        // Vérifier les valeurs actuelles
-        $values = $user->only([
-            'id', 'email', 'email_2fa_enabled', 'email_2fa_code', 
-            'email_2fa_code_expires_at', 'email_2fa_attempts', 'email_2fa_locked_until'
-        ]);
-        
-        return '✅ Colonnes : ' . json_encode($columns) . '<br>Valeurs : ' . json_encode($values);
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Test sauvegarde forcée (à supprimer après test)
-Route::get('/test-force-save', function () {
-    try {
-        $user = auth()->user();
-        
-        // Sauvegarde forcée
-        \DB::table('users')
-            ->where('id', $user->id)
-            ->update([
-                'email_2fa_code' => '111111',
-                'email_2fa_code_expires_at' => now()->addMinutes(5),
-                'updated_at' => now()
-            ]);
-        
-        // Recharger depuis la base
-        $user->refresh();
-        
-        return '✅ Code forcé : ' . $user->email_2fa_code;
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-
-// Test vérification code (à supprimer après test)
-Route::get('/test-verify-code', function () {
-    try {
-        $user = auth()->user();
-        $service = new \App\Services\Email2FAService();
-        
-        // Test avec le code stocké
-        $result = $service->verifyCode($user, 'FORCE123');
-        
-        return '✅ Résultat vérification : ' . json_encode($result);
-    } catch (\Exception $e) {
-        return '❌ Erreur : ' . $e->getMessage();
-    }
-});
-// Debug session 2FA (à supprimer après test)
-Route::get('/debug-session', function () {
-    $user = auth()->user();
-    
-    return [
-        'user_id' => $user->id,
-        'email' => $user->email,
-        'email_2fa_enabled' => $user->email_2fa_enabled,
-        'email_2fa_code' => $user->email_2fa_code,
-        'email_2fa_code_expires_at' => $user->email_2fa_code_expires_at,
-        'session_email_2fa_verified' => session('email_2fa_verified'),
-        'all_session' => session()->all()
-    ];
-});
 

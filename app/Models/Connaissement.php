@@ -93,6 +93,11 @@ class Connaissement extends Model
         return $this->hasOne(TicketPesee::class);
     }
 
+    public function farmerList()
+    {
+        return $this->hasMany(FarmerList::class);
+    }
+
     // Scopes
     public function scopeProgramme($query)
     {

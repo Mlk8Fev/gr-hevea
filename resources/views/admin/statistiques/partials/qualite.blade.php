@@ -1,4 +1,4 @@
-<!-- Statistiques de Qualité WowDash -->
+<!-- Statistiques de Qualité FPH-CI -->
 <div class="row gy-4 mb-32">
     <!-- KPIs Qualité -->
     <div class="col-xl-3 col-md-6">

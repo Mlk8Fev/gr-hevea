@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détail du Calcul - Section Finance - WowDash</title>
-    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/favicon.png') }}" sizes="16x16">
+    <title>Détail du Calcul - Section Finance - FPH-CI</title>
+    <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <!-- BootStrap css -->
@@ -47,7 +47,7 @@
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        <i class="ri-home-line icon text-lg"></i>
                         Dashboard
                     </a>
                 </li>
@@ -306,7 +306,7 @@
             <div class="card-body p-24">
                 @if($ticketPesee->statut_ene === 'en_attente')
                     <div class="text-center py-16">
-                        <iconify-icon icon="majesticons:time-line" class="text-6xl text-warning"></iconify-icon>
+                        <i class="ri-eye-line text-6xl text-warning"></i>
                         <h6 class="mt-3 text-warning">En attente de validation ENE CI</h6>
                         <p class="text-muted">Ce ticket attend d'être validé par ENE CI pour pouvoir être facturé.</p>
                         <a href="{{ route('admin.ene-validation.show', $ticketPesee->id) }}" class="btn btn-warning">
@@ -345,7 +345,7 @@
                             <div class="d-flex flex-column">
                                 <span class="text-sm text-muted mb-1">Actions</span>
                                 <a href="{{ route('admin.ene-validation.show', $ticketPesee->id) }}" class="btn btn-sm btn-outline-info">
-                                    <i class="ri-eye-line me-1"></i>Voir Détails
+                                    <i class="ri-search-line me-1"></i>Voir Détails
                                 </a>
                             </div>
                         </div>
