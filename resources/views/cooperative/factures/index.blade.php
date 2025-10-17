@@ -28,6 +28,7 @@
             </ul>
         </div>
         
+        
         <!-- Messages de succès/erreur -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -148,10 +149,6 @@
                             <i class="ri-user-line text-primary"></i>
                             Liste des Factures
                         </h5>
-                        <a href="{{ route('cooperative.factures.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                            <i class="ri-add-line icon text-xl line-height-1"></i>
-                            Nouvelle Facture
-                        </a>
                     </div>
                     
                     <div class="table-responsive">

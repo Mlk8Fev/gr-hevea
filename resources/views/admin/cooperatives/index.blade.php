@@ -97,7 +97,7 @@
                             <i class="ri-user-line text-primary"></i>
                             Liste des Coopératives
                         </h5>
-                        @if(auth()->user()->role !== 'agc')
+                        @if(!in_array(auth()->user()->role, ['agc', 'cs']))
                         <a href="{{ route('admin.cooperatives.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
                             <i class="ri-add-line icon text-xl line-height-1"></i>
                             Nouvelle Coopérative
@@ -139,7 +139,7 @@
                                             <a href="{{ route('admin.cooperatives.edit', $cooperative) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
                                                 <i class="ri-edit-line"></i>
                                             </a>
-                                            @if(auth()->user()->role !== 'agc')
+                                            @if(!in_array(auth()->user()->role, ['agc', 'cs']))
                                             <form action="{{ route('admin.cooperatives.destroy', $cooperative) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette coopérative ?')">
                                                 @csrf
                                                 @method('DELETE')

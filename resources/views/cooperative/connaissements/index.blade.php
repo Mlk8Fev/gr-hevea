@@ -140,10 +140,12 @@
                             <i class="ri-user-line text-primary"></i>
                             Liste des Connaissements
                         </h5>
-                        <a href="{{ route('admin.connaissements.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                            <i class="ri-add-line icon text-xl line-height-1"></i>
-                            Nouveau Connaissement
-                        </a>
+                        @if(auth()->user()->role !== 'rcoop')
+                            <a href="{{ route('admin.connaissements.create') }}" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
+                                <i class="ri-add-line icon text-xl line-height-1"></i>
+                                Nouveau Connaissement
+                            </a>
+                        @endif
                     </div>
                     
                     <div class="table-responsive">
@@ -218,29 +220,29 @@
                                             <i class="ri-eye-line"></i>
                                         </a>
 
-                                            @if(auth()->check() && auth()->user()->role !== 'agc')
-                                        <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-
-                                        @if($connaissement->statut === 'programme')
-                                            <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Programmer">
-                                                <i class="ri-calendar-line"></i>
+                                        @if(auth()->check() && !in_array(auth()->user()->role, ['agc', 'rcoop']))
+                                            <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                                <i class="ri-edit-line"></i>
                                             </a>
-                                            <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
-                                                <i class="ri-check-line"></i>
-                                            </a>
-                                        @endif
 
-                                        @if($connaissement->statut === 'programme')
-                                                    <form action="{{ route('admin.connaissements.destroy', $connaissement) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce connaissement ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </form>
-                                                @endif
+                                            @if($connaissement->statut === 'programme')
+                                                <a href="{{ route('admin.connaissements.program', $connaissement) }}" class="bg-warning-focus text-warning-600 bg-hover-warning-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Programmer">
+                                                    <i class="ri-calendar-line"></i>
+                                                </a>
+                                                <a href="{{ route('admin.connaissements.validate', $connaissement) }}" class="bg-primary-focus text-primary-600 bg-hover-primary-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Valider">
+                                                    <i class="ri-check-line"></i>
+                                                </a>
+                                            @endif
+
+                                            @if($connaissement->statut === 'programme')
+                                                <form action="{{ route('admin.connaissements.destroy', $connaissement) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce connaissement ?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Supprimer">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

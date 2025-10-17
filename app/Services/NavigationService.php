@@ -37,8 +37,8 @@ class NavigationService
             case 'agc':
                 $navigation = array_merge($navigation, $this->getAgcNavigation());
                 break;
-            case 'cs': // Chef Secteur
-                $navigation = array_merge($navigation, $this->getChefSecteurNavigation());
+            case 'cs': // Chef Secteur - utilise la navigation CS spécifique
+                $navigation = array_merge($navigation, $this->getCsNavigation());
                 break;
             case 'ac': // Assistante Comptable
                 $navigation = array_merge($navigation, $this->getAssistanteComptableNavigation());
@@ -434,6 +434,13 @@ class NavigationService
                 'type' => 'item'
             ],
             [
+                'title' => 'Factures',
+                'icon' => 'ri-file-text-line',
+                'url' => route('cs.factures.index'),
+                'active' => request()->routeIs('cs.factures.*'),
+                'type' => 'item'
+            ],
+            [
                 'title' => 'Statistiques',
                 'icon' => 'ri-bar-chart-2-line',
                 'url' => route('admin.statistiques.index'),
@@ -458,8 +465,8 @@ class NavigationService
                 return $this->getUserStats();
             case 'agc':
                 return $this->getAgcStats();
-            case 'cs': // Chef Secteur
-                return $this->getChefSecteurStats();
+            case 'cs': // Chef Secteur - utilise les stats CS spécifiques
+                return $this->getCsStats();
             case 'ac': // Assistante Comptable
                 return $this->getAssistanteComptableStats();
             case 'rt': // Responsable Traçabilité
@@ -1400,6 +1407,145 @@ class NavigationService
                 'icon' => 'ri-file-list-line',
                 'color' => 'purple',
                 'label' => 'Farmer Lists (coopérative)'
+            ]
+        ];
+    }
+
+    private function getCsNavigation()
+    {
+        return [
+            [
+                'title' => 'Mon Secteur',
+                'type' => 'title'
+            ],
+            [
+                'title' => 'Coopératives',
+                'icon' => 'ri-group-line',
+                'url' => route('cs.cooperatives.index'),
+                'active' => request()->routeIs('cs.cooperatives.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Producteurs',
+                'icon' => 'ri-user-3-line',
+                'url' => route('admin.producteurs.index'),
+                'active' => request()->routeIs('admin.producteurs.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Connaissements',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.connaissements.index'),
+                'active' => request()->routeIs('admin.connaissements.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Tickets de Pesée',
+                'icon' => 'ri-scales-line',
+                'url' => route('admin.tickets-pesee.index'),
+                'active' => request()->routeIs('admin.tickets-pesee.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Farmer Lists',
+                'icon' => 'ri-file-list-line',
+                'url' => route('admin.farmer-lists.index'),
+                'active' => request()->routeIs('admin.farmer-lists.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Factures',
+                'icon' => 'ri-file-text-line',
+                'url' => route('cs.factures.index'),
+                'active' => request()->routeIs('cs.factures.*'),
+                'type' => 'item'
+            ],
+            [
+                'title' => 'Statistiques',
+                'icon' => 'ri-bar-chart-2-line',
+                'url' => route('admin.statistiques.index'),
+                'active' => request()->routeIs('admin.statistiques.*'),
+                'type' => 'item'
+            ],
+        ];
+    }
+
+    private function getCsStats()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $secteurCode = $user->secteur;
+
+        // Si le CS n'a pas de secteur assigné, retourner des compteurs vides
+        if (!$secteurCode) {
+            return [
+                'producteurs' => ['count' => 0, 'icon' => 'ri-user-3-line', 'color' => 'green', 'label' => 'Producteurs (secteur)'],
+                'parcelles' => ['count' => 0, 'icon' => 'ri-map-pin-line', 'color' => 'blue', 'label' => 'Parcelles (secteur)'],
+                'livraisons' => ['count' => 0, 'icon' => 'ri-truck-line', 'color' => 'orange', 'label' => 'Livraisons (secteur)'],
+                'farmerlists' => ['count' => 0, 'icon' => 'ri-file-list-line', 'color' => 'purple', 'label' => 'Farmer Lists (secteur)'],
+                'docs_manquants' => ['count' => 0, 'icon' => 'ri-file-warning-line', 'color' => 'red', 'label' => 'Docs traçabilité manquants'],
+            ];
+        }
+
+        // Comptes par secteur
+        $producteursCount = \App\Models\Producteur::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $parcellesCount = \App\Models\Parcelle::whereHas('producteur.secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $livraisonsCount = \App\Models\Connaissement::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        $farmerListsCount = \App\Models\FarmerList::whereHas('connaissement.secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->count();
+
+        // Producteurs avec documents manquants (fiche_enquete, lettre_engagement, self_declaration)
+        $docsManquantsCount = \App\Models\Producteur::whereHas('secteur', function($q) use ($secteurCode) {
+            $q->where('code', $secteurCode);
+        })->where(function($q) {
+            $q->whereDoesntHave('documents', function($d) {
+                $d->where('type', 'fiche_enquete');
+            })->orWhereDoesntHave('documents', function($d) {
+                $d->where('type', 'lettre_engagement');
+            })->orWhereDoesntHave('documents', function($d) {
+                $d->where('type', 'self_declaration');
+            });
+        })->count();
+
+        return [
+            'producteurs' => [
+                'count' => $producteursCount,
+                'icon' => 'ri-user-3-line',
+                'color' => 'green',
+                'label' => 'Producteurs (secteur)'
+            ],
+            'parcelles' => [
+                'count' => $parcellesCount,
+                'icon' => 'ri-map-pin-line',
+                'color' => 'blue',
+                'label' => 'Parcelles (secteur)'
+            ],
+            'livraisons' => [
+                'count' => $livraisonsCount,
+                'icon' => 'ri-truck-line',
+                'color' => 'orange',
+                'label' => 'Livraisons (secteur)'
+            ],
+            'farmerlists' => [
+                'count' => $farmerListsCount,
+                'icon' => 'ri-file-list-line',
+                'color' => 'purple',
+                'label' => 'Farmer Lists (secteur)'
+            ],
+            'docs_manquants' => [
+                'count' => $docsManquantsCount,
+                'icon' => 'ri-file-warning-line',
+                'color' => 'red',
+                'label' => 'Docs traçabilité manquants'
             ]
         ];
     }

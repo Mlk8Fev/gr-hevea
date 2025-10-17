@@ -10,7 +10,7 @@ use App\Services\CalculPrixService;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NavigationService;
 
-class CooperativeFactureController extends Controller
+class CsFactureController extends Controller
 {
     protected $calculPrixService;
 
@@ -18,23 +18,26 @@ class CooperativeFactureController extends Controller
     {
         $this->calculPrixService = $calculPrixService;
     }
+
     /**
-     * Afficher les factures de la coopérative du responsable
+     * Afficher les factures du secteur du CS/AGC
      */
     public function index(Request $request)
     {
         $user = Auth::user();
         
-        // Récupérer la coopérative du responsable
-        $cooperative = Cooperative::find($user->cooperative_id);
-        
-        if (!$cooperative) {
-            return redirect()->route('dashboard')->with('error', 'Aucune coopérative assignée à votre compte.');
+        // Filtrer par secteur pour les CS et AGC
+        $secteurCode = $user->secteur;
+        if (!$secteurCode) {
+            return redirect()->route('dashboard')->with('error', 'Aucun secteur assigné à votre compte.');
         }
-
-        // Récupérer les factures de cette coopérative uniquement
-        $query = Facture::where('cooperative_id', $cooperative->id)
-            ->with(['cooperative', 'ticketsPesee']);
+        
+        // Récupérer les factures des coopératives de ce secteur uniquement
+        $query = Facture::whereHas('cooperative', function($q) use ($secteurCode) {
+            $q->whereHas('secteur', function($sq) use ($secteurCode) {
+                $sq->where('code', $secteurCode);
+            });
+        })->with(['cooperative', 'ticketsPesee']);
 
         // Filtres
         if ($request->filled('search')) {
@@ -54,32 +57,19 @@ class CooperativeFactureController extends Controller
         $types = ['individuelle' => 'Individuelle', 'globale' => 'Globale'];
         $statuts = ['brouillon' => 'Brouillon', 'validee' => 'Validée', 'payee' => 'Payée', 'annulee' => 'Annulée'];
 
-        // Navigation pour les responsables de coopératives
-        $navigationService = new NavigationService();
-        $navigation = $navigationService->getNavigation($user);
+        // Récupérer la navigation pour l'utilisateur CS
+        $navigationService = app(\App\Services\NavigationService::class);
+        $navigation = $navigationService->getNavigation();
 
-        return view('cooperative.factures.index', compact('factures', 'cooperative', 'secteurs', 'cooperatives', 'types', 'statuts', 'navigation'));
+        return view('cs.factures.index', compact('factures', 'secteurs', 'cooperatives', 'types', 'statuts', 'navigation'));
     }
 
     /**
-     * Afficher le formulaire de création de facture (lecture seule pour les responsables)
+     * Afficher le formulaire de création de facture (lecture seule pour les CS)
      */
     public function create()
     {
-        $user = Auth::user();
-        
-        // Récupérer la coopérative du responsable
-        $cooperative = Cooperative::find($user->cooperative_id);
-        
-        if (!$cooperative) {
-            return redirect()->route('dashboard')->with('error', 'Aucune coopérative assignée à votre compte.');
-        }
-
-        // Navigation pour les responsables de coopératives
-        $navigationService = new NavigationService();
-        $navigation = $navigationService->getNavigation($user);
-
-        return redirect()->route('cooperative.factures.index')->with('info', 'La création de factures est réservée aux administrateurs.');
+        return redirect()->route('cs.factures.index')->with('info', 'La création de factures est réservée aux administrateurs.');
     }
 
     /**
@@ -88,11 +78,16 @@ class CooperativeFactureController extends Controller
     public function show(Facture $facture)
     {
         $user = Auth::user();
-        $cooperative = Cooperative::find($user->cooperative_id);
-
-        // Vérifier que la facture appartient à la coopérative du responsable
-        if ($facture->cooperative_id !== $cooperative->id) {
-            return redirect()->route('cooperative.factures.index')->with('error', 'Accès refusé.');
+        
+        // Vérifier que la facture appartient au secteur du CS/AGC
+        $secteurCode = $user->secteur;
+        if (!$secteurCode) {
+            return redirect()->route('dashboard')->with('error', 'Aucun secteur assigné à votre compte.');
+        }
+        
+        // Vérifier que la facture appartient à une coopérative de ce secteur
+        if (!$facture->cooperative || $facture->cooperative->secteur->code !== $secteurCode) {
+            return redirect()->route('cs.factures.index')->with('error', 'Accès refusé.');
         }
 
         // Charger les relations nécessaires
@@ -108,18 +103,18 @@ class CooperativeFactureController extends Controller
                     'prix' => $prix
                 ];
             } catch (\Exception $e) {
-                \Log::error('Erreur calcul prix pour affichage facture coopérative', [
+                \Log::error('Erreur calcul prix pour affichage facture CS', [
                     'ticket_id' => $ticket->id,
                     'error' => $e->getMessage()
                 ]);
             }
         }
 
-        // Navigation pour les responsables de coopératives
-        $navigationService = new NavigationService();
-        $navigation = $navigationService->getNavigation($user);
+        // Récupérer la navigation pour l'utilisateur CS
+        $navigationService = app(\App\Services\NavigationService::class);
+        $navigation = $navigationService->getNavigation();
 
-        return view('cooperative.factures.show', compact('facture', 'cooperative', 'ticketsAvecPrix', 'navigation'));
+        return view('cs.factures.show', compact('facture', 'ticketsAvecPrix', 'navigation'));
     }
 
     /**
@@ -128,11 +123,16 @@ class CooperativeFactureController extends Controller
     public function preview(Facture $facture)
     {
         $user = Auth::user();
-        $cooperative = Cooperative::find($user->cooperative_id);
-
-        // Vérifier que la facture appartient à la coopérative du responsable
-        if ($facture->cooperative_id !== $cooperative->id) {
-            return redirect()->route('cooperative.factures.index')->with('error', 'Accès refusé.');
+        
+        // Vérifier que la facture appartient au secteur du CS/AGC
+        $secteurCode = $user->secteur;
+        if (!$secteurCode) {
+            return redirect()->route('dashboard')->with('error', 'Aucun secteur assigné à votre compte.');
+        }
+        
+        // Vérifier que la facture appartient à une coopérative de ce secteur
+        if (!$facture->cooperative || $facture->cooperative->secteur->code !== $secteurCode) {
+            return redirect()->route('cs.factures.index')->with('error', 'Accès refusé.');
         }
 
         $facture->load(['cooperative', 'ticketsPesee.connaissement.secteur', 'createdBy', 'valideePar']);
@@ -150,19 +150,19 @@ class CooperativeFactureController extends Controller
                     ]
                 ];
             } catch (\Exception $e) {
-                \Log::error('Erreur calcul prix pour preview facture', [
+                \Log::error('Erreur calcul prix pour preview facture CS', [
                     'ticket_id' => $ticket->id,
                     'error' => $e->getMessage()
                 ]);
             }
         }
 
-        // Navigation pour les responsables de coopératives
-        $navigationService = new NavigationService();
-        $navigation = $navigationService->getNavigation($user);
+        // Récupérer la navigation pour l'utilisateur CS
+        $navigationService = app(\App\Services\NavigationService::class);
+        $navigation = $navigationService->getNavigation();
         
         // Utiliser la vue preview individuelle
-        return view('cooperative.factures.preview-individuelle', compact('facture', 'ticketsAvecPrix', 'navigation'));
+        return view('cs.factures.preview-individuelle', compact('facture', 'ticketsAvecPrix', 'navigation'));
     }
 
     /**
@@ -171,11 +171,16 @@ class CooperativeFactureController extends Controller
     public function pdf(Facture $facture)
     {
         $user = Auth::user();
-        $cooperative = Cooperative::find($user->cooperative_id);
-
-        // Vérifier que la facture appartient à la coopérative du responsable
-        if ($facture->cooperative_id !== $cooperative->id) {
-            return redirect()->route('cooperative.factures.index')->with('error', 'Accès refusé.');
+        
+        // Vérifier que la facture appartient au secteur du CS/AGC
+        $secteurCode = $user->secteur;
+        if (!$secteurCode) {
+            return redirect()->route('dashboard')->with('error', 'Aucun secteur assigné à votre compte.');
+        }
+        
+        // Vérifier que la facture appartient à une coopérative de ce secteur
+        if (!$facture->cooperative || $facture->cooperative->secteur->code !== $secteurCode) {
+            return redirect()->route('cs.factures.index')->with('error', 'Accès refusé.');
         }
 
         $facture->load(['cooperative', 'ticketsPesee.connaissement.secteur', 'createdBy', 'valideePar']);
@@ -193,7 +198,7 @@ class CooperativeFactureController extends Controller
                     ]
                 ];
             } catch (\Exception $e) {
-                \Log::error('Erreur calcul prix pour PDF facture', [
+                \Log::error('Erreur calcul prix pour PDF facture CS', [
                     'ticket_id' => $ticket->id,
                     'error' => $e->getMessage()
                 ]);
@@ -201,7 +206,7 @@ class CooperativeFactureController extends Controller
         }
 
         // Utiliser la vue compacte pour le PDF
-        $pdf = \PDF::loadView('cooperative.factures.pdf-compact', compact('facture', 'ticketsAvecPrix'));
+        $pdf = \PDF::loadView('cs.factures.pdf-compact', compact('facture', 'ticketsAvecPrix'));
         
         return $pdf->download('facture-' . $facture->numero_facture . '.pdf');
     }

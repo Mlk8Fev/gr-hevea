@@ -33,7 +33,6 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
     // Routes admin
     Route::prefix('admin')->name('admin.')->middleware(['auth', 'audit'])->group(function () {
         Route::get('producteurs/{producteur}/documents/{document}/pdf', [\App\Http\Controllers\ProducteurDocumentController::class, 'generatePdf'])->name('admin.producteurs.documents.pdf');
-        Route::resource('cooperatives', \App\Http\Controllers\CooperativeController::class);
         Route::resource('producteurs', \App\Http\Controllers\ProducteurController::class);
         Route::resource('producteurs.documents', \App\Http\Controllers\ProducteurDocumentController::class);
         
@@ -72,8 +71,8 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             Route::patch('ene-validation/{id}/cancel', [\App\Http\Controllers\EneValidationController::class, 'cancel'])->name('ene-validation.cancel');
         });
         
-        // Gestion des Factures (SÉCURISÉE - Admin + Super-Admin)
-        Route::middleware(['admin-or-superadmin', 'security'])->group(function () {
+        // Gestion des Factures (SÉCURISÉE - Admin + Super-Admin + AGC + CS)
+        Route::middleware(['role:admin,superadmin,agc,cs'])->group(function () {
             Route::resource('factures', \App\Http\Controllers\FactureController::class);
             Route::post('factures/{facture}/validate', [\App\Http\Controllers\FactureController::class, 'validate'])->name('factures.validate');
             Route::post('factures/{facture}/mark-as-paid', [\App\Http\Controllers\FactureController::class, 'markAsPaid'])->name('factures.mark-as-paid');
@@ -81,8 +80,8 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             Route::get('factures/{facture}/preview', [\App\Http\Controllers\FactureController::class, 'preview'])->name('factures.preview');
         });
         
-        // Coopératives (SÉCURISÉES - Admin + Super-Admin + AGC avec restrictions)
-        Route::middleware(['role:admin,superadmin,agc'])->group(function () {
+        // Coopératives (SÉCURISÉES - Admin + Super-Admin + AGC + CS avec restrictions)
+        Route::middleware(['role:admin,superadmin,agc,cs'])->group(function () {
             Route::get('cooperatives', [\App\Http\Controllers\CooperativeController::class, 'index'])->name('cooperatives.index');
             Route::get('cooperatives/{cooperative}', [\App\Http\Controllers\CooperativeController::class, 'show'])->name('cooperatives.show');
             Route::get('cooperatives/{cooperative}/edit', [\App\Http\Controllers\CooperativeController::class, 'edit'])->name('cooperatives.edit');
@@ -169,4 +168,22 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
             // Désactivation 2FA (Super-Admin uniquement)
             Route::post('email/disable', [\App\Http\Controllers\TwoFactorController::class, 'disable'])->name('email.disable');
         });
+
+    // Routes CS (Chef Secteur) - Coopératives
+    Route::prefix('cs')->name('cs.')->middleware(['role:cs,agc'])->group(function () {
+        Route::get('cooperatives', [\App\Http\Controllers\CsCooperativeController::class, 'index'])->name('cooperatives.index');
+        Route::get('cooperatives/{cooperative}', [\App\Http\Controllers\CsCooperativeController::class, 'show'])->name('cooperatives.show');
+        Route::get('cooperatives/{cooperative}/edit', [\App\Http\Controllers\CsCooperativeController::class, 'edit'])->name('cooperatives.edit');
+        Route::put('cooperatives/{cooperative}', [\App\Http\Controllers\CsCooperativeController::class, 'update'])->name('cooperatives.update');
+        Route::get('cooperatives/{cooperative}/documents', [\App\Http\Controllers\CsCooperativeController::class, 'documents'])->name('cooperatives.documents');
+        Route::post('cooperatives/{cooperative}/documents', [\App\Http\Controllers\CsCooperativeController::class, 'storeDocument'])->name('cooperatives.store-document');
+        Route::delete('cooperatives/{cooperative}/documents/{document}', [\App\Http\Controllers\CsCooperativeController::class, 'destroyDocument'])->name('cooperatives.destroy-document');
+        
+        // Routes CS (Chef Secteur) - Factures
+        Route::get('factures', [\App\Http\Controllers\CsFactureController::class, 'index'])->name('factures.index');
+        Route::get('factures/create', [\App\Http\Controllers\CsFactureController::class, 'create'])->name('factures.create');
+        Route::get('factures/{facture}', [\App\Http\Controllers\CsFactureController::class, 'show'])->name('factures.show');
+        Route::get('factures/{facture}/preview', [\App\Http\Controllers\CsFactureController::class, 'preview'])->name('factures.preview');
+        Route::get('factures/{facture}/pdf', [\App\Http\Controllers\CsFactureController::class, 'pdf'])->name('factures.pdf');
+    });
 
