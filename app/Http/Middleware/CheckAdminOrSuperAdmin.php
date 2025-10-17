@@ -24,8 +24,8 @@ class CheckAdminOrSuperAdmin
             return redirect()->route('dashboard')->with('error', 'Accès refusé. Cette section est réservée aux administrateurs.');
         }
         
-        // Autoriser les admin, super-admin ET agc
-        if ($user->role === 'admin' || $user->role === 'superadmin' || $user->role === 'agc') {
+        // Autoriser les admin, super-admin, agc ET ctu
+        if (in_array($user->role, ['admin', 'superadmin', 'agc', 'ctu'])) {
             return $next($request);
         }
 

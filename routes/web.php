@@ -54,7 +54,7 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
         Route::get('tickets-pesee/{ticketPesee}/pdf', [\App\Http\Controllers\TicketPeseeController::class, 'generatePdf'])->name('tickets-pesee.pdf');
         
         // Section Finance (SÉCURISÉE - Admin + Super-Admin)
-        Route::middleware(['admin-or-superadmin', 'security'])->group(function () {
+        Route::middleware(['admin-or-superadmin'])->group(function () {
             Route::get('finance', [\App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index');
             Route::get('finance/calcul/{id}', [\App\Http\Controllers\FinanceController::class, 'showCalcul'])->name('finance.show-calcul');
             Route::get('finance/matrice-prix', [\App\Http\Controllers\FinanceController::class, 'matricePrix'])->name('finance.matrice-prix');
@@ -83,9 +83,12 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
         // Coopératives (SÉCURISÉES - Admin + Super-Admin + AGC + CS avec restrictions)
         Route::middleware(['role:admin,superadmin,agc,cs'])->group(function () {
             Route::get('cooperatives', [\App\Http\Controllers\CooperativeController::class, 'index'])->name('cooperatives.index');
+            Route::get('cooperatives/create', [\App\Http\Controllers\CooperativeController::class, 'create'])->name('cooperatives.create');
+            Route::post('cooperatives', [\App\Http\Controllers\CooperativeController::class, 'store'])->name('cooperatives.store');
             Route::get('cooperatives/{cooperative}', [\App\Http\Controllers\CooperativeController::class, 'show'])->name('cooperatives.show');
             Route::get('cooperatives/{cooperative}/edit', [\App\Http\Controllers\CooperativeController::class, 'edit'])->name('cooperatives.edit');
             Route::put('cooperatives/{cooperative}', [\App\Http\Controllers\CooperativeController::class, 'update'])->name('cooperatives.update');
+            Route::delete('cooperatives/{cooperative}', [\App\Http\Controllers\CooperativeController::class, 'destroy'])->name('cooperatives.destroy');
             Route::get('cooperatives/{cooperative}/documents', [\App\Http\Controllers\CooperativeController::class, 'documents'])->name('cooperatives.documents');
             Route::post('cooperatives/{cooperative}/documents', [\App\Http\Controllers\CooperativeController::class, 'storeDocument'])->name('cooperatives.store-document');
             Route::delete('cooperatives/{cooperative}/documents/{document}', [\App\Http\Controllers\CooperativeController::class, 'destroyDocument'])->name('cooperatives.destroy-document');

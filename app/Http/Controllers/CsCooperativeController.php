@@ -80,7 +80,7 @@ class CsCooperativeController extends Controller
         $navigationService = app(\App\Services\NavigationService::class);
         $navigation = $navigationService->getNavigation();
         
-        return view('cs.cooperatives.show', compact('cooperative', 'navigation'));
+        return view('cs.cooperatives.show', compact('cooperative', 'navigation') + ['documentTypes' => $this->documentTypes]);
     }
 
     public function edit($id)
@@ -102,7 +102,7 @@ class CsCooperativeController extends Controller
         $navigationService = app(\App\Services\NavigationService::class);
         $navigation = $navigationService->getNavigation();
         
-        return view('cs.cooperatives.edit', compact('cooperative', 'secteurs', 'centresCollecte', 'navigation'));
+        return view('cs.cooperatives.edit', compact('cooperative', 'secteurs', 'centresCollecte', 'navigation') + ['documentTypes' => $this->documentTypes]);
     }
 
     public function update(Request $request, $id)
@@ -119,59 +119,77 @@ class CsCooperativeController extends Controller
         
         // Pour les CS, traiter uniquement les documents
         if (auth()->user()->role === 'cs') {
+            $documentsProcessed = false;
+            
             // Gestion des uploads de documents (ajout ou remplacement - SÉCURISÉ)
             foreach ($this->documentTypes as $key => $label) {
                 if ($request->hasFile($key)) {
                     $file = $request->file($key);
                     
-                    // Validation du fichier
-                    if (!$file->isValid()) {
-                        return back()->withErrors(['error' => "Le fichier {$label} n'est pas valide."]);
+                    // Vérification supplémentaire que le fichier existe et n'est pas vide
+                    if (!$file || $file->getSize() === 0) {
+                        continue;
                     }
                     
-                    // Vérification de la taille (max 10MB)
+                    $documentsProcessed = true;
+                    
+                    // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+                    $mimeType = $file->getMimeType();
+                    $allowedMimes = ['application/pdf'];
+                    
+                    if (!in_array($mimeType, $allowedMimes)) {
+                        return back()->withErrors([
+                            $key => 'Type de fichier non autorisé pour ' . $label . '. Seul le format PDF est accepté.'
+                        ])->withInput();
+                    }
+                    
+                    // SÉCURITÉ 2: Valider la taille (10 MB max)
                     if ($file->getSize() > 10 * 1024 * 1024) {
-                        return back()->withErrors(['error' => "Le fichier {$label} est trop volumineux (max 10MB)."]);
+                        return back()->withErrors([
+                            $key => 'Fichier trop volumineux pour ' . $label . '. Taille maximale : 10 MB'
+                        ])->withInput();
                     }
                     
-                    // Vérification du type MIME
-                    $allowedMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-                    if (!in_array($file->getMimeType(), $allowedMimes)) {
-                        return back()->withErrors(['error' => "Le fichier {$label} doit être un PDF ou une image (JPG, PNG)."]);
-                    }
+                    // SÉCURITÉ 3: Nom de fichier avec code coopérative
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $key . '_' . $cooperative->code . '.' . $extension;
                     
-                    // Supprimer l'ancien document s'il existe
-                    $existingDoc = CooperativeDocument::where('cooperative_id', $cooperative->id)
-                        ->where('type', $key)
-                        ->first();
-                    
-                    if ($existingDoc && $existingDoc->file_path) {
-                        Storage::disk('public')->delete($existingDoc->file_path);
+                    // SÉCURITÉ 4: Supprimer l'ancien document s'il existe
+                    $existingDoc = $cooperative->documents()->where('type', $key)->first();
+                    if ($existingDoc) {
+                        if (Storage::exists($existingDoc->fichier)) {
+                            Storage::delete($existingDoc->fichier);
+                        }
                         $existingDoc->delete();
                     }
                     
-                    // Générer un nom de fichier unique
-                    $extension = $file->getClientOriginalExtension();
-                    $filename = Str::slug($cooperative->code) . '_' . $key . '_' . time() . '.' . $extension;
-                    $path = 'cooperatives/' . $cooperative->id . '/' . $filename;
+                    // SÉCURITÉ 5: Stockage sécurisé
+                    $path = $file->storeAs('cooperatives/documents', $filename, 'public');
                     
-                    // Stocker le fichier
-                    $file->storeAs('cooperatives/' . $cooperative->id, $filename, 'public');
+                    // SÉCURITÉ 6: Validation base64 stricte (détection corruption)
+                    $fileContent = Storage::get('public/' . $path);
+                    if (base64_encode(base64_decode($fileContent, true)) !== base64_encode($fileContent)) {
+                        Storage::delete('public/' . $path);
+                        return back()->withErrors([
+                            $key => 'Fichier corrompu détecté pour ' . $label . '. Veuillez réessayer.'
+                        ])->withInput();
+                    }
                     
-                    // Enregistrer en base
-                    CooperativeDocument::create([
-                        'cooperative_id' => $cooperative->id,
+                    // Créer l'enregistrement en base
+                    $cooperative->documents()->create([
                         'type' => $key,
-                        'original_name' => $file->getClientOriginalName(),
-                        'file_path' => $path,
-                        'file_size' => $file->getSize(),
-                        'mime_type' => $file->getMimeType(),
+                        'fichier' => $path,
                     ]);
                 }
             }
             
-            return redirect()->route('cs.cooperatives.show', $cooperative)
-                ->with('success', 'Documents mis à jour avec succès.');
+            if ($documentsProcessed) {
+                return redirect()->route('cs.cooperatives.show', $cooperative)
+                    ->with('success', 'Documents mis à jour avec succès !');
+            } else {
+                return redirect()->route('cs.cooperatives.show', $cooperative)
+                    ->with('info', 'Aucun document valide n\'a été fourni.');
+            }
         }
         
         // Logique normale pour les autres rôles (si nécessaire)
@@ -195,7 +213,7 @@ class CsCooperativeController extends Controller
         $navigationService = app(\App\Services\NavigationService::class);
         $navigation = $navigationService->getNavigation();
         
-        return view('cs.cooperatives.documents', compact('cooperative', 'navigation'));
+        return view('cs.cooperatives.documents', compact('cooperative', 'navigation') + ['documentTypes' => $this->documentTypes]);
     }
 
     public function storeDocument(Request $request, $id)
@@ -212,38 +230,58 @@ class CsCooperativeController extends Controller
         
         $request->validate([
             'type' => 'required|string|in:' . implode(',', array_keys($this->documentTypes)),
-            'document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240'
+            'document' => 'required|file|mimes:pdf|max:10240'
         ]);
         
         $file = $request->file('document');
         $type = $request->type;
         
-        // Supprimer l'ancien document s'il existe
-        $existingDoc = CooperativeDocument::where('cooperative_id', $cooperative->id)
-            ->where('type', $type)
-            ->first();
+        // SÉCURITÉ 1: Valider le MIME type réel (PDF UNIQUEMENT)
+        $mimeType = $file->getMimeType();
+        $allowedMimes = ['application/pdf'];
         
-        if ($existingDoc && $existingDoc->file_path) {
-            Storage::disk('public')->delete($existingDoc->file_path);
+        if (!in_array($mimeType, $allowedMimes)) {
+            return back()->withErrors([
+                'document' => 'Type de fichier non autorisé. Seul le format PDF est accepté.'
+            ])->withInput();
+        }
+        
+        // SÉCURITÉ 2: Valider la taille (10 MB max)
+        if ($file->getSize() > 10 * 1024 * 1024) {
+            return back()->withErrors([
+                'document' => 'Fichier trop volumineux. Taille maximale : 10 MB'
+            ])->withInput();
+        }
+        
+        // SÉCURITÉ 3: Nom de fichier avec code coopérative
+        $extension = $file->getClientOriginalExtension();
+        $filename = $type . '_' . $cooperative->code . '.' . $extension;
+        
+        // SÉCURITÉ 4: Supprimer l'ancien document s'il existe
+        $existingDoc = $cooperative->documents()->where('type', $type)->first();
+        if ($existingDoc) {
+            if (Storage::exists($existingDoc->fichier)) {
+                Storage::delete($existingDoc->fichier);
+            }
             $existingDoc->delete();
         }
         
-        // Générer un nom de fichier unique
-        $extension = $file->getClientOriginalExtension();
-        $filename = Str::slug($cooperative->code) . '_' . $type . '_' . time() . '.' . $extension;
-        $path = 'cooperatives/' . $cooperative->id . '/' . $filename;
+        // SÉCURITÉ 5: Stockage sécurisé
+        $path = $file->storeAs('cooperatives/documents', $filename, 'public');
         
-        // Stocker le fichier
-        $file->storeAs('cooperatives/' . $cooperative->id, $filename, 'public');
+        // SÉCURITÉ 6: Validation base64 stricte (détection corruption)
+        $fileContent = Storage::get('public/' . $path);
+        if (base64_encode(base64_decode($fileContent, true)) !== base64_encode($fileContent)) {
+            Storage::delete('public/' . $path);
+            return back()->withErrors([
+                'document' => 'Fichier corrompu détecté. Veuillez réessayer.'
+            ])->withInput();
+        }
         
-        // Enregistrer en base
-        CooperativeDocument::create([
-            'cooperative_id' => $cooperative->id,
+        // Créer l'enregistrement en base
+        $cooperative->documents()->create([
             'type' => $type,
-            'original_name' => $file->getClientOriginalName(),
-            'file_path' => $path,
-            'file_size' => $file->getSize(),
-            'mime_type' => $file->getMimeType(),
+            'fichier' => $path,
         ]);
         
         return redirect()->route('cs.cooperatives.documents', $cooperative)

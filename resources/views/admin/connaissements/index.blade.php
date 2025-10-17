@@ -218,7 +218,7 @@
                                             <i class="ri-eye-line"></i>
                                         </a>
 
-                                            @if(auth()->check() && auth()->user()->role !== 'agc')
+                                            @if(auth()->check() && !in_array(auth()->user()->role, ['agc', 'cs']))
                                         <a href="{{ route('admin.connaissements.edit', $connaissement) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
                                             <i class="ri-edit-line"></i>
                                         </a>

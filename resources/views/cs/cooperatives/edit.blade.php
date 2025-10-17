@@ -31,10 +31,15 @@
             <form action="{{ route('cs.cooperatives.update', $cooperative) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                @if(in_array(auth()->user()->role, ['agc', 'cs']))
+                @if(auth()->user()->role === 'cs')
                     <div class="alert alert-info">
                         <i class="ri-information-line me-2"></i>
-                        <strong>Information :</strong> En tant qu'{{ auth()->user()->role === 'agc' ? 'AGC' : 'Chef Secteur' }}, vous ne pouvez modifier que les documents de traçabilité de cette coopérative.
+                        <strong>Information :</strong> En tant que Chef Secteur, vous ne pouvez modifier que les documents de traçabilité de cette coopérative.
+                    </div>
+                @elseif(auth()->user()->role === 'agc')
+                    <div class="alert alert-info">
+                        <i class="ri-information-line me-2"></i>
+                        <strong>Information :</strong> En tant qu'AGC, vous ne pouvez modifier que les documents de traçabilité de cette coopérative.
                     </div>
                 @endif
                 <div class="row gy-3">
@@ -94,7 +99,7 @@
                 </div>
                 @endif
                 
-                @if(auth()->user()->role !== 'agc')
+                @if(!in_array(auth()->user()->role, ['agc', 'cs']))
                 <!-- Section des distances -->
                 <h5 class="mt-4">
                     <i class="ri-eye-line me-2 text-info"></i> 
@@ -143,7 +148,7 @@
                 </div>
                 @endif
                 
-                @if(auth()->user()->role !== 'agc')
+                @if(!in_array(auth()->user()->role, ['agc', 'cs']))
                 <h5 class="mt-4">Données bancaires</h5>
                 <div class="row">
                     <div class="col-md-4 mb-3">
