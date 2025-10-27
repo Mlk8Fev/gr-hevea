@@ -30,7 +30,7 @@
                 </li>
                 <li>-</li>
                 <li class="fw-medium">
-                    <a href="{{ route('cs.factures.index') }}" class="hover-text-primary">Factures</a>
+                    <a href="{{ route('agc.factures.index') }}" class="hover-text-primary">Factures</a>
                 </li>
                 <li>-</li>
                 <li class="fw-medium">{{ $facture->numero_facture }}</li>
@@ -57,39 +57,11 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <h6 class="mb-0">Informations de la Facture</h6>
                     <div class="d-flex align-items-center gap-2">
-                        @if($facture->canBeValidated())
-                            <form action="{{ route('admin.factures.validate', $facture) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Valider cette facture ?')">
-                                    <i class="ri-check-line"></i>
-                                    Valider
-                                </button>
-                            </form>
-                        @endif
-                        
-                        @if($facture->canBePaid())
-                            <button type="button" class="btn btn-success btn-sm" onclick="markAsPaid({{ $facture->id }}, {{ $facture->montant_ttc }})">
-                                <i class="ri-eye-line icon me-1"></i>
-                                Marquer comme payée
-                            </button>
-                        @endif
-                        
                         @if($facture->statut === 'validee' || $facture->statut === 'payee')
-                            <a href="{{ route('cs.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
+                            <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
                                 <i class="ri-file-pdf-line icon me-1"></i>
                                 Télécharger PDF
                             </a>
-                        @endif
-                        
-                        @if($facture->statut === 'brouillon')
-                            <form action="{{ route('admin.factures.destroy', $facture) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette facture ?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="ri-eye-line icon me-1"></i>
-                                    Supprimer
-                                </button>
-                            </form>
                         @endif
                     </div>
                 </div>
@@ -284,13 +256,13 @@
         <div class="row mt-24">
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ route('cs.factures.index') }}" class="btn btn-outline-secondary px-24 py-12 radius-8">
+                    <a href="{{ route('agc.factures.index') }}" class="btn btn-outline-secondary px-24 py-12 radius-8">
                         <i class="ri-arrow-left-line me-2"></i>Retour à la Liste
                     </a>
-                    <a href="{{ route('cs.factures.preview', $facture) }}" class="btn btn-primary px-24 py-12 radius-8" target="_blank">
+                    <a href="{{ route('agc.factures.preview', $facture) }}" class="btn btn-primary px-24 py-12 radius-8" target="_blank">
                         <i class="ri-file-text-line me-2"></i>Preview Facture
                     </a>
-                    <a href="{{ route('cs.factures.pdf', $facture) }}" class="btn btn-warning px-24 py-12 radius-8" target="_blank">
+                    <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-warning px-24 py-12 radius-8" target="_blank">
                         <i class="ri-file-pdf-line me-2"></i>Télécharger PDF
                     </a>
                 </div>

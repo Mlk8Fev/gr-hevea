@@ -30,7 +30,7 @@
                 </li>
                 <li>-</li>
                 <li class="fw-medium">
-                    <a href="{{ route('cs.factures.index') }}" class="hover-text-primary">Factures</a>
+                    <a href="{{ route('agc.factures.index') }}" class="hover-text-primary">Factures</a>
                 </li>
                 <li>-</li>
                 <li class="fw-medium">{{ $facture->numero_facture }}</li>
@@ -65,7 +65,7 @@
                         @endif
                         
                         @if($facture->statut === 'validee' || $facture->statut === 'payee')
-                            <a href="{{ route('cs.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
+                            <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
                                 <i class="ri-file-pdf-line me-1"></i>
                                 Télécharger PDF
                             </a>
@@ -309,11 +309,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ route('cs.factures.index') }}" class="btn btn-outline-secondary px-24 py-12 radius-8">
+                    <a href="{{ route('agc.factures.index') }}" class="btn btn-outline-secondary px-24 py-12 radius-8">
                         <i class="ri-arrow-left-line me-2"></i>Retour à la Liste
                     </a>
                     @if($facture->statut === 'validee' || $facture->statut === 'payee')
-                        <a href="{{ route('cs.factures.pdf', $facture) }}" class="btn btn-warning px-24 py-12 radius-8" target="_blank">
+                        <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-warning px-24 py-12 radius-8" target="_blank">
                             <i class="ri-file-pdf-line me-2"></i>Télécharger PDF
                         </a>
                     @endif

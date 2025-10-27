@@ -133,10 +133,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
-                                            <a href="{{ route('cs.cooperatives.show', $cooperative) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
+                                            <a href="{{ route('agc.cooperatives.show', $cooperative) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
                                                 <i class="ri-eye-line"></i>
                                             </a>
-                                            <a href="{{ route('cs.cooperatives.edit', $cooperative) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
+                                            <a href="{{ route('agc.cooperatives.edit', $cooperative) }}" class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" title="Modifier">
                                                 <i class="ri-edit-line"></i>
                                             </a>
                                             @if(!in_array(auth()->user()->role, ['agc', 'cs']))

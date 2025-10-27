@@ -248,7 +248,7 @@
     <!-- Boutons d'Action Flottants -->
     <div class="action-buttons">
         <div class="d-flex flex-column gap-2">
-            <a href="{{ route('admin.factures.pdf', $facture) }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-primary btn-sm">
                 <i class="ri-eye-line icon me-1"></i>
                 Télécharger PDF
             </a>
@@ -256,7 +256,7 @@
                 <i class="ri-eye-line icon me-1"></i>
                 Imprimer
             </button>
-            <a href="{{ route('admin.factures.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('agc.factures.index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="ri-eye-line icon me-1"></i>
                 Retour
             </a>

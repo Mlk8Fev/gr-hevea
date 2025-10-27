@@ -232,10 +232,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
-                                            <a href="{{ route('cs.factures.show', $facture) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
+                                            <a href="{{ route('agc.factures.show', $facture) }}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="Voir">
                                                 <i class="ri-eye-line"></i>
                                             </a>
-                                            <a href="{{ route('cs.factures.pdf', $facture) }}" class="bg-warning-focus bg-hover-warning-200 text-warning-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="PDF" target="_blank">
+                                            <a href="{{ route('agc.factures.pdf', $facture) }}" class="bg-warning-focus bg-hover-warning-200 text-warning-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle border-0" title="PDF" target="_blank">
                                                 <i class="ri-file-pdf-line"></i>
                                             </a>
                                         </div>

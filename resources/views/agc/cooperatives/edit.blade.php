@@ -18,7 +18,7 @@
             <h6 class="fw-semibold mb-0">Modifier la Coopérative</h6>
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
-                    <a href="{{ route('cs.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
+                    <a href="{{ route('agc.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
                         <i class="ri-home-line icon text-lg"></i>
                         Liste des Coopératives
                     </a>
@@ -28,7 +28,7 @@
             </ul>
         </div>
         <div class="card p-24 radius-12">
-            <form action="{{ route('cs.cooperatives.update', $cooperative) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('agc.cooperatives.update', $cooperative) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 @if(auth()->user()->role === 'cs')
@@ -220,7 +220,7 @@
                     @endforeach
                 </div>
                 <button type="submit" class="btn btn-success mt-3">Mettre à jour</button>
-                <a href="{{ route('cs.cooperatives.index') }}" class="btn btn-secondary mt-3">Annuler</a>
+                <a href="{{ route('agc.cooperatives.index') }}" class="btn btn-secondary mt-3">Annuler</a>
             </form>
         </div>
     </div>

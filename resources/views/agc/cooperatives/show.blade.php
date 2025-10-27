@@ -18,7 +18,7 @@
             <h6 class="fw-semibold mb-0">Profil de la Coopérative</h6>
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
-                    <a href="{{ route('cs.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
+                    <a href="{{ route('agc.cooperatives.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
                         <i class="ri-home-line icon text-lg"></i>
                         Liste des Coopératives
                     </a>
@@ -436,7 +436,7 @@
                                 </div>
                                 <h5 class="text-muted mb-3">Aucune distance configurée</h5>
                                 <p class="text-muted mb-4">Configurez les distances vers les centres de collecte pour optimiser le calcul des coûts de transport.</p>
-                                <a href="{{ route('cs.cooperatives.edit', $cooperative) }}" class="btn btn-primary">
+                                <a href="{{ route('agc.cooperatives.edit', $cooperative) }}" class="btn btn-primary">
                                     <i class="ri-check-line me-2"></i>
                                     Configurer les distances
                                 </a>
@@ -460,7 +460,7 @@
                                 <span class="badge bg-{{ $providedDocs == $totalDocs ? 'success' : ($providedDocs > 0 ? 'warning' : 'danger') }}">
                                     {{ $providedDocs }}/{{ $totalDocs }} documents
                                 </span>
-                                <a href="{{ route('cs.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
+                                <a href="{{ route('agc.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
                                     <i class="ri-edit-line me-1"></i>
                                     Modifier
                                 </a>
@@ -558,7 +558,7 @@
                                 </div>
                             </div>
                             <div class="col-md-4 text-end">
-                                <a href="{{ route('cs.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
+                                <a href="{{ route('agc.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
                                     <i class="ri-edit-line me-2"></i>
                                     Gérer les documents
                                 </a>
@@ -567,8 +567,8 @@
                     </div>
                 </div>
                 <div class="d-flex gap-3">
-                    <a href="{{ route('cs.cooperatives.edit', $cooperative) }}" class="btn btn-warning px-4">Modifier</a>
-                    <a href="{{ route('cs.cooperatives.index') }}" class="btn btn-secondary px-4">Retour à la liste</a>
+                    <a href="{{ route('agc.cooperatives.edit', $cooperative) }}" class="btn btn-warning px-4">Modifier</a>
+                    <a href="{{ route('agc.cooperatives.index') }}" class="btn btn-secondary px-4">Retour à la liste</a>
                 </div>
             </div>
         </div>

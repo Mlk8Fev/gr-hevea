@@ -21,7 +21,7 @@
                             @endif
                             
                             @if($facture->statut === 'validee' || $facture->statut === 'payee')
-                                <a href="{{ route('cs.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
+                                <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
                                     <i class="ri-file-pdf-line me-1"></i>
                                     Télécharger PDF
                                 </a>
@@ -276,11 +276,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ route('cs.factures.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('agc.factures.index') }}" class="btn btn-outline-secondary">
                         <i class="ri-arrow-left-line me-2"></i>Retour à la Liste
                     </a>
                     @if($facture->statut === 'validee' || $facture->statut === 'payee')
-                        <a href="{{ route('cs.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
+                        <a href="{{ route('agc.factures.pdf', $facture) }}" class="btn btn-warning" target="_blank">
                             <i class="ri-file-pdf-line me-2"></i>Télécharger PDF
                         </a>
                     @endif
