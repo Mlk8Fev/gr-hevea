@@ -50,7 +50,7 @@ class AgcCooperativeController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('nom', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('ville', 'like', "%{$search}%");
+                  ->orWhere('sigle', 'like', "%{$search}%");
             });
         }
         
