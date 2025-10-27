@@ -401,8 +401,8 @@ class NavigationService
             [
                 'title' => 'Coopératives',
                 'icon' => 'ri-group-line',
-                'url' => route('cs.cooperatives.index'),
-                'active' => request()->routeIs('cs.cooperatives.*'),
+                'url' => route('agc.cooperatives.index'),
+                'active' => request()->routeIs('agc.cooperatives.*'),
                 'type' => 'item'
             ],
             [
@@ -436,8 +436,8 @@ class NavigationService
             [
                 'title' => 'Factures',
                 'icon' => 'ri-file-text-line',
-                'url' => route('cs.factures.index'),
-                'active' => request()->routeIs('cs.factures.*'),
+                'url' => route('agc.factures.index'),
+                'active' => request()->routeIs('agc.factures.*'),
                 'type' => 'item'
             ],
             [

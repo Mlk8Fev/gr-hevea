@@ -190,3 +190,21 @@ Route::middleware(['auth', 'audit', 'email-2fa'])->group(function () {
         Route::get('factures/{facture}/pdf', [\App\Http\Controllers\CsFactureController::class, 'pdf'])->name('factures.pdf');
     });
 
+    // Routes AGC (Agent de Crédit)
+    Route::prefix('agc')->name('agc.')->middleware(['role:agc'])->group(function () {
+        Route::get('cooperatives', [\App\Http\Controllers\AgcCooperativeController::class, 'index'])->name('cooperatives.index');
+        Route::get('cooperatives/{cooperative}', [\App\Http\Controllers\AgcCooperativeController::class, 'show'])->name('cooperatives.show');
+        Route::get('cooperatives/{cooperative}/edit', [\App\Http\Controllers\AgcCooperativeController::class, 'edit'])->name('cooperatives.edit');
+        Route::put('cooperatives/{cooperative}', [\App\Http\Controllers\AgcCooperativeController::class, 'update'])->name('cooperatives.update');
+        Route::get('cooperatives/{cooperative}/documents', [\App\Http\Controllers\AgcCooperativeController::class, 'documents'])->name('cooperatives.documents');
+        Route::post('cooperatives/{cooperative}/documents', [\App\Http\Controllers\AgcCooperativeController::class, 'storeDocument'])->name('cooperatives.store-document');
+        Route::delete('cooperatives/{cooperative}/documents/{document}', [\App\Http\Controllers\AgcCooperativeController::class, 'destroyDocument'])->name('cooperatives.destroy-document');
+        
+        // Routes AGC - Factures
+        Route::get('factures', [\App\Http\Controllers\AgcFactureController::class, 'index'])->name('factures.index');
+        Route::get('factures/create', [\App\Http\Controllers\AgcFactureController::class, 'create'])->name('factures.create');
+        Route::get('factures/{facture}', [\App\Http\Controllers\AgcFactureController::class, 'show'])->name('factures.show');
+        Route::get('factures/{facture}/preview', [\App\Http\Controllers\AgcFactureController::class, 'preview'])->name('factures.preview');
+        Route::get('factures/{facture}/pdf', [\App\Http\Controllers\AgcFactureController::class, 'pdf'])->name('factures.pdf');
+    });
+
