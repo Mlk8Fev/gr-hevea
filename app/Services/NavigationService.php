@@ -401,8 +401,8 @@ class NavigationService
             [
                 'title' => 'Coopératives',
                 'icon' => 'ri-group-line',
-                'url' => route('admin.cooperatives.index'),
-                'active' => request()->routeIs('admin.cooperatives.*'),
+                'url' => route('cs.cooperatives.index'),
+                'active' => request()->routeIs('cs.cooperatives.*'),
                 'type' => 'item'
             ],
             [
