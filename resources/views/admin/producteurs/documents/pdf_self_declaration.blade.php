@@ -38,7 +38,7 @@
 </head>
 <body>
     @if(file_exists(public_path('wowdash/images/selfd.png')))
-        <img src="{{ public_path('wowdash/images/selfd.png') }}" class="pdf-bg" alt="background">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('wowdash/images/selfd.png'))) }}" class="pdf-bg" alt="background">
     @endif
     <div class="pdf-content">
         <h2 style="text-align:center; margin-bottom:30px;"></h2>

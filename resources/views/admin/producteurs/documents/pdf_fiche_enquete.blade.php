@@ -38,7 +38,7 @@
 
     <!-- Contenu principal -->
     <div class="page-break">
-        <img src="{{ public_path('wowdash/images/fph-ci.png') }}" alt="Logo FPH-CI" style="width: 100px; height: auto; position: absolute; top: 20px; left: 20px;">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('wowdash/images/fph-ci.png'))) }}" alt="Logo FPH-CI" style="width: 100px; height: auto; position: absolute; top: 20px; left: 20px;">
         <h2>ENQUETE DE CERTIFICATION ISCC EU</h2>
         <div class="confidential">
             Cette enquête est strictement confidentielle. Les informations recueillies sont protégées par le secret statistique et la loi sur la protection des données à caractère personnel.

@@ -33,6 +33,12 @@ class CentreCollecteSeeder extends Seeder
                 'statut' => 'actif'
             ],
             [
+                'code' => 'ABENG',
+                'nom' => 'Abengourou',
+                'adresse' => 'Centre de collecte Abengourou, Région de l\'Indénié-Djuablin',
+                'statut' => 'actif'
+            ],
+            [
                 'code' => 'MEAG',
                 'nom' => 'Méagui',
                 'adresse' => 'Centre de collecte Méagui, Région du Nawa',
