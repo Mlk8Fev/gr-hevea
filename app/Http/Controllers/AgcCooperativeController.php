@@ -69,7 +69,7 @@ class AgcCooperativeController extends Controller
         $cooperative = Cooperative::with(['secteur', 'documents'])->findOrFail($id);
         
         // Vérifier que le CS ne peut voir que les coopératives de son secteur
-        if (auth()->check() && auth()->user()->role === 'cs' && auth()->user()->secteur) {
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             if ($cooperative->secteur->code !== $userSecteurCode) {
                 abort(403, 'Accès non autorisé à cette coopérative.');
@@ -88,7 +88,7 @@ class AgcCooperativeController extends Controller
         $cooperative = Cooperative::with(['secteur', 'documents'])->findOrFail($id);
         
         // Vérifier que le CS ne peut voir que les coopératives de son secteur
-        if (auth()->check() && auth()->user()->role === 'cs' && auth()->user()->secteur) {
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             if ($cooperative->secteur->code !== $userSecteurCode) {
                 abort(403, 'Accès non autorisé à cette coopérative.');
@@ -109,16 +109,16 @@ class AgcCooperativeController extends Controller
     {
         $cooperative = Cooperative::findOrFail($id);
         
-        // Vérifier que le CS ne peut voir que les coopératives de son secteur
-        if (auth()->check() && auth()->user()->role === 'cs' && auth()->user()->secteur) {
+        // Vérifier que l'AGC/CS ne peut voir que les coopératives de son secteur
+        if (auth()->check() && in_array(auth()->user()->role, ['agc', 'cs']) && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             if ($cooperative->secteur->code !== $userSecteurCode) {
                 abort(403, 'Accès non autorisé à cette coopérative.');
             }
         }
         
-        // Pour les CS, traiter uniquement les documents
-        if (auth()->user()->role === 'cs') {
+        // Pour les AGC/CS, traiter uniquement les documents
+        if (in_array(auth()->user()->role, ['agc', 'cs'])) {
             $documentsProcessed = false;
             
             // Gestion des uploads de documents (ajout ou remplacement - SÉCURISÉ)
@@ -202,7 +202,7 @@ class AgcCooperativeController extends Controller
         $cooperative = Cooperative::with(['secteur', 'documents'])->findOrFail($id);
         
         // Vérifier que le CS ne peut voir que les coopératives de son secteur
-        if (auth()->check() && auth()->user()->role === 'cs' && auth()->user()->secteur) {
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             if ($cooperative->secteur->code !== $userSecteurCode) {
                 abort(403, 'Accès non autorisé à cette coopérative.');
@@ -221,7 +221,7 @@ class AgcCooperativeController extends Controller
         $cooperative = Cooperative::findOrFail($id);
         
         // Vérifier que le CS ne peut voir que les coopératives de son secteur
-        if (auth()->check() && auth()->user()->role === 'cs' && auth()->user()->secteur) {
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             if ($cooperative->secteur->code !== $userSecteurCode) {
                 abort(403, 'Accès non autorisé à cette coopérative.');
@@ -293,7 +293,7 @@ class AgcCooperativeController extends Controller
         $cooperative = Cooperative::findOrFail($id);
         
         // Vérifier que le CS ne peut voir que les coopératives de son secteur
-        if (auth()->check() && auth()->user()->role === 'cs' && auth()->user()->secteur) {
+        if (auth()->check() && auth()->user()->role === 'agc' && auth()->user()->secteur) {
             $userSecteurCode = auth()->user()->secteur;
             if ($cooperative->secteur->code !== $userSecteurCode) {
                 abort(403, 'Accès non autorisé à cette coopérative.');
