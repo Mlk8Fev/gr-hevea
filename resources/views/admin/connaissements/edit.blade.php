@@ -55,6 +55,9 @@
             @csrf
             @method('PUT')
             
+            <!-- Champ caché pour secteur_id (requis par la validation) -->
+            <input type="hidden" name="secteur_id" value="{{ $connaissement->secteur_id ?? old('secteur_id') }}">
+            
             <div class="row">
                 <!-- Informations de Base -->
                 <div class="col-lg-6">
@@ -191,15 +194,6 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="destinataire_id" class="form-label">ID du Destinataire</label>
-                                <input type="number" name="destinataire_id" id="destinataire_id" class="form-control @error('destinataire_id') is-invalid @enderror" 
-                                       value="{{ old('destinataire_id', $connaissement->destinataire_id) }}">
-                                @error('destinataire_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            
-                            <div class="mb-3">
                                 <label for="nombre_sacs" class="form-label">Nombre de Sacs *</label>
                                 <input type="number" name="nombre_sacs" id="nombre_sacs" class="form-control @error('nombre_sacs') is-invalid @enderror" 
                                        value="{{ old('nombre_sacs', $connaissement->nombre_sacs) }}" min="1" required>
@@ -284,63 +278,146 @@
 @include('partials.wowdash-scripts')
 
 <script>
-// Validation côté client
-document.querySelector('form').addEventListener('submit', function(e) {
-    const requiredFields = document.querySelectorAll('[required]');
-    let isValid = true;
+(function() {
+    'use strict';
     
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            field.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            field.classList.remove('is-invalid');
+    // Variable globale pour suivre si la soumission vient du bouton
+    let submittedByButton = false;
+    
+    // Fonction de protection immédiate (s'exécute avant DOMContentLoaded)
+    function protectForm() {
+        const form = document.querySelector('form[action*="connaissements"]');
+        if (!form) {
+            // Si le formulaire n'existe pas encore, réessayer
+            setTimeout(protectForm, 100);
+            return;
         }
-    });
-    
-    if (!isValid) {
-        e.preventDefault();
-        alert('Veuillez remplir tous les champs obligatoires.');
-    }
-});
-
-// Gérer la sélection de coopérative avec datalist (recherche par sigle)
-document.addEventListener('DOMContentLoaded', function() {
-    const cooperativeDisplay = document.getElementById('cooperative_display');
-    const cooperativeHidden = document.getElementById('cooperative_id');
-    
-    cooperativeDisplay.addEventListener('input', function() {
-        const input = this;
-        const value = input.value.trim().toLowerCase();
-        const datalist = document.getElementById('cooperatives-list');
         
-        // Trouver l'option correspondante (recherche exacte ou partielle)
-        let foundOption = null;
+        // Empêcher TOUTE soumission automatique
+        form.addEventListener('submit', function(e) {
+            if (!submittedByButton) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                e.stopPropagation();
+                return false;
+            }
+        }, true); // Capture phase pour intercepter AVANT tout autre script
         
-        // D'abord, essayer correspondance exacte
-        const exactMatch = datalist.querySelector(`option[value="${input.value}"]`);
-        if (exactMatch) {
-            foundOption = exactMatch;
-        } else {
-            // Sinon, chercher par sigle ou nom (correspondance partielle)
-            const options = datalist.querySelectorAll('option');
-            for (let option of options) {
-                const optionValue = option.value.toLowerCase();
-                // Rechercher si la valeur tapée correspond au début du sigle ou du nom
-                if (optionValue.startsWith(value) || optionValue.includes(value)) {
-                    foundOption = option;
-                    break;
-                }
+        // Protection du select centre de collecte : permettre le changement mais empêcher la soumission
+        const centreCollecteSelect = document.getElementById('centre_collecte_id');
+        if (centreCollecteSelect) {
+            // Permettre le changement de valeur mais empêcher toute action qui pourrait soumettre le formulaire
+            centreCollecteSelect.addEventListener('change', function(e) {
+                // Ne pas empêcher le changement lui-même, juste empêcher la propagation vers les scripts qui soumettent
+                e.stopImmediatePropagation();
+                e.stopPropagation();
+                // Ne PAS empêcher le comportement par défaut (changement de valeur)
+                // On veut juste empêcher que ce changement déclenche une soumission
+                return true; // Autoriser le changement
+            }, true);
+            
+            // Empêcher aussi via jQuery si présent
+            if (typeof jQuery !== 'undefined') {
+                jQuery(centreCollecteSelect).off('change.change-submit input.change-submit');
+                jQuery(centreCollecteSelect).on('change', function(e) {
+                    // Permettre le changement mais empêcher la propagation
+                    e.stopImmediatePropagation();
+                    return true;
+                });
             }
         }
         
-        if (foundOption) {
-            cooperativeHidden.value = foundOption.getAttribute('data-id');
-        } else {
-            cooperativeHidden.value = '';
+        // Supprimer tous les attributs onchange/onsubmit
+        form.removeAttribute('onsubmit');
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+            input.removeAttribute('onchange');
+            input.removeAttribute('onsubmit');
+            input.removeAttribute('onclick');
+            input.removeAttribute('oninput');
+        });
+        
+        // Permettre la soumission uniquement via le bouton "Mettre à Jour"
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.addEventListener('click', function(e) {
+                // Marquer que la soumission vient du bouton
+                submittedByButton = true;
+                
+                // Validation côté client
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value || (field.value && !field.value.trim())) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    submittedByButton = false;
+                    alert('Veuillez remplir tous les champs obligatoires.');
+                    return false;
+                }
+                
+                // Laisser le formulaire se soumettre normalement
+            }, true);
         }
-    });
-});
+        
+        // Gérer la sélection de coopérative avec datalist (recherche par sigle)
+        const cooperativeDisplay = document.getElementById('cooperative_display');
+        const cooperativeHidden = document.getElementById('cooperative_id');
+        
+        if (cooperativeDisplay) {
+            cooperativeDisplay.addEventListener('input', function() {
+                const input = this;
+                const value = input.value.trim().toLowerCase();
+                const datalist = document.getElementById('cooperatives-list');
+                
+                // Trouver l'option correspondante (recherche exacte ou partielle)
+                let foundOption = null;
+                
+                // D'abord, essayer correspondance exacte
+                const exactMatch = datalist.querySelector(`option[value="${input.value}"]`);
+                if (exactMatch) {
+                    foundOption = exactMatch;
+                } else {
+                    // Sinon, chercher par sigle ou nom (correspondance partielle)
+                    const options = datalist.querySelectorAll('option');
+                    for (let option of options) {
+                        const optionValue = option.value.toLowerCase();
+                        // Rechercher si la valeur tapée correspond au début du sigle ou du nom
+                        if (optionValue.startsWith(value) || optionValue.includes(value)) {
+                            foundOption = option;
+                            break;
+                        }
+                    }
+                }
+                
+                if (foundOption) {
+                    cooperativeHidden.value = foundOption.getAttribute('data-id');
+                } else {
+                    cooperativeHidden.value = '';
+                }
+            });
+        }
+    }
+    
+    // Exécuter immédiatement si le DOM est déjà chargé
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', protectForm);
+    } else {
+        protectForm();
+    }
+    
+    // Protection supplémentaire même si le script s'exécute après
+    setTimeout(protectForm, 500);
+})();
 </script>
 </body>
 </html> 
