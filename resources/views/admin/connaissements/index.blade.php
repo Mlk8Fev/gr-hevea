@@ -171,7 +171,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <div class="fw-semibold text-dark">{{ $connaissement->cooperative->nom }}</div>
+                                            <div class="fw-semibold text-dark">{{ $connaissement->cooperative->sigle ?? $connaissement->cooperative->code ?? $connaissement->cooperative->nom }}</div>
                                             <div class="text-muted text-sm">
                                                 <span class="badge bg-info-100 text-info-600 px-6 py-1 radius-4 text-xs">
                                                     {{ $connaissement->secteur->code }} - {{ $connaissement->secteur->nom }}
