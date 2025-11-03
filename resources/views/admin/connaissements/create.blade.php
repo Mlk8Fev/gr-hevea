@@ -87,13 +87,13 @@
                                 <label for="cooperative_id" class="form-label">Coopérative *</label>
                                 <input type="text" class="form-control @error('cooperative_id') is-invalid @enderror" 
                                        id="cooperative_display" name="cooperative_display" 
-                                       placeholder="Tapez le nom de la coopérative..." 
+                                       placeholder="Tapez le sigle de la coopérative..." 
                                        list="cooperatives-list" 
-                                       value="{{ old('cooperative_id') ? ($cooperatives->find(old('cooperative_id'))->nom ?? '') . ' (' . ($cooperatives->find(old('cooperative_id'))->code ?? '') . ')' : '' }}" 
+                                       value="{{ old('cooperative_id') ? ($cooperatives->find(old('cooperative_id'))->sigle ?? '') . ' - ' . ($cooperatives->find(old('cooperative_id'))->nom ?? '') . ' (' . ($cooperatives->find(old('cooperative_id'))->code ?? '') . ')' : '' }}" 
                                        required>
                                 <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
-                                        <option value="{{ $cooperative->nom }} ({{ $cooperative->code }})" data-id="{{ $cooperative->id }}">
+                                        <option value="{{ $cooperative->sigle ?? $cooperative->code }} - {{ $cooperative->nom }} ({{ $cooperative->code }})" data-id="{{ $cooperative->id }}">
                                     @endforeach
                                 </datalist>
                                 <input type="hidden" id="cooperative_id" name="cooperative_id" value="{{ old('cooperative_id') }}">
@@ -189,13 +189,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="destinataire_type" class="form-label">Type de Destinataire *</label>
-                                <select class="form-select @error('destinataire_type') is-invalid @enderror" 
-                                        id="destinataire_type" name="destinataire_type" required>
-                                    <option value="">Sélectionner un type</option>
-                                    <option value="entrepot" {{ old('destinataire_type') == 'entrepot' ? 'selected' : '' }}>Entrepôt</option>
-                                    <option value="cooperative" {{ old('destinataire_type') == 'cooperative' ? 'selected' : '' }}>Coopérative</option>
-                                    <option value="acheteur" {{ old('destinataire_type') == 'acheteur' ? 'selected' : '' }}>Acheteur</option>
-                                </select>
+                                <input type="text" class="form-control" value="Entrepôt" readonly disabled style="background-color: #e9ecef; cursor: not-allowed;">
+                                <input type="hidden" name="destinataire_type" value="entrepot" required>
                                 @error('destinataire_type')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -267,19 +262,37 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gérer la sélection de coopérative avec datalist
+    // Gérer la sélection de coopérative avec datalist (recherche par sigle)
     const cooperativeDisplay = document.getElementById('cooperative_display');
     const cooperativeHidden = document.getElementById('cooperative_id');
     
     cooperativeDisplay.addEventListener('input', function() {
         const input = this;
-        const value = input.value;
+        const value = input.value.trim().toLowerCase();
         const datalist = document.getElementById('cooperatives-list');
         
-        // Trouver l'option correspondante
-        const option = datalist.querySelector(`option[value="${value}"]`);
-        if (option) {
-            cooperativeHidden.value = option.getAttribute('data-id');
+        // Trouver l'option correspondante (recherche exacte ou partielle)
+        let foundOption = null;
+        
+        // D'abord, essayer correspondance exacte
+        const exactMatch = datalist.querySelector(`option[value="${input.value}"]`);
+        if (exactMatch) {
+            foundOption = exactMatch;
+        } else {
+            // Sinon, chercher par sigle ou nom (correspondance partielle)
+            const options = datalist.querySelectorAll('option');
+            for (let option of options) {
+                const optionValue = option.value.toLowerCase();
+                // Rechercher si la valeur tapée correspond au début du sigle ou du nom
+                if (optionValue.startsWith(value) || optionValue.includes(value)) {
+                    foundOption = option;
+                    break;
+                }
+            }
+        }
+        
+        if (foundOption) {
+            cooperativeHidden.value = foundOption.getAttribute('data-id');
         } else {
             cooperativeHidden.value = '';
         }
