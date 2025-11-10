@@ -254,7 +254,7 @@
                                     <!-- Montant Public -->
                                     <div class="col-md-6">
                                         <div class="text-center p-16 border rounded">
-                                            <h6 class="text-success mb-2">🟢 MONTANT PUBLIC</h6>
+                                            <h6 class="text-success mb-2">MONTANT</h6>
                                             <h4 class="text-success fw-bold">{{ number_format($prix['prix_final_public'], 2) }} FCFA/kg</h4>
                                             <p class="mb-0 text-muted">Prix affiché au public</p>
                                             <hr>
@@ -266,7 +266,7 @@
                                     <!-- Montant Privé -->
                                     <div class="col-md-6">
                                         <div class="text-center p-16 border rounded">
-                                            <h6 class="text-danger mb-2">🔴 MONTANT PRIVÉ (FPH-CI)</h6>
+                                            <h6 class="text-danger mb-2">MONTANT</h6>
                                             <h4 class="text-danger fw-bold">{{ number_format($prix['part_fphci'], 2) }} FCFA/kg</h4>
                                             <p class="mb-0 text-muted">Part cachée FPH-CI</p>
                                             <hr>
@@ -276,16 +276,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Total Réel -->
+                                <!-- Total -->
                                 <div class="row mt-24">
                                     <div class="col-12">
                                         <div class="text-center p-16 bg-light rounded">
-                                            <h6 class="text-primary mb-2">💰 TOTAL RÉEL</h6>
+                                            <h6 class="text-primary mb-2">TOTAL</h6>
                                             <h3 class="text-primary fw-bold">{{ number_format($prix['prix_final_public'] + $prix['part_fphci'], 2) }} FCFA/kg</h3>
-                                            <p class="mb-0 text-muted">Prix total réel (public + privé)</p>
                                             <hr>
                                             <h4 class="text-primary fw-bold">{{ number_format(($prix['prix_final_public'] + $prix['part_fphci']) * $ticketPesee->poids_net, 2) }} FCFA</h4>
-                                            <p class="mb-0 text-muted">Montant total réel pour {{ number_format($ticketPesee->poids_net, 2) }} kg</p>
                                         </div>
                                     </div>
                                 </div>
