@@ -138,18 +138,18 @@
                         <label class="form-label">Coopératives (max 5) *</label>
                         <div id="coop-list">
                             <div class="input-group mb-2 coop-select-row">
-                                <input class="form-control cooperative-input" name="cooperatives_display[]" list="cooperatives-list" placeholder="Tapez le nom de la coopérative..." required>
+                                <input class="form-control cooperative-input" name="cooperatives_display[]" list="cooperatives-list" placeholder="Tapez le nom de la coopérative...">
                                 <datalist id="cooperatives-list">
                                     @foreach($cooperatives as $cooperative)
                                         <option value="{{ $cooperative->code }} - {{ $cooperative->nom }}" data-id="{{ $cooperative->id }}">
                                     @endforeach
                                 </datalist>
                                 <input type="hidden" name="cooperatives[]" class="cooperative-id-input">
-                                <button type="button" class="btn btn-outline-danger btn-remove-coop d-none"><i class="ri-eye-line icon"></i></button>
-                                <button type="button" class="btn btn-outline-primary btn-add-coop ms-2"><i class="ri-eye-line icon"></i></button>
+                                <button type="button" class="btn btn-outline-danger btn-remove-coop d-none"><i class="ri-delete-bin-line icon"></i></button>
+                                <button type="button" class="btn btn-outline-primary btn-add-coop ms-2"><i class="ri-add-line icon"></i></button>
                             </div>
                         </div>
-                        <small class="text-muted">Vous pouvez ajouter jusqu'à 5 coopératives</small>
+                        <small class="text-muted">Vous pouvez ajouter jusqu'à 5 coopératives. Au moins une coopérative est requise.</small>
                     </div>
                 </div>
             </div>
@@ -232,31 +232,46 @@ $(function() {
     }
     function applySelect2() {
         // Gérer la sélection des coopératives avec datalist (pour tous les inputs, y compris ceux ajoutés dynamiquement)
-        $(document).off('input', '.cooperative-input').on('input', '.cooperative-input', function() {
+        $(document).off('input change blur', '.cooperative-input').on('input change blur', '.cooperative-input', function(e) {
             const input = $(this);
-            const value = input.val();
+            const value = input.val().trim();
             const datalist = $('#cooperatives-list');
             const hiddenInput = input.siblings('.cooperative-id-input');
             
-            // Trouver l'option correspondante
+            // Si le champ est vide, vider l'input caché et permettre la saisie libre
+            if (!value) {
+                hiddenInput.val('');
+                input.removeClass('is-invalid');
+                return;
+            }
+            
+            // Trouver l'option correspondante exacte
             const option = datalist.find(`option[value="${value}"]`);
             if (option.length > 0) {
                 hiddenInput.val(option.data('id'));
                 input.removeClass('is-invalid');
             } else {
-                // Recherche partielle
-                let found = false;
-                datalist.find('option').each(function() {
-                    if ($(this).val().toLowerCase().includes(value.toLowerCase())) {
-                        hiddenInput.val($(this).data('id'));
-                        input.val($(this).val());
-                        input.removeClass('is-invalid');
-                        found = true;
-                        return false; // break
+                // Ne pas forcer la sélection pendant la saisie
+                // On attend que l'utilisateur sélectionne depuis le datalist ou termine sa saisie
+                hiddenInput.val('');
+                
+                // Si c'est un événement blur (perte de focus), alors on peut essayer une recherche partielle
+                if (e.type === 'blur' && value.length > 0) {
+                    let found = false;
+                    datalist.find('option').each(function() {
+                        const optionValue = $(this).val().toLowerCase();
+                        if (optionValue === value.toLowerCase() || optionValue.startsWith(value.toLowerCase())) {
+                            hiddenInput.val($(this).data('id'));
+                            input.val($(this).val());
+                            input.removeClass('is-invalid');
+                            found = true;
+                            return false; // break
+                        }
+                    });
+                    if (!found) {
+                        // Si aucune correspondance, laisser l'utilisateur continuer à taper
+                        hiddenInput.val('');
                     }
-                });
-                if (!found && value) {
-                    hiddenInput.val('');
                 }
             }
         });
@@ -308,40 +323,59 @@ document.addEventListener('DOMContentLoaded', function() {
             // 1. Valider et remplir les inputs cachés des coopératives
             const coopRows = form.querySelectorAll('.coop-select-row');
             let hasError = false;
+            let hasAtLeastOneCoop = false;
             
             coopRows.forEach((row, index) => {
                 const displayInput = row.querySelector('.cooperative-input');
                 const hiddenInput = row.querySelector('.cooperative-id-input');
                 const value = displayInput.value.trim();
                 
-                if (value) {
-                    const datalist = document.getElementById('cooperatives-list');
-                    const option = datalist.querySelector(`option[value="${value}"]`);
-                    
-                    if (option) {
-                        hiddenInput.value = option.getAttribute('data-id');
-                    } else {
-                        // Recherche partielle
-                        const options = datalist.querySelectorAll('option');
-                        let found = false;
-                        for (let opt of options) {
-                            if (opt.value.toLowerCase().includes(value.toLowerCase())) {
-                                hiddenInput.value = opt.getAttribute('data-id');
-                                displayInput.value = opt.value; // Corriger la valeur affichée
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            displayInput.classList.add('is-invalid');
-                            hasError = true;
+                // Si la ligne est vide, on la désactive pour qu'elle ne soit pas envoyée
+                if (!value) {
+                    displayInput.disabled = true;
+                    hiddenInput.disabled = true;
+                    displayInput.classList.remove('is-invalid');
+                    return; // Passer à la ligne suivante
+                }
+                
+                // Réactiver les inputs si ils ont une valeur
+                displayInput.disabled = false;
+                hiddenInput.disabled = false;
+                
+                // Valider la coopérative
+                const datalist = document.getElementById('cooperatives-list');
+                const option = datalist.querySelector(`option[value="${value}"]`);
+                
+                if (option) {
+                    hiddenInput.value = option.getAttribute('data-id');
+                    displayInput.classList.remove('is-invalid');
+                    hasAtLeastOneCoop = true;
+                } else {
+                    // Recherche partielle
+                    const options = datalist.querySelectorAll('option');
+                    let found = false;
+                    for (let opt of options) {
+                        if (opt.value.toLowerCase().includes(value.toLowerCase())) {
+                            hiddenInput.value = opt.getAttribute('data-id');
+                            displayInput.value = opt.value; // Corriger la valeur affichée
+                            displayInput.classList.remove('is-invalid');
+                            found = true;
+                            hasAtLeastOneCoop = true;
+                            break;
                         }
                     }
-                } else {
-                    displayInput.classList.add('is-invalid');
-                    hasError = true;
+                    if (!found) {
+                        displayInput.classList.add('is-invalid');
+                        hasError = true;
+                    }
                 }
             });
+            
+            // Vérifier qu'au moins une coopérative est sélectionnée
+            if (!hasAtLeastOneCoop) {
+                hasError = true;
+                alert('Veuillez sélectionner au moins une coopérative.');
+            }
             
             // 2. Filtrer les parcelles vides avant soumission
             const parcelleRows = form.querySelectorAll('.parcelle-row');
