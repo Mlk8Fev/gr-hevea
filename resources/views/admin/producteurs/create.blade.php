@@ -231,8 +231,8 @@ $(function() {
         rows.find('.btn-remove-coop').toggleClass('d-none', rows.length === 1);
     }
     function applySelect2() {
-        // Gérer la sélection des coopératives avec datalist
-        $('.cooperative-input').on('input', function() {
+        // Gérer la sélection des coopératives avec datalist (pour tous les inputs, y compris ceux ajoutés dynamiquement)
+        $(document).off('input', '.cooperative-input').on('input', '.cooperative-input', function() {
             const input = $(this);
             const value = input.val();
             const datalist = $('#cooperatives-list');
@@ -242,8 +242,22 @@ $(function() {
             const option = datalist.find(`option[value="${value}"]`);
             if (option.length > 0) {
                 hiddenInput.val(option.data('id'));
+                input.removeClass('is-invalid');
             } else {
-                hiddenInput.val('');
+                // Recherche partielle
+                let found = false;
+                datalist.find('option').each(function() {
+                    if ($(this).val().toLowerCase().includes(value.toLowerCase())) {
+                        hiddenInput.val($(this).data('id'));
+                        input.val($(this).val());
+                        input.removeClass('is-invalid');
+                        found = true;
+                        return false; // break
+                    }
+                });
+                if (!found && value) {
+                    hiddenInput.val('');
+                }
             }
         });
     }
@@ -262,6 +276,117 @@ $(function() {
         updateButtons();
     });
     updateButtons();
+    applySelect2(); // Initialiser au chargement
+});
+
+// Protection contre la soumission automatique et validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="producteurs"]');
+    if (!form) return;
+    
+    let submittedByButton = false;
+    
+    // Empêcher TOUTE soumission automatique
+    form.addEventListener('submit', function(e) {
+        if (!submittedByButton) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        }
+    }, true);
+    
+    // Validation et soumission via le bouton
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Marquer que la soumission vient du bouton
+            submittedByButton = true;
+            
+            // 1. Valider et remplir les inputs cachés des coopératives
+            const coopRows = form.querySelectorAll('.coop-select-row');
+            let hasError = false;
+            
+            coopRows.forEach((row, index) => {
+                const displayInput = row.querySelector('.cooperative-input');
+                const hiddenInput = row.querySelector('.cooperative-id-input');
+                const value = displayInput.value.trim();
+                
+                if (value) {
+                    const datalist = document.getElementById('cooperatives-list');
+                    const option = datalist.querySelector(`option[value="${value}"]`);
+                    
+                    if (option) {
+                        hiddenInput.value = option.getAttribute('data-id');
+                    } else {
+                        // Recherche partielle
+                        const options = datalist.querySelectorAll('option');
+                        let found = false;
+                        for (let opt of options) {
+                            if (opt.value.toLowerCase().includes(value.toLowerCase())) {
+                                hiddenInput.value = opt.getAttribute('data-id');
+                                displayInput.value = opt.value; // Corriger la valeur affichée
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            displayInput.classList.add('is-invalid');
+                            hasError = true;
+                        }
+                    }
+                } else {
+                    displayInput.classList.add('is-invalid');
+                    hasError = true;
+                }
+            });
+            
+            // 2. Filtrer les parcelles vides avant soumission
+            const parcelleRows = form.querySelectorAll('.parcelle-row');
+            parcelleRows.forEach((row, index) => {
+                const lat = row.querySelector('input[name*="[latitude]"]');
+                const lng = row.querySelector('input[name*="[longitude]"]');
+                const superficie = row.querySelector('input[name*="[superficie]"]');
+                
+                // Si tous les champs sont vides, désactiver les inputs pour qu'ils ne soient pas envoyés
+                if (!lat.value && !lng.value && !superficie.value) {
+                    lat.disabled = true;
+                    lng.disabled = true;
+                    superficie.disabled = true;
+                } else {
+                    // Valider que tous les champs requis sont remplis
+                    if (!lat.value || !lng.value || !superficie.value) {
+                        if (!lat.value) lat.classList.add('is-invalid');
+                        if (!lng.value) lng.classList.add('is-invalid');
+                        if (!superficie.value) superficie.classList.add('is-invalid');
+                        hasError = true;
+                    }
+                }
+            });
+            
+            // 3. Validation des champs requis
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value || !field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (hasError) {
+                submittedByButton = false;
+                alert('Veuillez remplir tous les champs obligatoires et sélectionner des coopératives valides.');
+                return false;
+            }
+            
+            // Si tout est valide, soumettre le formulaire
+            form.submit();
+        }, true);
+    }
 });
 
 let parcelleCount = 1;
