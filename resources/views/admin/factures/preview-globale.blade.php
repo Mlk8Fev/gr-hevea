@@ -501,7 +501,7 @@
                                 <th>N°</th>
                                 <th>Ticket de Pesée</th>
                                 <th>Date</th>
-                                <th>Centre de Collecte</th>
+                                <th>Centre de Transit</th>
                                 <th>Poids Net (kg)</th>
                                 <th>Prix Unitaire (FCFA)</th>
                                 <th>Montant (FCFA)</th>
@@ -526,9 +526,9 @@
                     </table>
                 </div>
                 
-                <!-- Résumé par Centre de Collecte -->
+                <!-- Résumé par Centre de Transit -->
                 <div class="centres-summary">
-                    <h4 style="color: #2c3e50; margin: 32px 0 24px 0; text-align: center;">RÉSUMÉ PAR CENTRE DE COLLECTE</h4>
+                    <h4 style="color: #2c3e50; margin: 32px 0 24px 0; text-align: center;">RÉSUMÉ PAR CENTRE DE TRANSIT</h4>
                     
                     @php
                         $centresCollecte = $facture->factureTicketsPesee->groupBy(function($ft) {

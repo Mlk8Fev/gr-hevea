@@ -77,7 +77,7 @@
                     
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">Centre de Collecte :</label>
+                            <label class="form-label fw-bold text-secondary">Centre de Transit :</label>
                             <p class="form-control-plaintext">{{ $connaissement->centreCollecte->nom }}</p>
                         </div>
                     </div>

@@ -101,7 +101,7 @@
                         <table class="table table-hover table-nowrap">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Centre de Collecte</th>
+                                    <th>Centre de Transit</th>
                                     <th class="text-center">Connaissements</th>
                                     <th class="text-center">Efficacité</th>
                                     <th width="150">Performance</th>
@@ -122,7 +122,7 @@
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0">{{ $centre->nom }}</h6>
-                                                    <small class="text-muted">Centre de Collecte</small>
+                                                    <small class="text-muted">Centre de Transit</small>
                                                 </div>
                                             </div>
                                         </td>
@@ -156,7 +156,7 @@
                 @else
                     <div class="text-center py-4">
                         <i class="ri-building-2-line text-muted font-size-48 mb-3 d-block"></i>
-                        <p class="text-muted">Aucun centre de collecte actif</p>
+                        <p class="text-muted">Aucun centre de transit actif</p>
                     </div>
                 @endif
             </div>

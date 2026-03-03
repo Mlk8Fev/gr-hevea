@@ -33,6 +33,11 @@ class Producteur extends Model
         return $this->hasMany(Parcelle::class)->orderBy('ordre');
     }
 
+    public function recusAchat()
+    {
+        return $this->hasMany(RecuAchat::class)->orderBy('date_creation', 'desc');
+    }
+
     // Calcul automatique de la superficie totale
     public function calculateSuperficieTotale()
     {

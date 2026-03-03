@@ -32,7 +32,7 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <div class="text-end">
-                    <div class="text-sm text-muted">{{ now()->format('l, d F Y') }}</div>
+                    <div class="text-sm text-muted">{{ \Carbon\Carbon::now()->locale('fr')->isoFormat('dddd, D MMMM YYYY') }}</div>
                     <div class="fw-semibold text-primary">{{ now()->format('H:i') }}</div>
                 </div>
                 <div class="w-48-px h-48-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">
@@ -205,51 +205,6 @@
         </div>
         @endif
 
-        <!-- Graphiques et Analyses -->
-        <div class="row gy-4 mb-24">
-            <div class="col-xxl-8 col-xl-8">
-                <div class="card p-24 radius-12 border-0 shadow-sm">
-                    <div class="d-flex align-items-center justify-content-between mb-20">
-                        <h5 class="mb-0 d-flex align-items-center gap-2">
-                            <i class="ri-user-line text-primary"></i>
-                            Activité des 30 derniers jours
-                        </h5>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success-100 text-success-600 px-8 py-2 radius-6">
-                                <i class="ri-search-line me-1"></i>
-                                +18%
-                            </span>
-                        </div>
-                    </div>
-                    <div id="chart-activite" style="height: 320px;"></div>
-                </div>
-            </div>
-            
-            <div class="col-xxl-4 col-xl-4">
-                <div class="card p-24 radius-12 border-0 shadow-sm">
-                    <div class="d-flex align-items-center justify-content-between mb-20">
-                        <h5 class="mb-0 d-flex align-items-center gap-2">
-                            <i class="ri-map-pin-line text-info"></i>
-                            Répartition par Secteur
-                        </h5>
-                        <span class="badge bg-info-100 text-info-600 px-8 py-2 radius-6">
-                            {{ \App\Models\Secteur::count() }} secteurs
-                        </span>
-                    </div>
-                    <div id="chart-secteurs" style="height: 200px;"></div>
-                    <div class="mt-16">
-                        <div class="d-flex align-items-center justify-content-between mb-8">
-                            <span class="text-sm text-muted">Secteurs actifs</span>
-                            <span class="fw-semibold text-primary">{{ \App\Models\Secteur::count() }}</span>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" style="width: 85%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Tableaux de données -->
         <div class="row gy-4 mb-24">
             <div class="col-xxl-6 col-xl-6">
@@ -405,78 +360,7 @@
 <script src="{{ asset('wowdash/js/app.js') }}"></script>
 
 <script>
-// Graphique d'activité
-if (document.querySelector('#chart-activite')) {
-    const options = {
-        chart: { 
-            type: 'area', 
-            height: 320, 
-            toolbar: { show: false },
-            background: 'transparent'
-        },
-        dataLabels: { enabled: false },
-        stroke: { curve: 'smooth', width: 3 },
-        fill: { 
-            type: 'gradient',
-            gradient: {
-                shadeIntensity: 1,
-                opacityFrom: 0.7,
-                opacityTo: 0.1,
-                stops: [0, 100]
-            }
-        },
-        series: [{ 
-            name: 'Activité', 
-            data: [12, 19, 15, 25, 22, 18, 28, 32, 29, 35, 38, 42, 45, 48, 52, 49, 55, 58, 62, 65, 68, 72, 75, 78, 82, 85, 88, 92, 95, 98]
-        }],
-        xaxis: { 
-            type: 'category', 
-            labels: { rotate: -45 },
-            axisBorder: { show: false },
-            axisTicks: { show: false }
-        },
-        yaxis: {
-            axisBorder: { show: false },
-            axisTicks: { show: false }
-        },
-        grid: { borderColor: '#f1f5f9' },
-        colors: ['#2563eb'],
-        tooltip: {
-            theme: 'light',
-            style: { fontSize: '12px' }
-        }
-    };
-    new ApexCharts(document.querySelector('#chart-activite'), options).render();
-}
-
-// Graphique secteurs
-if (document.querySelector('#chart-secteurs')) {
-    const options = {
-        chart: { 
-            type: 'donut', 
-            height: 200,
-            background: 'transparent'
-        },
-        series: [35, 25, 20, 15, 5],
-        labels: ['Abengourou', 'Adzope', 'Divo', 'Gagnoa', 'Autres'],
-        colors: ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#6b7280'],
-        legend: { 
-            position: 'bottom',
-            fontSize: '12px'
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '70%'
-                }
-            }
-        },
-        tooltip: {
-            theme: 'light'
-        }
-    };
-    new ApexCharts(document.querySelector('#chart-secteurs'), options).render();
-}
+// Scripts du dashboard
 </script>
 </body>
 </html>

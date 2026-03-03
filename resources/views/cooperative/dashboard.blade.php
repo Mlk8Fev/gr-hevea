@@ -39,7 +39,7 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <div class="text-end">
-                    <div class="text-sm text-muted">{{ now()->format('l, d F Y') }}</div>
+                    <div class="text-sm text-muted">{{ \Carbon\Carbon::now()->locale('fr')->isoFormat('dddd, D MMMM YYYY') }}</div>
                     <div class="fw-semibold text-primary">{{ now()->format('H:i') }}</div>
                 </div>
                 <div class="w-48-px h-48-px radius-12 d-flex justify-content-center align-items-center bg-primary-100">

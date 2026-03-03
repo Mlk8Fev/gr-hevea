@@ -183,7 +183,7 @@
                                     <div class="bg-info rounded-circle p-3 d-inline-flex align-items-center justify-content-center mb-3">
                                         <i class="ri-eye-line text-white fs-3"></i>
                                     </div>
-                                    <h6 class="text-muted mb-2">Centre de Collecte</h6>
+                                    <h6 class="text-muted mb-2">Centre de Transit</h6>
                                     <h5 class="fw-semibold text-dark mb-0">{{ $user->centreCollecte->nom }}</h5>
                                 </div>
                             </div>

@@ -107,7 +107,7 @@ class NavigationService
                 'type' => 'title'
             ],
             [
-                'title' => 'Centres de Collecte',
+                'title' => 'Centres de Transit',
                 'icon' => 'ri-map-pin-line',
                 'url' => route('admin.centres-collecte.index'),
                 'active' => request()->routeIs('admin.centres-collecte.*'),
@@ -236,7 +236,7 @@ class NavigationService
                 'type' => 'title'
             ],
             [
-                'title' => 'Centres de Collecte',
+                'title' => 'Centres de Transit',
                 'icon' => 'ri-map-pin-line',
                 'url' => route('admin.centres-collecte.index'),
                 'active' => request()->routeIs('admin.centres-collecte.*'),

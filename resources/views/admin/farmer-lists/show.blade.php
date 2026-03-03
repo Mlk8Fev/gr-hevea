@@ -52,7 +52,7 @@
                                 {{ $connaissement->cooperative->nom }}
                             </div>
                             <div class="col-md-3">
-                                <strong>Centre de Collecte:</strong><br>
+                                <strong>Centre de Transit:</strong><br>
                                 {{ $connaissement->centreCollecte->nom }}
                             </div>
                             <div class="col-md-3">

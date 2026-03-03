@@ -18,9 +18,22 @@ class CentreCollecteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $centres = CentreCollecte::orderBy('nom')->paginate(25);
+        $query = CentreCollecte::orderBy('nom');
+        
+        // Recherche
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('code', 'LIKE', "%{$search}%")
+                  ->orWhere('nom', 'LIKE', "%{$search}%")
+                  ->orWhere('adresse', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $perPage = $request->get('per_page', 25);
+        $centres = $query->paginate($perPage)->withQueryString();
         $navigation = $this->navigationService->getNavigation();
         
         return view('admin.centres-collecte.index', compact('centres', 'navigation'));
@@ -51,7 +64,7 @@ class CentreCollecteController extends Controller
         CentreCollecte::create($request->all());
 
         return redirect()->route('admin.centres-collecte.index')
-            ->with('success', 'Centre de collecte créé avec succès !');
+            ->with('success', 'Centre de transit créé avec succès !');
     }
 
 
@@ -81,7 +94,7 @@ class CentreCollecteController extends Controller
         $centres_collecte->update($request->all());
 
         return redirect()->route('admin.centres-collecte.index')
-            ->with('success', 'Centre de collecte modifié avec succès !');
+            ->with('success', 'Centre de transit modifié avec succès !');
     }
 
     /**
@@ -92,12 +105,12 @@ class CentreCollecteController extends Controller
         // Vérifier s'il y a des connaissements liés
         if ($centres_collecte->connaissements()->count() > 0) {
             return redirect()->route('admin.centres-collecte.index')
-                ->with('error', 'Impossible de supprimer ce centre de collecte car il est lié à des connaissements.');
+                ->with('error', 'Impossible de supprimer ce centre de transit car il est lié à des connaissements.');
         }
 
         $centres_collecte->delete();
 
         return redirect()->route('admin.centres-collecte.index')
-            ->with('success', 'Centre de collecte supprimé avec succès !');
+            ->with('success', 'Centre de transit supprimé avec succès !');
     }
 }

@@ -238,7 +238,7 @@
                                 <th>Poids Net</th>
                                 <th>Prix Final</th>
                                 <th>Montant</th>
-                                <th>Centre de Collecte</th>
+                                <th>Centre de Transit</th>
                             </tr>
                         </thead>
                         <tbody>

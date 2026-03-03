@@ -138,9 +138,9 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="centre_collecte_id" class="form-label">Centre de collecte</label>
+                                <label for="centre_collecte_id" class="form-label">Centre de Transit</label>
                                 <select class="form-select @error('centre_collecte_id') is-invalid @enderror" id="centre_collecte_id" name="centre_collecte_id">
-                                    <option value="">Sélectionner un centre de collecte</option>
+                                    <option value="">Sélectionner un centre de transit</option>
                                     @foreach($centresCollecte as $centre)
                                         <option value="{{ $centre->id }}" {{ old('centre_collecte_id') == $centre->id ? 'selected' : '' }}>
                                             {{ $centre->nom }}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier le Centre de Collecte - FPH-CI</title>
+    <title>Modifier le Centre de Transit - FPH-CI</title>
     <link rel="icon" type="image/png" href="{{ asset('wowdash/images/fph-ci.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('wowdash/css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('wowdash/css/lib/bootstrap.min.css') }}">
@@ -15,7 +15,7 @@
     @include('partials.navbar-header')
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-            <h6 class="fw-semibold mb-0">Modifier le Centre de Collecte</h6>
+            <h6 class="fw-semibold mb-0">Modifier le Centre de Transit</h6>
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -26,7 +26,7 @@
                 <li>-</li>
                 <li class="fw-medium">
                     <a href="{{ route('admin.centres-collecte.index') }}" class="d-flex align-items-center gap-1 hover-text-primary">
-                        Centres de Collecte
+                        Centres de Transit
                     </a>
                 </li>
                 <li>-</li>
@@ -47,7 +47,7 @@
         @endif
         <div class="card h-100 p-0 radius-12">
             <div class="card-header border-bottom bg-base py-16 px-24">
-                <h6 class="mb-0">Informations du Centre de Collecte</h6>
+                <h6 class="mb-0">Informations du Centre de Transit</h6>
             </div>
             <div class="card-body p-24">
                 <form action="{{ route('admin.centres-collecte.update', $centres_collecte) }}" method="POST">
@@ -83,7 +83,7 @@
                         <label for="adresse" class="form-label">Adresse *</label>
                         <textarea class="form-control @error('adresse') is-invalid @enderror" 
                                   id="adresse" name="adresse" rows="3" 
-                                  placeholder="Adresse complète du centre de collecte" required>{{ old('adresse', $centres_collecte->adresse) }}</textarea>
+                                  placeholder="Adresse complète du centre de transit" required>{{ old('adresse', $centres_collecte->adresse) }}</textarea>
                         @error('adresse')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

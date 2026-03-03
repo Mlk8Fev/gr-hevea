@@ -108,7 +108,7 @@
                                 <input type="hidden" id="cooperativeFilterHidden" name="cooperative" value="{{ request('cooperative') }}">
                             </div>
                             
-                            <!-- Filtre par centre de collecte -->
+                            <!-- Filtre par centre de transit -->
                             <div style="min-width: 200px;">
                                 <select id="centreCollecteFilter" class="form-select">
                                     <option value="">Tous les centres</option>
@@ -157,7 +157,7 @@
                                             <th class="border-0">#</th>
                                             <th class="border-0">N° Livraison</th>
                                             <th class="border-0">Coopérative / Secteur</th>
-                                            <th class="border-0">Centre de Collecte</th>
+                                            <th class="border-0">Centre de Transit</th>
                                             <th class="border-0">Poids Net (kg)</th>
                                             <th class="border-0">Poids Farmer List (kg)</th>
                                             <th class="border-0">État / Date Livraison</th>

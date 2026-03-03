@@ -589,6 +589,14 @@
                                 <textarea class="form-control" name="adresse_complete" rows="2" required placeholder="Adresse, Code postal, Ville/Région, Département, Sous-préfecture"></textarea>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">Position/Code postal</label>
+                                <input type="text" class="form-control" name="position_code_postal" placeholder="Ex: 01 BP 1234 Abidjan 01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fonction</label>
+                                <input type="text" class="form-control" name="fonction" placeholder="Ex: Planteur, Producteur">
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Lieu</label>
                                 <input type="text" class="form-control" name="lieu" required>
                             </div>

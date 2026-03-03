@@ -176,7 +176,7 @@
                                         <td class="ps-8">: {{ $ticketPesee->connaissement->cooperative->nom }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Centre de Collecte</td>
+                                        <td>Centre de Transit</td>
                                         <td class="ps-8">: {{ $ticketPesee->connaissement->centreCollecte->nom }}</td>
                                     </tr>
                                     <tr>

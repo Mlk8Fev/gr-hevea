@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h6>Informations de la Livraison</h6>
-                                    <p><strong>Centre de Collecte :</strong> {{ $connaissement->centreCollecte->nom }}</p>
+                                    <p><strong>Centre de Transit :</strong> {{ $connaissement->centreCollecte->nom }}</p>
                                     <p><strong>Date de Livraison :</strong> {{ $farmerList->date_livraison->format('d/m/Y') }}</p>
                                     <p><strong>Quantité :</strong> {{ number_format($farmerList->quantite_livree, 2) }} kg</p>
                                     <p><strong>Nombre de Sacs :</strong> {{ $farmerList->nombre_sacs }}</p>

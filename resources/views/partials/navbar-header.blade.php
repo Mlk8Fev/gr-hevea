@@ -33,7 +33,7 @@
                 </div>
                 <div class="dropdown">
                     <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
-                        <img src="{{ asset('wowdash/images/avatar/avatar1.png') }}" alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                        <img src="{{ asset('wowdash/images/fph-ci.png') }}" alt="FPH-CI Logo" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #000;" class="rounded-circle">
                     </button>
                     <div class="dropdown-menu to-top dropdown-menu-sm">
                         <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">

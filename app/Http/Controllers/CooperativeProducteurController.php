@@ -67,6 +67,9 @@ class CooperativeProducteurController extends Controller
             return redirect()->route('cooperative.producteurs.index')->with('error', 'Accès refusé.');
         }
 
+        // Charger les relations nécessaires incluant les reçus d'achat
+        $producteur->load(['secteur', 'cooperatives', 'documents', 'parcelles', 'recusAchat']);
+
         // Navigation pour les responsables de coopératives
         $navigationService = new NavigationService();
         $navigation = $navigationService->getNavigation($user);

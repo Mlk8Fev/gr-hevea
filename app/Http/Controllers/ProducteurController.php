@@ -209,7 +209,7 @@ class ProducteurController extends Controller
      */
     public function show($id)
     {
-        $producteur = Producteur::with(['secteur','cooperatives','documents','parcelles'])->findOrFail($id);
+        $producteur = Producteur::with(['secteur','cooperatives','documents','parcelles','recusAchat'])->findOrFail($id);
         $documentTypes = [
             'fiche_enquete' => 'Fiche d\'enquête',
             'lettre_engagement' => 'Lettre d\'engagement',

@@ -50,11 +50,15 @@ class ProducteurDocumentController extends Controller
                 'adresse_complete' => 'required',
                 'lieu' => 'required',
                 'signature' => 'required',
+                'position_code_postal' => 'nullable|string|max:255',
+                'fonction' => 'nullable|string|max:255',
             ]);
             $data = [
                 'adresse_complete' => $request->input('adresse_complete'),
+                'position_code_postal' => $request->input('position_code_postal'),
                 'lieu' => $request->input('lieu'),
                 'date' => date('d/m/Y'),
+                'fonction' => $request->input('fonction'),
             ];
             $signatureData = $request->input('signature');
             $codeFphci = $producteur->code_fphci;
@@ -311,11 +315,16 @@ class ProducteurDocumentController extends Controller
             $request->validate([
                 'adresse_complete' => 'required',
                 'lieu' => 'required',
+                'position_code_postal' => 'nullable|string|max:255',
+                'fonction' => 'nullable|string|max:255',
             ]);
+            $oldData = $document->data ? json_decode($document->data, true) : [];
             $data = [
                 'adresse_complete' => $request->input('adresse_complete'),
+                'position_code_postal' => $request->input('position_code_postal'),
                 'lieu' => $request->input('lieu'),
-                'date' => $document->data ? (json_decode($document->data, true)['date'] ?? date('d/m/Y')) : date('d/m/Y'),
+                'date' => $oldData['date'] ?? date('d/m/Y'),
+                'fonction' => $request->input('fonction'),
             ];
             $signaturePath = $document->signature;
             if ($request->filled('signature')) {

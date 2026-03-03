@@ -92,9 +92,9 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="centre_collecte_id" class="form-label">Centre de Collecte *</label>
+                                <label for="centre_collecte_id" class="form-label">Centre de Transit *</label>
                                 <select name="centre_collecte_id" id="centre_collecte_id" class="form-select @error('centre_collecte_id') is-invalid @enderror" required>
-                                    <option value="">Sélectionner un centre de collecte</option>
+                                    <option value="">Sélectionner un centre de transit</option>
                                     @foreach($centresCollecte as $centre)
                                         <option value="{{ $centre->id }}" {{ $connaissement->centre_collecte_id == $centre->id ? 'selected' : '' }}>
                                             {{ $centre->code }} - {{ $centre->nom }}
@@ -303,7 +303,7 @@
             }
         }, true); // Capture phase pour intercepter AVANT tout autre script
         
-        // Protection du select centre de collecte : permettre le changement mais empêcher la soumission
+        // Protection du select centre de transit : permettre le changement mais empêcher la soumission
         const centreCollecteSelect = document.getElementById('centre_collecte_id');
         if (centreCollecteSelect) {
             // Permettre le changement de valeur mais empêcher toute action qui pourrait soumettre le formulaire

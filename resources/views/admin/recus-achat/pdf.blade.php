@@ -162,7 +162,7 @@
                     <td class="value">{{ $recuAchat->code_fphci }}</td>
                 </tr>
                 <tr>
-                    <td class="label">Centre de collecte :</td>
+                    <td class="label">Centre de Transit :</td>
                     <td class="value">{{ $recuAchat->centre_collecte }}</td>
                 </tr>
                 <tr>

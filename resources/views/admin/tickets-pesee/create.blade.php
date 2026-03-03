@@ -108,7 +108,7 @@
                         <input type="text" class="form-control" id="secteur" readonly>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Centre de Collecte</label>
+                        <label class="form-label">Centre de Transit</label>
                         <input type="text" class="form-control" id="centre_collecte" readonly>
                     </div>
                     <div class="col-md-3 mb-3">

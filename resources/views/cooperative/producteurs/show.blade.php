@@ -145,6 +145,45 @@
                                     </div>
                                 </li>
                             @endforeach
+                            
+                            {{-- Section Reçus d'achat --}}
+                            <li class="list-group-item border text-secondary-light p-16 bg-base">
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    @if($producteur->recusAchat->count() > 0)
+                                        <i class="ri-check-line text-success text-xl"></i>
+                                    @else
+                                        <i class="ri-close-line text-danger text-xl"></i>
+                                    @endif
+                                    <span class="fw-semibold">Reçus d'achat</span>
+                                    @if($producteur->recusAchat->count() > 0)
+                                        <span class="badge bg-primary ms-2">{{ $producteur->recusAchat->count() }}</span>
+                                    @endif
+                                </div>
+                                @if($producteur->recusAchat->count() > 0)
+                                    <div class="ms-4">
+                                        @foreach($producteur->recusAchat as $index => $recu)
+                                            <div class="d-flex align-items-center justify-content-between mb-2 p-2 bg-light rounded">
+                                                <span class="fw-medium">Reçu {{ $index + 1 }}</span>
+                                                <div class="d-flex gap-2">
+                                                    <a href="{{ route('admin.recus-achat.show', $recu) }}" 
+                                                       class="btn btn-outline-primary btn-sm" 
+                                                       target="_blank">
+                                                        <i class="ri-eye-line"></i> Voir
+                                                    </a>
+                                                    <a href="{{ route('admin.recus-achat.pdf', $recu) }}" 
+                                                       class="btn btn-outline-danger btn-sm">
+                                                        <i class="ri-download-line"></i> Télécharger PDF
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="ms-4">
+                                        <span class="text-muted">Aucun reçu d'achat disponible</span>
+                                    </div>
+                                @endif
+                            </li>
                         </ul>
                     </div>
                 </div>

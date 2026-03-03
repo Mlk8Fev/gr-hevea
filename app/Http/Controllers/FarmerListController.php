@@ -50,7 +50,7 @@ class FarmerListController extends Controller
             $query->where('cooperative_id', $request->cooperative);
         }
 
-        // Filtrage par centre de collecte
+        // Filtrage par centre de transit
         if ($request->filled('centre_collecte')) {
             $query->where('centre_collecte_id', $request->centre_collecte);
         }

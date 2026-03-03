@@ -77,7 +77,7 @@
                     
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">Centre de Collecte :</label>
+                            <label class="form-label fw-bold text-secondary">Centre de Transit :</label>
                             <p class="form-control-plaintext">{{ $connaissement->centreCollecte->nom }}</p>
                         </div>
                     </div>
@@ -144,7 +144,7 @@
                     
                     <div class="alert alert-info">
                         <i class="ri-information-line me-2"></i>
-                        <strong>Information :</strong> La programmation permettra de planifier la réception de la livraison au centre de collecte.
+                        <strong>Information :</strong> La programmation permettra de planifier la réception de la livraison au centre de transit.
                     </div>
                     
                     <div class="d-flex justify-content-between">

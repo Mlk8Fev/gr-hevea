@@ -79,7 +79,7 @@
                             <span>{{ $ticketPesee->connaissement->cooperative->nom }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="fw-medium">Centre de Collecte :</span>
+                            <span class="fw-medium">Centre de Transit :</span>
                             <span>{{ $ticketPesee->connaissement->centreCollecte->nom }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">

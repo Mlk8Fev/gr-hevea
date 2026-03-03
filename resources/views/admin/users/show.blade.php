@@ -124,7 +124,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">Centre de collecte :</td>
+                                    <td class="fw-bold">Centre de Transit :</td>
                                     <td>
                                         @if($user->centreCollecte)
                                             <span class="badge bg-warning">{{ $user->centreCollecte->nom }}</span>

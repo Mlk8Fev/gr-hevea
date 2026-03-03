@@ -52,7 +52,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h6>Informations de la Livraison</h6>
-                                    <p><strong>Centre de Collecte :</strong> {{ $recuAchat->centre_collecte }}</p>
+                                    <p><strong>Centre de Transit :</strong> {{ $recuAchat->centre_collecte }}</p>
                                     <p><strong>Date de Création :</strong> {{ $recuAchat->date_creation ? $recuAchat->date_creation->format('d/m/Y H:i') : 'N/A' }}</p>
                                     <p><strong>Quantité :</strong> {{ number_format($recuAchat->quantite_livree, 2) }} kg</p>
                                     <p><strong>Prix Unitaire :</strong> {{ number_format($recuAchat->prix_unitaire, 0) }} FCFA/kg</p>
