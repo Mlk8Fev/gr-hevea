@@ -77,7 +77,7 @@
         <div class="pdf-content">
             <h2 style="text-align:center; margin-bottom:30px;"></h2>
             <!-- Nom et Prénom - Position indépendante -->
-            <div style="position: absolute; top: 85px; right: 400px;">
+            <div style="position: absolute; top: 85px; right: 250px;">
                 <span class="label">{{ $producteur->nom }} {{ $producteur->prenom }}</span>
             </div>
             <!-- Adresse complète - Position indépendante -->
@@ -112,8 +112,11 @@
             
             <!-- Au centre : Nom et Fonction - Position indépendante -->
             <div class="signature-center">
-                <div style="font-weight: bold;">
-                    <strong>{{ $producteur->nom }} {{ $producteur->prenom }}</strong>@if(isset($data['fonction'])), <span style="margin-left: 10px;">{{ $data['fonction'] }}</span>@endif
+                <div style="font-weight: bold; font-size: 10px; max-width: 300px; word-wrap: break-word; text-align: center;">
+                    <div><strong>{{ $producteur->nom }} {{ $producteur->prenom }}</strong></div>
+                    @if(isset($data['fonction']))
+                        <div style="margin-top: 1px;">{{ $data['fonction'] }}</div>
+                    @endif
                 </div>
             </div>
             
