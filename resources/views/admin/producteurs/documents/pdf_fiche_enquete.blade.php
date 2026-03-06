@@ -113,7 +113,22 @@
             <tr><td>1.4. Le producteur a-t-il reçu une formation sur la gestion et l'application des pesticides et produits agrochimiques ?</td><td>{{ $data['formation_pesticides'] ?? '' }}</td></tr>
             <tr><td>1.5. Les pesticides/produits agrochimiques sont-ils gérés et appliqués par des professionnels ?</td><td>{{ $data['pro_pesticides'] ?? '' }}</td></tr>
             <tr><td>1.6. Le producteur possède-t-il son propre équipement de protection personnelle et un équipement de pulvérisation ?</td><td>{{ $data['equipement_protection'] ?? '' }}</td></tr>
-            <tr><td>1.7. Quels sont les équipements de Protection Individuelle que vous avez ?</td><td>{{ $data['epi'] ?? '' }}</td></tr>
+            <tr><td>1.7. Quels sont les équipements de Protection Individuelle que vous avez ?</td><td>
+                @php
+                    $epiList = [];
+                    if (!empty($data['epi_bottes'])) $epiList[] = 'Bottes';
+                    if (!empty($data['epi_gants'])) $epiList[] = 'Gants';
+                    if (!empty($data['epi_masques'])) $epiList[] = 'Masques';
+                    if (!empty($data['epi_autres'])) {
+                        $epiAutres = 'Autres';
+                        if (!empty($data['epi_autres_preciser'])) {
+                            $epiAutres .= ' (' . $data['epi_autres_preciser'] . ')';
+                        }
+                        $epiList[] = $epiAutres;
+                    }
+                    echo !empty($epiList) ? implode(', ', $epiList) : 'Aucun';
+                @endphp
+            </td></tr>
             <tr><td>1.8. Que faites-vous des emballages vides des produits pesticides ou autres produits agrochimiques quand vous finissez de les utiliser ?</td><td>{{ $data['gestion_emballages'] ?? '' }}</td></tr>
         </table>
     </div>
@@ -125,7 +140,22 @@
             <tr><td>2.2 Le producteur utilise-t-il correctement le matériel de protection personnelle requis pour la pratique de l'agriculture ?</td><td>{{ $data['utilisation_epi'] ?? '' }}</td></tr>
             <tr><td>2.3 Avez-vous accès à une boite à pharmacie appropriée à côté du champ où vous travaillez ?</td><td>{{ $data['pharmacie_acces'] ?? '' }}</td></tr>
             <tr><td>2.4 Avez-vous accès à une grande quantité d'eau à côté du champ où vous travaillez ?</td><td>{{ $data['eau_acces'] ?? '' }}</td></tr>
-            <tr><td>2.5 S'est-il produit une de ces blessures dans le champ l'année dernière ?</td><td>{{ $data['blessures'] ?? '' }}</td></tr>
+            <tr><td>2.5 S'est-il produit une de ces blessures dans le champ l'année dernière ?</td><td>
+                @php
+                    $blessuresList = [];
+                    if (!empty($data['blessure_materiel'])) $blessuresList[] = 'Blessure provoquée par l\'utilisation de matériels agricoles';
+                    if (!empty($data['blessure_epi'])) $blessuresList[] = 'Blessure due à la mauvaise utilisation des équipements de protection personnelle';
+                    if (!empty($data['blessure_intox'])) $blessuresList[] = 'Intoxication chimique';
+                    if (!empty($data['blessure_autre'])) {
+                        $blessureAutre = 'Autre';
+                        if (!empty($data['blessure_autre_preciser'])) {
+                            $blessureAutre .= ' (' . $data['blessure_autre_preciser'] . ')';
+                        }
+                        $blessuresList[] = $blessureAutre;
+                    }
+                    echo !empty($blessuresList) ? implode(', ', $blessuresList) : 'Aucune';
+                @endphp
+            </td></tr>
             <tr><td>2.6 Connaissez-vous les numéros d'urgence de l'hôpital ou l'infirmière le plus proche ?</td><td>{{ $data['urgence_numero'] ?? '' }}</td></tr>
             <tr><td>2.7 Possédez-vous un magasin pour le stockage des produits phytosanitaires ?</td><td>{{ $data['magasin_phytos'] ?? '' }}</td></tr>
         </table>

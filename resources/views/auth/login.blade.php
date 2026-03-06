@@ -151,14 +151,14 @@
                 @csrf
                 <div class="icon-field mb-16">
                     <span class="icon top-50 translate-middle-y">
-                        <i class="ri-eye-line"></i>
+                        <i class="ri-user-line"></i>
                     </span>
                     <input type="text" name="username" class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Nom d'utilisateur" value="{{ old('username') }}" required>
                 </div>
                 <div class="position-relative mb-20">
                     <div class="icon-field">
                         <span class="icon top-50 translate-middle-y">
-                            <i class="ri-eye-line"></i>
+                            <i class="ri-lock-line"></i>
                         </span> 
                         <input type="password" name="password" class="form-control h-56-px bg-neutral-50 radius-12" id="your-password" placeholder="Mot de passe" required>
                     </div>
