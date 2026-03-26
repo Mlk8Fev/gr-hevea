@@ -256,7 +256,6 @@
                                         <div class="text-center p-16 border rounded">
                                             <h6 class="text-success mb-2">MONTANT</h6>
                                             <h4 class="text-success fw-bold">{{ number_format($prix['prix_final_public'], 2) }} FCFA/kg</h4>
-                                            <p class="mb-0 text-muted">Prix affiché au public</p>
                                             <hr>
                                             <h5 class="text-success fw-bold">{{ number_format($prix['prix_final_public'] * $ticketPesee->poids_net, 2) }} FCFA</h5>
                                             <p class="mb-0 text-muted">Total pour {{ number_format($ticketPesee->poids_net, 2) }} kg</p>
